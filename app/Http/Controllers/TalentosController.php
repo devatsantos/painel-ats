@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Carbon\Carbon;
+use App\Models\Candidatos;
+use App\Models\Vagas;
+use App\Models\CandidatoVaga;
+use App\Models\Entrevista;
+use App\Services\AgendaService;
+use App\Services\VideoConferenciaService;
+
+class TalentosController extends Controller
+{
+    public function index() {
+        $totalRegioes = Candidatos::where('banco_de_talentos', true)->distinct('regiao')->count('regiao');
+        $talentos = Candidatos::where('banco_de_talentos', true)->paginate(20);
+        $vagas = Vagas::where('ativo', true)->orderBy('titulo')->get(['id', 'titulo']);
+        return Inertia::render('Talentos/Index', [
+            'talentos'     => $talentos,
+            'vagas'        => $vagas,
+            'totalRegioes' => $totalRegioes,
+        ]);
+    }
+
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'nome'               => 'required|string|max:255',
+            'cpf'                => 'required|string|max:14|unique:candidatos,cpf',
+            'telefone'           => 'required|string|max:20',
+            'nivel_escolaridade' => 'required|string|max:255',
+            'regiao'             => 'required|string|max:255',
+            'curriculo'          => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
+        ]);
+        $path = null;
+        if ($request->hasFile('curriculo')) {
+            $path = $request->file('curriculo')->store('curriculos', 'public');
+        }
+
+        Candidatos::create([
+            'nome'               => $validated['nome'],
+            'cpf'                => $validated['cpf'],
+            'telefone'           => $validated['telefone'],
+            'nivel_escolaridade' => $validated['nivel_escolaridade'],
+            'regiao'             => $validated['regiao'],
+            'path_curriculo'     => $path,
+            'banco_de_talentos'  => true,
+        ]);
+
+        return redirect()->route('Talentos');
+    }
+
+    public function update(Request $request, Candidatos $candidato) {
+        $validated = $request->validate([
+            'nome'               => 'required|string|max:255',
+            'cpf'                => 'required|string|max:14|unique:candidatos,cpf,' . $candidato->id,
+            'telefone'           => 'required|string|max:20',
+            'nivel_escolaridade' => 'required|string|max:255',
+            'regiao'             => 'required|string|max:255',
+            'curriculo'          => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
+        ]);
+
+        if ($request->hasFile('curriculo')) {
+            if ($candidato->path_curriculo) {
+                Storage::disk('public')->delete($candidato->path_curriculo);
+            }
+            $validated['path_curriculo'] = $request->file('curriculo')->store('curriculos', 'public');
+        }
+
+        unset($validated['curriculo']);
+        $candidato->update($validated);
+
+        return redirect()->route('Talentos')->with('success', 'Talento atualizado com sucesso.');
+    }
+
+    public function delete(Candidatos $candidato) {
+        if ($candidato->vagas()->exists()) {
+            $candidato->update(['banco_de_talentos' => false]);
+        } else {
+            if ($candidato->path_curriculo) {
+                Storage::disk('public')->delete($candidato->path_curriculo);
+            }
+            $candidato->delete();
+        }
+        return redirect()->route('Talentos')->with('success', 'Talento removido do banco.');
+    }
+
+    public function adicionarAoBanco(Candidatos $candidato) {
+        $candidato->update(['banco_de_talentos' => true]);
+        return back()->with('success', 'Candidato adicionado ao banco de talentos.');
+    }
+
+    public function slotsDisponiveis(Request $request)
+    {
+        $request->validate(['data' => 'required|date_format:Y-m-d|after_or_equal:today']);
+        $agenda = new AgendaService();
+        return response()->json(['slots' => $agenda->slotsDisponiveis($request->data)]);
+    }
+
+    public function agendarEntrevista(Request $request, Candidatos $candidato)
+    {
+        $validated = $request->validate([
+            'vaga_id'   => 'required|exists:vagas,id',
+            'data_hora' => 'required|date|after:now',
+            'tipo'      => 'required|in:Presencial,Online',
+        ]);
+
+        $dataHora = Carbon::parse($validated['data_hora']);
+        $agenda   = new AgendaService();
+
+        if (!$agenda->validarSlot($dataHora)) {
+            $settings = $agenda->getSettings();
+            $horaInicio = Carbon::parse($settings->hora_inicio)->format('H\h');
+            $horaFim = Carbon::parse($settings->hora_fim)->format('H\h');
+            $intervalo = $settings->intervalo_minutos;
+            return back()->withErrors([
+                'data_hora' => "Horário indisponível. Escolha um slot válido de segunda a sexta, das {$horaInicio} às {$horaFim} (intervalo de {$intervalo} min)."
+            ]);
+        }
+
+        $candidatoVaga = CandidatoVaga::firstOrCreate(
+            ['candidato_id' => $candidato->id, 'vaga_id' => $validated['vaga_id']],
+            ['status' => 'selecionado']
+        );
+
+        if ($candidatoVaga->entrevista) {
+            return back()->withErrors(['vaga_id' => 'Este candidato já possui uma entrevista para esta vaga.']);
+        }
+
+        $linkMeet = null;
+        if ($validated['tipo'] === 'Online') {
+            try {
+                $vaga     = Vagas::find($validated['vaga_id']);
+                $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
+                $meet     = new VideoConferenciaService();
+                $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(30));
+            } catch (\Throwable $e) {
+                Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
+            }
+        }
+
+        Entrevista::create([
+            'candidato_vaga_id' => $candidatoVaga->id,
+            'data_hora'         => $dataHora,
+            'tipo'              => $validated['tipo'],
+            'link_meet'         => $linkMeet,
+            'user_id'           => null,
+        ]);
+
+        return redirect()->route('Talentos')->with('success', 'Entrevista agendada com sucesso.');
+    }
+}
