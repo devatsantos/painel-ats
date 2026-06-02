@@ -15,6 +15,7 @@ export default function Sidebar() {
     const isFormularios = url.startsWith('/formularios');
     const isAgenda = url.startsWith('/agenda');
     const isRelatorios = url.startsWith('/relatorios');
+    const isOuvidoria = url.startsWith('/ouvidoria');
     const navItems = [
         {
             label: 'Dashboard',
@@ -89,6 +90,15 @@ export default function Sidebar() {
             active: isRelatorios,
             icon: (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            )
+        },
+        {
+            label: 'Ouvidoria',
+            href: '/ouvidoria',
+            active: isOuvidoria,
+            adminOnly: true,
+            icon: (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             )
         }
     ];

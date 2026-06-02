@@ -34,6 +34,10 @@ Route::get('/login', [App\Http\Controllers\AuthController::class, 'index'])->nam
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
+// Ouvidoria - Rotas Públicas
+Route::get('/ouvidoria/nova', [App\Http\Controllers\OuvidoriaController::class, 'create'])->name('Ouvidoria.nova');
+Route::post('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'store'])->name('Ouvidoria.store');
+
 Route::middleware('auth')->group(function () {
     Route::get('/entrevistas', [App\Http\Controllers\EntrevistasController::class, 'index'])->name('Entrevistas');
     Route::put('/entrevistas/{entrevista}/status', [App\Http\Controllers\EntrevistasController::class, 'atualizarStatus'])->name('Entrevistas.status');
@@ -66,5 +70,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'update'])->name('Agenda.update');
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
+
+    // Ouvidoria - Rotas Administrativas
+    Route::get('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'index'])->name('Ouvidoria');
+    Route::delete('/ouvidoria/{ouvidoria}', [App\Http\Controllers\OuvidoriaController::class, 'delete'])->name('Ouvidoria.delete');
     }
 );
