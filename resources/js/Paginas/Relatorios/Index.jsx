@@ -130,7 +130,7 @@ export default function Relatorios({
                                                 <span className="text-xs font-bold text-gray-500">{item.total}</span>
                                                 <div className="w-full bg-gray-100 rounded-t-md overflow-hidden flex flex-col justify-end" style={{ height: '100px' }}>
                                                     <div
-                                                        className="w-full bg-[#071F30] rounded-t-md transition-all duration-500"
+                                                        className="w-full bg-[#0C4773] rounded-t-md transition-all duration-500"
                                                         style={{ height: `${heightPct}%` }}
                                                     />
                                                 </div>
@@ -151,18 +151,18 @@ export default function Relatorios({
                                     <h2 className="text-sm font-bold text-gray-700 mb-5">Funil de Recrutamento</h2>
                                     <div className="space-y-4">
                                         <div className="relative">
-                                            <div className="flex justify-between items-center bg-[#071F30]/5 border border-[#071F30]/10 rounded-xl p-4">
+                                            <div className="flex justify-between items-center bg-[#0C4773]/5 border border-[#0C4773]/10 rounded-xl p-4">
                                                 <div>
                                                     <span className="text-xs font-semibold text-gray-400 uppercase">1. Candidaturas</span>
                                                     <p className="text-xl font-bold text-gray-800">{funil.candidaturas}</p>
                                                 </div>
-                                                <span className="text-xs font-bold text-[#071F30] bg-[#071F30]/10 px-2.5 py-1 rounded-lg">100%</span>
+                                                <span className="text-xs font-bold text-[#0C4773] bg-[#0C4773]/10 px-2.5 py-1 rounded-lg">100%</span>
                                             </div>
                                         </div>
 
                                         <div className="flex justify-center -my-2.5 z-10 relative">
                                             <div className="bg-white border border-gray-100 rounded-full p-1.5 shadow-sm">
-                                                <svg className="w-4 h-4 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-4 h-4 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 13l-7 7-7-7m14-6l-7 7-7-7" />
                                                 </svg>
                                             </div>
@@ -279,7 +279,7 @@ export default function Relatorios({
                                         escolaridades.map((item, idx) => {
                                             const totalCandidatos = escolaridades.reduce((acc, curr) => acc + curr.total, 0);
                                             const pct = totalCandidatos > 0 ? Math.round((item.total / totalCandidatos) * 100) : 0;
-                                            const barColors = ['bg-[#071F30]', 'bg-[#007EAE]', 'bg-sky-400', 'bg-indigo-400', 'bg-violet-400'];
+                                            const barColors = ['bg-[#0C4773]', 'bg-[#007EAE]', 'bg-sky-400', 'bg-indigo-400', 'bg-violet-400'];
                                             const barColor = barColors[idx % barColors.length];
 
                                             return (
@@ -313,7 +313,7 @@ export default function Relatorios({
                                         regioes.map((item, idx) => {
                                             const totalRegioes = regioes.reduce((acc, curr) => acc + curr.total, 0);
                                             const pct = totalRegioes > 0 ? Math.round((item.total / totalRegioes) * 100) : 0;
-                                            const barColors = ['bg-[#071F30]', 'bg-[#007EAE]', 'bg-sky-400', 'bg-indigo-400', 'bg-violet-400'];
+                                            const barColors = ['bg-[#0C4773]', 'bg-[#007EAE]', 'bg-sky-400', 'bg-indigo-400', 'bg-violet-400'];
                                             const barColor = barColors[idx % barColors.length];
 
                                             return (

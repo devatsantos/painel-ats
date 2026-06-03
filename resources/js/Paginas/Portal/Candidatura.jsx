@@ -40,7 +40,7 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
             <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#071F30] flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-[#0C4773] flex items-center justify-center">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
@@ -68,7 +68,7 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
             <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
                 {/* Voltar */}
-                <Link href="/portal/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#071F30] transition-colors font-medium">
+                <Link href="/portal/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#0C4773] transition-colors font-medium">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
@@ -101,18 +101,18 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                             <div className="flex flex-col items-center gap-1.5">
                                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 transition-all ${
                                                     isActive
-                                                        ? 'border-[#071F30] bg-[#071F30]/10'
+                                                        ? 'border-[#0C4773] bg-[#0C4773]/10'
                                                         : 'border-gray-200 bg-white'
-                                                } ${isCurrent ? 'ring-4 ring-[#071F30]/20 scale-110' : ''}`}>
+                                                } ${isCurrent ? 'ring-4 ring-[#0C4773]/20 scale-110' : ''}`}>
                                                     {step.icon}
                                                 </div>
-                                                <span className={`text-xs font-medium ${isActive ? 'text-[#071F30]' : 'text-gray-400'}`}>
+                                                <span className={`text-xs font-medium ${isActive ? 'text-[#0C4773]' : 'text-gray-400'}`}>
                                                     {step.label}
                                                 </span>
                                             </div>
                                             {i < TIMELINE_STEPS.length - 1 && (
                                                 <div className={`flex-1 h-0.5 mx-2 rounded-full transition-colors ${
-                                                    i < currentStep - 1 ? 'bg-[#071F30]' : 'bg-gray-200'
+                                                    i < currentStep - 1 ? 'bg-[#0C4773]' : 'bg-gray-200'
                                                 }`} />
                                             )}
                                         </React.Fragment>
@@ -227,7 +227,7 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                             href={entrevista.link_meet}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 text-sm font-semibold text-[#071F30] hover:underline"
+                                            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0C4773] hover:underline"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

@@ -78,13 +78,13 @@ export default function Create() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#071F30]/10 via-slate-50 to-[#071F30]/5 flex items-center justify-center p-4 sm:p-6 font-sans">
+        <div className="min-h-screen bg-gradient-to-br from-[#0C4773]/10 via-slate-50 to-[#0C4773]/5 flex items-center justify-center p-4 sm:p-6 font-sans">
             <Head title="Ouvidoria - Enviar Relato" />
 
             <div className="w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 overflow-hidden transition-all duration-300">
                 
                 {/* Header */}
-                <div className="bg-[#071F30] px-6 py-10 sm:px-10 text-center relative overflow-hidden">
+                <div className="bg-[#0C4773] px-6 py-10 sm:px-10 text-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none" />
                     <h1 className="text-3xl font-extrabold text-white tracking-tight">Ouvidoria</h1>
                     <p className="text-blue-200/90 text-sm mt-2 max-w-md mx-auto leading-relaxed">
@@ -107,7 +107,7 @@ export default function Create() {
                             </p>
                             <button
                                 onClick={() => setEnviadoComSucesso(false)}
-                                className="inline-flex items-center justify-center px-6 py-2.5 bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-md cursor-pointer mt-4"
+                                className="inline-flex items-center justify-center px-6 py-2.5 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-md cursor-pointer mt-4"
                             >
                                 Enviar outro relato
                             </button>
@@ -124,7 +124,7 @@ export default function Create() {
                                         value={data.nome}
                                         onChange={e => setData('nome', e.target.value)}
                                         placeholder="Seu nome"
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                     />
                                     {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome}</p>}
                                 </div>
@@ -137,7 +137,7 @@ export default function Create() {
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
                                         placeholder="seu.email@exemplo.com"
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                     />
                                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                 </div>
@@ -151,7 +151,7 @@ export default function Create() {
                                     value={data.telefone}
                                     onChange={e => setData('telefone', maskTelefone(e.target.value))}
                                     placeholder="(00) 00000-0000"
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                 />
                                 {errors.telefone && <p className="text-red-500 text-xs mt-1">{errors.telefone}</p>}
                             </div>
@@ -164,7 +164,7 @@ export default function Create() {
                                     onChange={e => setData('situacao', e.target.value)}
                                     rows="5"
                                     placeholder="Descreva detalhadamente o ocorrido ou a sua solicitação..."
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition resize-y"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition resize-y"
                                     required
                                 />
                                 {errors.situacao && <p className="text-red-500 text-xs mt-1">{errors.situacao}</p>}
@@ -173,7 +173,7 @@ export default function Create() {
                             {/* Anexo de Foto */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Anexar Foto (Opcional)</label>
-                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-2xl hover:border-[#071F30]/40 hover:bg-[#071F30]/5 transition duration-150 cursor-pointer relative">
+                                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-2xl hover:border-[#0C4773]/40 hover:bg-[#0C4773]/5 transition duration-150 cursor-pointer relative">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -185,7 +185,7 @@ export default function Create() {
                                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                         <div className="flex text-sm text-gray-600 justify-center">
-                                            <span className="relative rounded-md font-semibold text-[#071F30] hover:underline focus-within:outline-none">
+                                            <span className="relative rounded-md font-semibold text-[#0C4773] hover:underline focus-within:outline-none">
                                                 Escolher arquivo
                                             </span>
                                         </div>
@@ -226,7 +226,7 @@ export default function Create() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full inline-flex justify-center items-center gap-2 py-3 px-6 text-sm font-semibold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] transition-colors disabled:opacity-50 cursor-pointer shadow-md font-mono mt-4"
+                                className="w-full inline-flex justify-center items-center gap-2 py-3 px-6 text-sm font-semibold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] transition-colors disabled:opacity-50 cursor-pointer shadow-md font-mono mt-4"
                             >
                                 {processing ? (
                                     <>

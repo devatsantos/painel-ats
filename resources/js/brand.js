@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────────────
 
 export const colors = {
-  petroleo: "#071F30", // Azul Escuro / Principal
+  petroleo: "#0C4773", // Azul Escuro / Principal
   ceruleo: "#007EAE",  // Azul Claro / Destaque
   posca: "#F6F7F9",     // Fundo Claro Premium
   white: "#FFFFFF",

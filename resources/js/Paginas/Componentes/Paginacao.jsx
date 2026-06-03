@@ -51,7 +51,7 @@ export default function Paginacao({ paginacao }) {
                             onClick={() => irPara(p)}
                             className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                                 p === current_page
-                                    ? 'bg-[#071F30] text-white'
+                                    ? 'bg-[#0C4773] text-white'
                                     : 'text-gray-600 hover:bg-gray-100'
                             }`}
                           >

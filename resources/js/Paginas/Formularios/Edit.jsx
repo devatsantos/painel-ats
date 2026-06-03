@@ -109,7 +109,7 @@ export default function Edit({ formulario }) {
                                     value={data.titulo_formulario}
                                     onChange={e => setData('titulo_formulario', e.target.value)}
                                     required
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0C4773]" 
                                     placeholder="Ex: Avaliação Técnica" 
                                 />
                                 {errors.titulo_formulario && <p className="text-red-500 text-xs mt-1">{errors.titulo_formulario}</p>}
@@ -120,7 +120,7 @@ export default function Edit({ formulario }) {
                                       value={data.descricao}
                                       onChange={e => setData('descricao', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0C4773]" 
                                       placeholder="Descreva o formulário" 
                                       rows="3"
                                   />
@@ -133,7 +133,7 @@ export default function Edit({ formulario }) {
                                       value={data.requisitos}
                                       onChange={e => setData('requisitos', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0C4773]" 
                                       placeholder="Descreva os requisitos" 
                                       rows="3"
                                   />
@@ -147,7 +147,7 @@ export default function Edit({ formulario }) {
                                       value={data.posto}
                                       onChange={e => setData('posto', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0C4773]" 
                                       placeholder="Posto/Cargo" 
                                   />
                                   {errors.posto && <p className="text-red-500 text-xs mt-1">{errors.posto}</p>}
@@ -164,7 +164,7 @@ export default function Edit({ formulario }) {
                                       value={data.threshold}
                                       onChange={e => setData('threshold', parseInt(e.target.value) || 1)}
                                       required
-                                      className="w-24 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]"
+                                      className="w-24 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0C4773]"
                                   />
                                   {errors.threshold && <p className="text-red-500 text-xs mt-1">{errors.threshold}</p>}
                               </div>
@@ -202,7 +202,7 @@ export default function Edit({ formulario }) {
                                                     value={pergunta.enunciado}
                                                     onChange={e => updatePergunta(pIndex, 'enunciado', e.target.value)}
                                                     required
-                                                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-shadow"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-shadow"
                                                     placeholder="Digite o enunciado da pergunta"
                                                 />
                                             </div>
@@ -217,7 +217,7 @@ export default function Edit({ formulario }) {
                                                                 name={`correta-${pIndex}`}
                                                                 checked={alt.correta}
                                                                 onChange={() => updateAlternativa(pIndex, aIndex, 'correta', true)}
-                                                                className="w-4 h-4 text-[#071F30] focus:ring-[#071F30] cursor-pointer"
+                                                                className="w-4 h-4 text-[#0C4773] focus:ring-[#0C4773] cursor-pointer"
                                                             />
                                                             <span className="text-xs font-medium text-gray-600 uppercase">Correta</span>
                                                         </label>
@@ -227,7 +227,7 @@ export default function Edit({ formulario }) {
                                                             value={alt.texto}
                                                             onChange={e => updateAlternativa(pIndex, aIndex, 'texto', e.target.value)}
                                                             required
-                                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-colors"
+                                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-colors"
                                                             placeholder={`Alternativa ${aIndex + 1}`}
                                                         />
                                                         
@@ -247,7 +247,7 @@ export default function Edit({ formulario }) {
                                                 <button 
                                                     type="button" 
                                                     onClick={() => handleAddAlternativa(pIndex)}
-                                                    className="mt-3 text-xs font-semibold text-[#071F30] hover:text-blue-900 inline-flex items-center gap-1"
+                                                    className="mt-3 text-xs font-semibold text-[#0C4773] hover:text-blue-900 inline-flex items-center gap-1"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                                     Adicionar Alternativa
@@ -266,7 +266,7 @@ export default function Edit({ formulario }) {
                             <button 
                                 type="submit" 
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#071F30] hover:bg-[#007EAE] disabled:opacity-50 transition-all shadow-md"
+                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#007EAE] disabled:opacity-50 transition-all shadow-md"
                             >
                                 {processing ? (
                                     <>

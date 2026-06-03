@@ -47,7 +47,7 @@ export default function Index({ ouvidorias }) {
                             <p className="text-gray-500 mt-1">Gerencie e analise os relatos enviados pelos usuários e candidatos.</p>
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-500 shadow-sm self-start">
-                            <svg className="w-4 h-4 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
                             {ouvidorias.total} relato{ouvidorias.total !== 1 ? 's' : ''} recebido{ouvidorias.total !== 1 ? 's' : ''}
@@ -140,7 +140,7 @@ export default function Index({ ouvidorias }) {
                                                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button
                                                                 onClick={() => setSelectedOuvidoria(o)}
-                                                                className="p-1.5 text-gray-400 hover:text-[#071F30] hover:bg-[#071F30]/10 rounded-lg transition-colors cursor-pointer"
+                                                                className="p-1.5 text-gray-400 hover:text-[#0C4773] hover:bg-[#0C4773]/10 rounded-lg transition-colors cursor-pointer"
                                                                 title="Visualizar relato completo"
                                                             >
                                                                 <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

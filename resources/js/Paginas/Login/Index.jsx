@@ -56,7 +56,7 @@ export default function Login() {
                                 name="cpf"
                                 value={data.cpf}
                                 onChange={(e) => setData('cpf', maskCPF(e.target.value))}
-                                className={`w-full px-4 py-2.5 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-all outline-none text-sm ${formErrors.cpf ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full px-4 py-2.5 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-all outline-none text-sm ${formErrors.cpf ? 'border-red-400' : 'border-gray-200'}`}
                                 placeholder="000.000.000-00"
                             />
                         </div>
@@ -71,7 +71,7 @@ export default function Login() {
                                     name="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-all outline-none text-sm ${formErrors.password ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-all outline-none text-sm ${formErrors.password ? 'border-red-400' : 'border-gray-200'}`}
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -96,7 +96,7 @@ export default function Login() {
                         <button 
                             type="submit" 
                             disabled={processing}
-                            className={`w-full py-3 px-4 mt-2 bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm flex justify-center items-center gap-2 ${processing && 'opacity-70 cursor-wait'}`}
+                            className={`w-full py-3 px-4 mt-2 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm flex justify-center items-center gap-2 ${processing && 'opacity-70 cursor-wait'}`}
                         >
                             {processing ? (
                                 <>

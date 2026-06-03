@@ -67,7 +67,7 @@ export default function PortalPerfil({ candidato }) {
             <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#071F30] flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-[#0C4773] flex items-center justify-center">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
@@ -82,7 +82,7 @@ export default function PortalPerfil({ candidato }) {
                         <Link href="/portal/dashboard" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                             Início
                         </Link>
-                        <Link href="/portal/perfil" className="px-3 py-2 text-sm font-semibold text-[#071F30] bg-blue-50 rounded-lg">
+                        <Link href="/portal/perfil" className="px-3 py-2 text-sm font-semibold text-[#0C4773] bg-blue-50 rounded-lg">
                             Perfil
                         </Link>
                         <Link href="/logout" method="post" as="button" className="ml-2 px-3 py-2 text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -95,7 +95,7 @@ export default function PortalPerfil({ candidato }) {
             <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
                 {/* Voltar */}
-                <Link href="/portal/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#071F30] transition-colors font-medium">
+                <Link href="/portal/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#0C4773] transition-colors font-medium">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
@@ -109,7 +109,7 @@ export default function PortalPerfil({ candidato }) {
                     <div className="bg-white rounded-t-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-6 pt-6 pb-4 border-b border-gray-100">
                             <h1 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <span className="w-2 h-5 bg-[#071F30] rounded-full" />
+                                <span className="w-2 h-5 bg-[#0C4773] rounded-full" />
                                 Dados Pessoais
                             </h1>
                             <p className="text-xs text-gray-400 mt-1">Atualize suas informações de contato</p>
@@ -168,7 +168,7 @@ export default function PortalPerfil({ candidato }) {
                     <div className="bg-white border-x border-gray-100 overflow-hidden">
                         <div className="px-6 pt-6 pb-4 border-y border-gray-100 bg-gray-50/50">
                             <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                <span className="w-2 h-5 bg-[#071F30] rounded-full" />
+                                <span className="w-2 h-5 bg-[#0C4773] rounded-full" />
                                 Localização
                             </h2>
                         </div>
@@ -211,7 +211,7 @@ export default function PortalPerfil({ candidato }) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="inline-flex justify-center items-center gap-2 py-2.5 px-8 shadow-sm text-sm font-bold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                            className="inline-flex justify-center items-center gap-2 py-2.5 px-8 shadow-sm text-sm font-bold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {processing ? (
                                 <>

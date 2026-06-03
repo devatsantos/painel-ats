@@ -155,7 +155,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                             </div>
                             <button
                                 onClick={handleCreateNew}
-                                className="bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold py-2.5 px-5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
+                                className="bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold py-2.5 px-5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -169,7 +169,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
                             <div>
                                 <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-1">Total de Talentos</p>
-                                <h3 className="text-4xl font-bold text-[#071F30]">{talentos.total}</h3>
+                                <h3 className="text-4xl font-bold text-[#0C4773]">{talentos.total}</h3>
                             </div>
                             <div className="p-4 bg-blue-50 rounded-2xl">
                                 <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,7 +229,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             <div className="flex items-center justify-between">
                                                 <h3 className="text-lg font-bold text-gray-900 truncate">{talento.nome}</h3>
                                             </div>
-                                            <p className="text-sm text-[#071F30] font-semibold mt-0.5">{talento.nivel_escolaridade}</p>
+                                            <p className="text-sm text-[#0C4773] font-semibold mt-0.5">{talento.nivel_escolaridade}</p>
                                         </div>
                                     </div>
 
@@ -335,7 +335,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                     value={entrevista.vaga_id}
                                     onChange={e => setEntrevista(prev => ({ ...prev, vaga_id: e.target.value }))}
                                     required
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                 >
                                     <option value="">Selecione uma vaga...</option>
                                     {vagas.map(v => <option key={v.id} value={v.id}>{v.titulo}</option>)}
@@ -355,7 +355,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                         buscarSlots(e.target.value);
                                     }}
                                     required
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                 />
                             </div>
 
@@ -372,7 +372,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                         onChange={e => setEntrevista(prev => ({ ...prev, hora: e.target.value }))}
                                         required
                                         disabled={slots.length === 0}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition disabled:opacity-50"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition disabled:opacity-50"
                                     >
                                         <option value="">Selecione um horário...</option>
                                         {slots.map(s => <option key={s} value={s}>{s}</option>)}
@@ -388,7 +388,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                     {['Presencial', 'Online'].map(t => (
                                         <label key={t} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border cursor-pointer text-sm font-medium transition ${
                                             entrevista.tipo === t
-                                                ? 'border-[#071F30] bg-[#071F30]/5 text-[#071F30]'
+                                                ? 'border-[#0C4773] bg-[#0C4773]/5 text-[#0C4773]'
                                                 : 'border-gray-200 text-gray-500 hover:border-gray-300'
                                         }`}>
                                             <input type="radio" name="tipo" value={t} checked={entrevista.tipo === t} onChange={() => setEntrevista(prev => ({ ...prev, tipo: t }))} className="sr-only" />
@@ -444,7 +444,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="text"
                                             value={data.nome}
                                             onChange={e => setData('nome', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             placeholder="Nome completo"
                                             required
                                         />
@@ -455,7 +455,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="text"
                                             value={data.cpf}
                                             onChange={e => setData('cpf', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             placeholder="CPF (000.000.000-00)"
                                             required
                                         />
@@ -473,7 +473,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="text"
                                             value={data.telefone}
                                             onChange={e => setData('telefone', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             placeholder="Telefone (00) 00000-0000"
                                             required
                                         />
@@ -484,7 +484,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="text"
                                             value={data.regiao}
                                             onChange={e => setData('regiao', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             placeholder="Região / Cidade - UF"
                                             required
                                         />
@@ -501,7 +501,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="text"
                                             value={data.nivel_escolaridade}
                                             onChange={e => setData('nivel_escolaridade', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             placeholder="Ex: Ensino Superior em Engenharia de Software"
                                             required
                                         />
@@ -512,7 +512,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             type="file"
                                             accept=".pdf"
                                             onChange={e => setData('curriculo', e.target.files[0])}
-                                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#071F30]/10 file:text-[#071F30] hover:file:bg-[#071F30]/20 file:cursor-pointer file:transition-colors"
+                                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#0C4773]/10 file:text-[#0C4773] hover:file:bg-[#0C4773]/20 file:cursor-pointer file:transition-colors"
                                             required={!editMode}
                                         />
                                         {editMode && (
@@ -538,7 +538,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                 type="submit"
                                 form="form-talento"
                                 disabled={processing}
-                                className="text-sm font-semibold text-white bg-[#071F30] hover:bg-[#007EAE] px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                className="text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#007EAE] px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                             >
                                 {processing ? 'Salvando...' : 'Salvar Talento'}
                             </button>

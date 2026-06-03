@@ -173,7 +173,7 @@ export default function PortalLogin() {
     const labelClasses = "block text-sm font-semibold text-gray-700 mb-1";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#071F30] via-[#071F30] to-[#0A3A5E] flex items-center justify-center px-4 font-sans">
+        <div className="min-h-screen bg-gradient-to-br from-[#071F30] via-[#0C4773] to-[#0A3A5E] flex items-center justify-center px-4 font-sans">
             <Head title="Portal do Candidato — Login" />
 
             <div className="w-full max-w-md">
@@ -196,7 +196,7 @@ export default function PortalLogin() {
                         <div className="p-8">
                             <div className="text-center mb-6">
                                 <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <svg className="w-7 h-7 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-7 h-7 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                     </svg>
                                 </div>
@@ -229,7 +229,7 @@ export default function PortalLogin() {
                                 type="button"
                                 onClick={verificarCpf}
                                 disabled={verificandoCpf || cpfInput.replace(/\D/g, '').length < 11}
-                                className="mt-6 w-full inline-flex justify-center items-center gap-2 py-3 px-6 text-sm font-bold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                                className="mt-6 w-full inline-flex justify-center items-center gap-2 py-3 px-6 text-sm font-bold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {verificandoCpf ? (
                                     <>
@@ -243,7 +243,7 @@ export default function PortalLogin() {
                             </button>
 
                             <p className="text-center mt-5">
-                                <a href="/candidatura" className="text-xs text-gray-400 hover:text-[#071F30] transition-colors">
+                                <a href="/candidatura" className="text-xs text-gray-400 hover:text-[#0C4773] transition-colors">
                                     Ainda não tem cadastro? Candidate-se a uma vaga →
                                 </a>
                             </p>
@@ -275,7 +275,7 @@ export default function PortalLogin() {
                                         setCodigoInput(v);
                                         setErroCodigo('');
                                     }}
-                                    className="w-full text-center text-2xl font-bold tracking-widest border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#071F30] transition-colors"
+                                    className="w-full text-center text-2xl font-bold tracking-widest border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#0C4773] transition-colors"
                                     placeholder="000000"
                                     maxLength={6}
                                     onKeyDown={e => e.key === 'Enter' && verificarCodigo()}
@@ -297,7 +297,7 @@ export default function PortalLogin() {
                                     type="button"
                                     onClick={verificarCodigo}
                                     disabled={verificandoCodigo || codigoInput.length < 6}
-                                    className="flex-1 py-2.5 text-sm font-bold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                                    className="flex-1 py-2.5 text-sm font-bold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     {verificandoCodigo ? 'Verificando...' : 'Confirmar'}
                                 </button>
@@ -327,10 +327,10 @@ export default function PortalLogin() {
                                     <button
                                         type="button"
                                         onClick={() => setSubetapaAlt('nascimento')}
-                                        className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#071F30] hover:bg-blue-50/40 transition-all cursor-pointer text-left"
+                                        className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#0C4773] hover:bg-blue-50/40 transition-all cursor-pointer text-left"
                                     >
                                         <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                                            <svg className="w-5 h-5 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-5 h-5 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
@@ -352,7 +352,7 @@ export default function PortalLogin() {
                                 <>
                                     <div className="text-center mb-6">
                                         <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <svg className="w-7 h-7 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-7 h-7 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
@@ -382,7 +382,7 @@ export default function PortalLogin() {
                                             type="button"
                                             onClick={verificarNascimento}
                                             disabled={!nascimentoInput || verificandoNascimento}
-                                            className="flex-1 py-2.5 text-sm font-bold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                                            className="flex-1 py-2.5 text-sm font-bold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                                         >
                                             {verificandoNascimento ? 'Verificando...' : 'Confirmar'}
                                         </button>

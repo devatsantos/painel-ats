@@ -37,7 +37,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
             <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#071F30] flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-[#0C4773] flex items-center justify-center">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
@@ -49,7 +49,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                     </div>
 
                     <nav className="flex items-center gap-1">
-                        <Link href="/portal/dashboard" className="px-3 py-2 text-sm font-semibold text-[#071F30] bg-blue-50 rounded-lg">
+                        <Link href="/portal/dashboard" className="px-3 py-2 text-sm font-semibold text-[#0C4773] bg-blue-50 rounded-lg">
                             Início
                         </Link>
                         <Link href="/portal/perfil" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
@@ -72,7 +72,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                 {/* Saudação */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-[#071F30]/10 flex items-center justify-center text-[#071F30] font-bold text-lg">
+                        <div className="w-12 h-12 rounded-full bg-[#0C4773]/10 flex items-center justify-center text-[#0C4773] font-bold text-lg">
                             {getIniciais(nome)}
                         </div>
                         <div>
@@ -97,10 +97,10 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
                         <div>
                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Candidaturas</p>
-                            <h3 className="text-3xl font-bold text-[#071F30]">{totalCandidaturas}</h3>
+                            <h3 className="text-3xl font-bold text-[#0C4773]">{totalCandidaturas}</h3>
                         </div>
                         <div className="p-3.5 bg-blue-50 rounded-2xl shrink-0">
-                            <svg className="w-7 h-7 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-7 h-7 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
@@ -122,7 +122,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                                         📅 {proximaEntrevista.data_hora} · 📍 {proximaEntrevista.tipo}
                                     </p>
                                     {proximaEntrevista.link_meet && (
-                                        <a href={proximaEntrevista.link_meet} target="_blank" rel="noopener noreferrer" className="text-xs text-[#071F30] font-semibold hover:underline mt-1 inline-block">
+                                        <a href={proximaEntrevista.link_meet} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0C4773] font-semibold hover:underline mt-1 inline-block">
                                             💻 Abrir link da reunião →
                                         </a>
                                     )}
@@ -158,7 +158,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
 
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#071F30] transition-colors">{c.titulo}</p>
+                                            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#0C4773] transition-colors">{c.titulo}</p>
                                             <div className="flex items-center gap-3 mt-1">
                                                 <span className="text-xs text-gray-400">{c.local}</span>
                                                 <span className="text-xs text-gray-300">·</span>
@@ -178,7 +178,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                                         </div>
 
                                         {/* Arrow */}
-                                        <svg className="w-4 h-4 text-gray-300 group-hover:text-[#071F30] transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-gray-300 group-hover:text-[#0C4773] transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                         </svg>
                                     </Link>
@@ -193,7 +193,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                                 </svg>
                             </div>
                             <p className="text-sm font-medium text-gray-400">Nenhuma candidatura encontrada</p>
-                            <a href="/candidatura" className="text-xs text-[#071F30] font-semibold mt-2 hover:underline">
+                            <a href="/candidatura" className="text-xs text-[#0C4773] font-semibold mt-2 hover:underline">
                                 Candidate-se a uma vaga →
                             </a>
                         </div>
