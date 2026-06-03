@@ -129,6 +129,7 @@ Sequência obrigatória — candidato não pode pular etapas:
 | Agenda | `AgendaController` | `BloqueioAgenda` | `/agenda` |
 | Reprovados | `ReprovadosController` | `Reprovado`, `Formulario` | `/reprovados` ⚠️ pendente |
 | Relatórios | `RelatoriosController` | — (dados estáticos por ora) | `/relatorios` |
+| Portal Candidato | `PortalCandidatoController` | `Candidatos`, `CandidatoVaga`, `Entrevista`, `Vagas` | `/portal` |
 
 ## 11. Pendentes
 - `ReprovadosController`: listagem de reprovados com filtro por formulário/data + página JSX

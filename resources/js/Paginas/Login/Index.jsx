@@ -23,18 +23,18 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#F6F7F9] flex items-center justify-center p-4">
             <Head title="Login - Painel RH" />
             
             <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10">
                 <div className="text-center mb-10">
-                    <div className="w-12 h-12 bg-[#080073] rounded-xl flex items-center justify-center mx-auto mb-5 shadow-sm border border-[#080073]/10">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Painel RH</h1>
-                    <p className="text-gray-400 text-sm mt-1">Acesse sua conta para continuar</p>
+                    <img 
+                        src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS.png" 
+                        alt="AT & Santos Logo" 
+                        className="h-16 mx-auto mb-6 object-contain"
+                    />
+                    <h1 className="text-xl font-black text-slate-800 tracking-wider font-heading uppercase">Painel RH</h1>
+                    <p className="text-slate-400 text-xs mt-1 uppercase tracking-wider">Acesse sua conta para continuar</p>
                 </div>
                 
                 <div>
@@ -56,7 +56,7 @@ export default function Login() {
                                 name="cpf"
                                 value={data.cpf}
                                 onChange={(e) => setData('cpf', maskCPF(e.target.value))}
-                                className={`w-full px-4 py-2.5 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#080073]/20 focus:border-[#080073] transition-all outline-none text-sm ${formErrors.cpf ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full px-4 py-2.5 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-all outline-none text-sm ${formErrors.cpf ? 'border-red-400' : 'border-gray-200'}`}
                                 placeholder="000.000.000-00"
                             />
                         </div>
@@ -71,7 +71,7 @@ export default function Login() {
                                     name="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#080073]/20 focus:border-[#080073] transition-all outline-none text-sm ${formErrors.password ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#071F30]/20 focus:border-[#071F30] transition-all outline-none text-sm ${formErrors.password ? 'border-red-400' : 'border-gray-200'}`}
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -96,7 +96,7 @@ export default function Login() {
                         <button 
                             type="submit" 
                             disabled={processing}
-                            className={`w-full py-3 px-4 mt-2 bg-[#080073] hover:bg-[#0a0090] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm flex justify-center items-center gap-2 ${processing && 'opacity-70 cursor-wait'}`}
+                            className={`w-full py-3 px-4 mt-2 bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm flex justify-center items-center gap-2 ${processing && 'opacity-70 cursor-wait'}`}
                         >
                             {processing ? (
                                 <>

@@ -6,12 +6,20 @@
 @source '../**/*.js';
 
 @theme {
-  --font-sans: "Google Sans", ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+  --font-sans: "Google Sans Flex", "Google Sans", ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-heading: "Google Sans Flex", "Google Sans", sans-serif;
+
+  --color-petroleo: #071F30;
+  --color-ceruleo: #007EAE;
+  --color-posca: #F6F7F9;
 }
 
 @layer base {
   html {
     text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: #F6F7F9 !important;
   }
 }

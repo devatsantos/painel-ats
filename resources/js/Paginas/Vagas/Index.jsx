@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, usePage, useForm } from '@inertiajs/react';
+import { Link, usePage, useForm, router } from '@inertiajs/react';
 import Sidebar from '../Componentes/Index';
 import Paginacao from '../Componentes/Paginacao.jsx';
 
@@ -50,6 +50,27 @@ export default function Vagas({vagas, formularios}) {
             formulario_id: vaga.formulario_id || '',
         });
     };
+    const handleToggleAtivo = (vaga) => {
+        router.put(`/vagas/${vaga.id}`, {
+            titulo: vaga.titulo,
+            horario: vaga.horario,
+            local: vaga.local,
+            descricao: vaga.descricao,
+            requisitos: vaga.requisitos,
+            salario: vaga.salario,
+            va: vaga.va || '',
+            vr: vaga.vr || '',
+            vt: vaga.vt || '',
+            escala: vaga.escala,
+            status_efetivacao: vaga.status_efetivacao,
+            ativo: !vaga.ativo,
+            pcd: vaga.pcd ? true : false,
+            formulario_id: vaga.formulario_id,
+        }, {
+            preserveScroll: true,
+        });
+    };
+
     const handleDelete = (vaga) => {
         if (confirm(`Tem certeza que deseja excluir a vaga "${vaga.titulo}"? Esta ação não pode ser desfeita.`)) {
             destroy(`/vagas/${vaga.id}`, {
@@ -123,7 +144,7 @@ export default function Vagas({vagas, formularios}) {
                             <h1 className="text-3xl font-bold text-gray-800">Vagas</h1>
                             <p className="text-gray-500 mt-1">Gerencie as vagas disponíveis na empresa.</p>
                         </div>
-                        <button onClick={handleCreate} className="inline-flex items-center justify-center gap-2 bg-[#080073] hover:bg-[#0a0090] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
+                        <button onClick={handleCreate} className="inline-flex items-center justify-center gap-2 bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
@@ -139,7 +160,7 @@ export default function Vagas({vagas, formularios}) {
                         </div>
                         <input
                             type="text"
-                            className="w-full pl-14 pr-12 py-4 rounded-2xl border-0 ring-1 ring-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#080073] shadow-sm transition-all sm:text-base text-sm"
+                            className="w-full pl-14 pr-12 py-4 rounded-2xl border-0 ring-1 ring-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#071F30] shadow-sm transition-all sm:text-base text-sm"
                             placeholder="Pesquisar vagas por título ou local..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -174,9 +195,22 @@ export default function Vagas({vagas, formularios}) {
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${vaga.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                {vaga.ativo ? 'Ativa' : 'Inativa'}
-                                            </span>
+                                            <button
+                                                onClick={() => handleToggleAtivo(vaga)}
+                                                className={`group inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                                                    vaga.ativo
+                                                        ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                                                        : 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
+                                                }`}
+                                                title={vaga.ativo ? 'Desativar vaga' : 'Ativar vaga'}
+                                            >
+                                                <div className={`relative w-8 h-4 rounded-full transition-colors duration-200 ${vaga.ativo ? 'bg-green-600' : 'bg-red-400'}`}>
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 ${vaga.ativo ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+                                                </div>
+                                                <span>
+                                                    {vaga.ativo ? 'Ativa' : 'Inativa'}
+                                                </span>
+                                            </button>
                                             {vaga.pcd ? (
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                                     PCD
@@ -198,7 +232,7 @@ export default function Vagas({vagas, formularios}) {
 
                                     <button
                                         onClick={() => setModalVaga(vaga)}
-                                        className="text-sm font-medium text-[#080073] hover:underline cursor-pointer"
+                                        className="text-sm font-medium text-[#071F30] hover:underline cursor-pointer"
                                     >
                                         Ver mais
                                     </button>
@@ -398,7 +432,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.titulo}
                                             onChange={e => setData('titulo', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: Desenvolvedor Full Stack"
                                             required
                                         />
@@ -411,7 +445,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.local}
                                             onChange={e => setData('local', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: São Paulo - SP"
                                             required
                                         />
@@ -424,7 +458,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.horario}
                                             onChange={e => setData('horario', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: 08:00 - 17:00"
                                             required
                                         />
@@ -437,7 +471,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.escala}
                                             onChange={e => setData('escala', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: 5x2"
                                             required
                                         />
@@ -450,7 +484,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.status_efetivacao}
                                             onChange={e => setData('status_efetivacao', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: CLT, PJ, Temporário"
                                             required
                                         />
@@ -477,7 +511,7 @@ export default function Vagas({vagas, formularios}) {
                                                       setData('formulario_id', selectedId);
                                                   }
                                               }}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             required
                                         >
                                             <option value="" disabled>Selecione um formulário</option>
@@ -501,7 +535,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.descricao}
                                             onChange={e => setData('descricao', e.target.value)}
                                             rows={3}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition resize-none"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition resize-none"
                                             placeholder="Descreva as responsabilidades da vaga..."
                                             required
                                         />
@@ -513,7 +547,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.requisitos}
                                             onChange={e => setData('requisitos', e.target.value)}
                                             rows={3}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition resize-none"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition resize-none"
                                             placeholder="Liste os requisitos necessários..."
                                             required
                                         />
@@ -531,7 +565,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.salario}
                                             onChange={e => handleMoneyChange('salario', e)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                             placeholder="Ex: R$ 5.000,00"
                                             required
                                         />
@@ -558,7 +592,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.va === 'Não tem' ? '' : data.va}
                                             onChange={e => handleMoneyChange('va', e)}
                                             disabled={data.va === 'Não tem'}
-                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 ${data.va === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
+                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 ${data.va === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
                                             placeholder={data.va === 'Não tem' ? 'Não possui VA' : "R$ 0,00"}
                                         />
                                     </div>
@@ -583,7 +617,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.vr === 'Não tem' ? '' : data.vr}
                                             onChange={e => handleMoneyChange('vr', e)}
                                             disabled={data.vr === 'Não tem'}
-                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 ${data.vr === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
+                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 ${data.vr === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
                                             placeholder={data.vr === 'Não tem' ? 'Não possui VR' : "R$ 0,00"}
                                         />
                                     </div>
@@ -608,7 +642,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.vt === 'Não tem' ? '' : data.vt}
                                             onChange={e => handleMoneyChange('vt', e)}
                                             disabled={data.vt === 'Não tem'}
-                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 ${data.vt === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
+                                            className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 ${data.vt === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
                                             placeholder={data.vt === 'Não tem' ? 'Não possui VT' : "R$ 0,00"}
                                         />
                                     </div>
@@ -617,7 +651,7 @@ export default function Vagas({vagas, formularios}) {
 
                             <div className="flex flex-wrap gap-4">
                                 <label className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition">
-                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.ativo ? 'bg-[#080073]' : 'bg-gray-300'}`}>
+                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.ativo ? 'bg-[#071F30]' : 'bg-gray-300'}`}>
                                         <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${data.ativo ? 'translate-x-5' : 'translate-x-0.5'}`} />
                                     </div>
                                     <input type="checkbox" checked={data.ativo} onChange={e => setData('ativo', e.target.checked)} className="sr-only" />
@@ -625,7 +659,7 @@ export default function Vagas({vagas, formularios}) {
                                 </label>
 
                                 <label className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition">
-                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.pcd ? 'bg-[#080073]' : 'bg-gray-300'}`}>
+                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.pcd ? 'bg-[#071F30]' : 'bg-gray-300'}`}>
                                         <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${data.pcd ? 'translate-x-5' : 'translate-x-0.5'}`} />
                                     </div>
                                     <input type="checkbox" checked={data.pcd} onChange={e => setData('pcd', e.target.checked)} className="sr-only" />
@@ -647,7 +681,7 @@ export default function Vagas({vagas, formularios}) {
                                 type="submit"
                                 form="form-editar-vaga"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#080073] hover:bg-[#0a0090] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#071F30] hover:bg-[#007EAE] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
                             >
                                 {processing ? (
                                     <>

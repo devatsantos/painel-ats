@@ -90,7 +90,7 @@ export default function Usuarios({usuarios}) {
                             <h1 className="text-3xl font-bold text-gray-800">Usuários</h1>
                             <p className="text-gray-500 mt-1">Gerencie os usuários com acesso ao painel.</p>
                         </div>
-                        <button onClick={handleCreate} className="inline-flex items-center gap-2 bg-[#080073] hover:bg-[#0a0090] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
+                        <button onClick={handleCreate} className="inline-flex items-center gap-2 bg-[#071F30] hover:bg-[#007EAE] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
@@ -108,7 +108,7 @@ export default function Usuarios({usuarios}) {
                                 value={busca}
                                 onChange={(e) => setBusca(maskCpf(e.target.value))}
                                 placeholder="Buscar por CPF..."
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                             />
                         </div>
                     </div>
@@ -131,7 +131,7 @@ export default function Usuarios({usuarios}) {
                                             <tr key={usuario.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-full bg-[#080073] flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                                                        <div className="w-9 h-9 rounded-full bg-[#071F30] flex items-center justify-center text-white text-sm font-semibold shrink-0">
                                                             {usuario.nome.charAt(0).toUpperCase()}
                                                         </div>
                                                         <span className="text-sm font-medium text-gray-800">{usuario.nome}</span>
@@ -226,7 +226,7 @@ export default function Usuarios({usuarios}) {
                                     type="text"
                                     value={data.nome}
                                     onChange={e => setData('nome', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                     placeholder="Ex: João da Silva"
                                     required
                                 />
@@ -239,7 +239,7 @@ export default function Usuarios({usuarios}) {
                                     type="text"
                                     value={data.cpf}
                                     onChange={e => setData('cpf', maskCpf(e.target.value))}
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                     placeholder="000.000.000-00"
                                     maxLength="14"
                                     required
@@ -256,7 +256,7 @@ export default function Usuarios({usuarios}) {
                                     value={data.password}
                                     onChange={e => setData('password', e.target.value)}
                                     placeholder={editMode ? 'Deixe em branco para manter a atual' : 'Sua senha de acesso'}
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                     required={!editMode}
                                 />
                                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
@@ -267,7 +267,7 @@ export default function Usuarios({usuarios}) {
                                 <select
                                     value={data.role}
                                     onChange={e => setData('role', e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#080073] focus:ring-2 focus:ring-[#080073]/20 transition"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#071F30] focus:ring-2 focus:ring-[#071F30]/20 transition"
                                 >
                                     <option value="">Sem perfil</option>
                                     <option value="admin">Administrador</option>
@@ -290,7 +290,7 @@ export default function Usuarios({usuarios}) {
                                 type="submit"
                                 form="form-criar-usuario"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#080073] hover:bg-[#0a0090] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#071F30] hover:bg-[#007EAE] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
                             >
                                 {processing ? (
                                     <>

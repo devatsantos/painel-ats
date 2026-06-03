@@ -92,15 +92,15 @@ export default function Agenda({ bloqueios, configuracao }) {
         ? bloqueios
         : bloqueios.filter(b => b.origem === filtro);
 
-    const inputClasses = 'mt-1 block w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#080073]/40 focus:border-[#080073]';
+    const inputClasses = 'mt-1 block w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#071F30]/40 focus:border-[#071F30]';
     const labelClasses = 'block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1';
 
     return (
         <>
             <Head title="Agenda" />
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
-                <main className="flex-1 p-6 lg:p-10">
+            <div className="min-h-screen bg-gray-100 md:ml-64 overflow-x-hidden">
+                <main className="flex-1 min-w-0 p-6 lg:p-10">
 
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
@@ -117,7 +117,7 @@ export default function Agenda({ bloqueios, configuracao }) {
                             </span>
                             <button
                                 onClick={abrirNovo}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#080073] text-white text-sm font-semibold rounded-xl hover:bg-[#080073]/90 transition-colors cursor-pointer shadow-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#071F30] text-white text-sm font-semibold rounded-xl hover:bg-[#071F30]/90 transition-colors cursor-pointer shadow-sm"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -129,9 +129,9 @@ export default function Agenda({ bloqueios, configuracao }) {
 
                     <FlashMessages />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="flex flex-col xl:flex-row gap-8">
                         {/* Coluna Esquerda: Filtros e Tabela de Bloqueios */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="flex-1 min-w-0 space-y-6">
                             {/* Filtros */}
                             <div className="flex gap-2">
                                 {FILTROS.map(f => (
@@ -140,8 +140,8 @@ export default function Agenda({ bloqueios, configuracao }) {
                                         onClick={() => setFiltro(f.value)}
                                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer ${
                                             filtro === f.value
-                                                ? 'bg-[#080073] text-white shadow-sm'
-                                                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#080073]/40 hover:text-[#080073]'
+                                                ? 'bg-[#071F30] text-white shadow-sm'
+                                                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#071F30]/40 hover:text-[#071F30]'
                                         }`}
                                     >
                                         {f.label}
@@ -167,7 +167,8 @@ export default function Agenda({ bloqueios, configuracao }) {
                                 </div>
                             ) : (
                                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                                    <table className="w-full text-sm">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm">
                                         <thead>
                                             <tr className="border-b border-gray-100 bg-gray-50">
                                                 <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Data</th>
@@ -222,10 +223,10 @@ export default function Agenda({ bloqueios, configuracao }) {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         {b.origem !== 'feriado' && (
-                                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="flex items-center justify-end gap-1">
                                                                 <button
                                                                     onClick={() => abrirEdicao(b)}
-                                                                    className="p-1.5 text-gray-400 hover:text-[#080073] hover:bg-[#080073]/10 rounded-lg transition-colors cursor-pointer"
+                                                                    className="p-1.5 text-gray-400 hover:text-[#071F30] hover:bg-[#071F30]/10 rounded-lg transition-colors cursor-pointer"
                                                                     title="Editar"
                                                                 >
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,16 +249,17 @@ export default function Agenda({ bloqueios, configuracao }) {
                                             ))}
                                         </tbody>
                                     </table>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Coluna Direita: Painel de Configurações da Agenda */}
-                        <div className="space-y-6">
+                        <div className="xl:w-80 xl:flex-shrink-0 space-y-6">
                             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                                 <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
                                     <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
-                                        <svg className="w-5 h-5 text-[#080073]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-5 h-5 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                         </svg>
                                         Configuração de Horário
@@ -318,7 +320,7 @@ export default function Agenda({ bloqueios, configuracao }) {
                                         <button
                                             type="submit"
                                             disabled={configForm.processing}
-                                            className="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-xl text-white bg-[#080073] hover:bg-[#080073]/90 transition-colors disabled:opacity-50 cursor-pointer shadow-sm mt-2 font-mono"
+                                            className="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-xl text-white bg-[#071F30] hover:bg-[#007EAE] transition-colors disabled:opacity-50 cursor-pointer shadow-sm mt-2 font-semibold"
                                         >
                                             {configForm.processing ? 'Salvando...' : 'Salvar Configuração'}
                                         </button>
@@ -368,7 +370,7 @@ export default function Agenda({ bloqueios, configuracao }) {
                                         type="checkbox"
                                         checked={data.dia_todo}
                                         onChange={e => setData('dia_todo', e.target.checked)}
-                                        className="w-4 h-4 rounded border-gray-300 text-[#080073] focus:ring-[#080073]"
+                                        className="w-4 h-4 rounded border-gray-300 text-[#071F30] focus:ring-[#071F30]"
                                     />
                                     <div>
                                         <span className="text-sm font-semibold text-gray-700">Bloquear o dia todo</span>
@@ -427,7 +429,7 @@ export default function Agenda({ bloqueios, configuracao }) {
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-6 py-2.5 bg-[#080073] text-white text-sm font-semibold rounded-xl hover:bg-[#080073]/90 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                                    className="px-6 py-2.5 bg-[#071F30] text-white text-sm font-semibold rounded-xl hover:bg-[#071F30]/90 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
                                 >
                                     {processing ? 'Salvando...' : 'Salvar'}
                                 </button>

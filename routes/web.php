@@ -34,6 +34,24 @@ Route::get('/login', [App\Http\Controllers\AuthController::class, 'index'])->nam
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
+// Portal do Candidato — Login (rota pública)
+Route::get('/portal', [App\Http\Controllers\PortalCandidatoController::class, 'login'])->name('Portal.login');
+Route::post('/portal/verificar-cpf', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCpf'])
+    ->middleware('throttle:verificar-cpf');
+Route::post('/portal/enviar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'enviarCodigo'])
+    ->middleware('throttle:enviar-codigo-whatsapp');
+Route::post('/portal/verificar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCodigo'])
+    ->middleware('throttle:verificar-codigo-whatsapp');
+
+// Portal do Candidato — Rotas protegidas
+Route::middleware('auth:candidato')->prefix('portal')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\PortalCandidatoController::class, 'index'])->name('Portal');
+    Route::get('/candidatura/{vaga}', [App\Http\Controllers\PortalCandidatoController::class, 'show'])->name('Portal.candidatura');
+    Route::get('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'perfil'])->name('Portal.perfil');
+    Route::put('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'atualizarPerfil'])->name('Portal.perfil.update');
+    Route::post('/token', [App\Http\Controllers\PortalCandidatoController::class, 'gerarToken'])->name('Portal.token');
+});
+
 // Ouvidoria - Rotas Públicas
 Route::get('/ouvidoria/nova', [App\Http\Controllers\OuvidoriaController::class, 'create'])->name('Ouvidoria.nova');
 Route::post('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'store'])->name('Ouvidoria.store');

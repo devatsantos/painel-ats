@@ -103,7 +103,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                         </div>
                         <button
                             onClick={() => setModalCriar(true)}
-                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#080073] text-white text-sm font-semibold rounded-xl hover:bg-blue-900 transition-colors shadow-sm"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#071F30] text-white text-sm font-semibold rounded-xl hover:bg-blue-900 transition-colors shadow-sm"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -131,7 +131,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                 <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
                                     <Link 
                                         href={`/formularios/${form.id}/edit`} 
-                                        className="text-sm font-medium text-[#080073] hover:underline"
+                                        className="text-sm font-medium text-[#071F30] hover:underline"
                                     >
                                         Configurar
                                     </Link>
@@ -150,8 +150,8 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                     <form onSubmit={handleSubmit} className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex-shrink-0 flex justify-between items-center px-6 py-5 border-b border-gray-100">
-                            <h3 className="text-lg sm:text-xl font-bold text-[#080073] flex items-center gap-2">
-                                <span className="w-1.5 h-5 sm:h-6 bg-[#080073] rounded-full inline-block"></span>
+                            <h3 className="text-lg sm:text-xl font-bold text-[#071F30] flex items-center gap-2">
+                                <span className="w-1.5 h-5 sm:h-6 bg-[#071F30] rounded-full inline-block"></span>
                                 Criar Novo Formulário
                             </h3>
                             <button type="button" onClick={() => setModalCriar(false)} className="text-gray-400 hover:bg-gray-100 p-2 rounded-full transition-all">
@@ -167,7 +167,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                     value={data.titulo_formulario}
                                     onChange={e => setData('titulo_formulario', e.target.value)}
                                     required
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#080073]" 
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
                                     placeholder="Ex: Avaliação Técnica" 
                                 />
                                 {errors.titulo_formulario && <p className="text-red-500 text-xs mt-1">{errors.titulo_formulario}</p>}
@@ -178,7 +178,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                       value={data.descricao}
                                       onChange={e => setData('descricao', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#080073]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
                                       placeholder="Descreva o formulário" 
                                       rows="3"
                                   />
@@ -191,7 +191,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                       value={data.requisitos}
                                       onChange={e => setData('requisitos', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#080073]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
                                       placeholder="Descreva os requisitos" 
                                       rows="3"
                                   />
@@ -205,7 +205,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                       value={data.posto}
                                       onChange={e => setData('posto', e.target.value)}
                                       required
-                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#080073]" 
+                                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]" 
                                       placeholder="Posto/Cargo" 
                                   />
                                   {errors.posto && <p className="text-red-500 text-xs mt-1">{errors.posto}</p>}
@@ -222,7 +222,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                       value={data.threshold}
                                       onChange={e => setData('threshold', parseInt(e.target.value) || 1)}
                                       required
-                                      className="w-24 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#080073]"
+                                      className="w-24 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#071F30]"
                                   />
                                   {errors.threshold && <p className="text-red-500 text-xs mt-1">{errors.threshold}</p>}
                               </div>
@@ -263,7 +263,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                                 {errors[`perguntas.${pIndex}.enunciado`] && <p className="text-red-500 text-xs mt-1">{errors[`perguntas.${pIndex}.enunciado`]}</p>}
                                             </div>
                                             
-                                            <div className="pl-4 border-l-2 border-[#080073]/20 space-y-3">
+                                            <div className="pl-4 border-l-2 border-[#071F30]/20 space-y-3">
                                                 <label className="block text-xs font-semibold text-gray-500 uppercase">Alternativas</label>
                                                 
                                                 {pergunta.alternativas.map((alt, aIndex) => (
@@ -274,7 +274,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                                                 value={alt.texto}
                                                                 onChange={e => updateAlternativa(pIndex, aIndex, 'texto', e.target.value)}
                                                                 required
-                                                                className="flex-1 bg-white border border-gray-300 rounded-l-lg rounded-r-none px-3 py-2 text-sm focus:z-10 focus:outline-none focus:border-[#080073]" 
+                                                                className="flex-1 bg-white border border-gray-300 rounded-l-lg rounded-r-none px-3 py-2 text-sm focus:z-10 focus:outline-none focus:border-[#071F30]" 
                                                                 placeholder={`Alternativa ${aIndex + 1}`} 
                                                             />
                                                             <div className="flex items-center bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg px-3">
@@ -284,7 +284,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
                                                                         name={`correta_${pIndex}`}
                                                                         checked={alt.correta}
                                                                         onChange={e => updateAlternativa(pIndex, aIndex, 'correta', true)}
-                                                                        className="text-[#080073] focus:ring-[#080073]"
+                                                                        className="text-[#071F30] focus:ring-[#071F30]"
                                                                     />
                                                                     <span className="text-xs font-medium text-gray-700 whitespace-nowrap">É a Correta</span>
                                                                 </label>
@@ -315,7 +315,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
 
                         <div className="flex-shrink-0 px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3">
                             <button type="button" onClick={() => setModalCriar(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100">Cancelar</button>
-                            <button type="submit" disabled={processing} className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#080073] hover:bg-blue-900 ${processing ? 'opacity-50' : ''}`}>
+                            <button type="submit" disabled={processing} className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#071F30] hover:bg-blue-900 ${processing ? 'opacity-50' : ''}`}>
                                 {processing ? 'Salvando...' : 'Salvar Formulário'}
                             </button>
                         </div>

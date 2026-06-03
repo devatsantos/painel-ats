@@ -106,20 +106,22 @@ export default function Sidebar() {
     const SidebarContent = () => (
         <>
             
-            <div className="flex items-center gap-3 px-6 h-20 border-b border-gray-800/60">
-                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-[#080073]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <h1 className="text-base font-bold text-white tracking-wide leading-none">Painel RH</h1>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Gestão de pessoas</p>
+            <div className="flex flex-col justify-center px-6 h-20 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                    <img 
+                        src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS%2Bletreiro-branco.png" 
+                        alt="AT & Santos Logo" 
+                        className="h-8 w-auto object-contain"
+                    />
+                    <div className="border-l border-white/20 pl-3">
+                        <h1 className="text-xs font-black text-white tracking-widest leading-none font-heading uppercase">Painel RH</h1>
+                        <p className="text-[9px] text-blue-200/60 mt-1 uppercase tracking-wider">Gestão</p>
+                    </div>
                 </div>
             </div>
 
             <nav className="flex-1 px-3 py-6 overflow-y-auto">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-gray-500 font-semibold mb-3 px-3">Navegação</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-blue-200/50 font-bold mb-3 px-3">Navegação</p>
                 <ul className="flex flex-col gap-1">
                     {navItems.filter(item => !item.adminOnly || isAdmin).map((item) => (
                         <li key={item.href}>
@@ -128,13 +130,13 @@ export default function Sidebar() {
                                 onClick={() => setMobileOpen(false)}
                                 className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                                     item.active
-                                        ? 'bg-white/10 text-white'
-                                        : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                                        ? 'bg-white/10 text-white shadow-sm'
+                                        : 'text-blue-100/70 hover:bg-white/5 hover:text-white'
                                 }`}
                             >
                                 <svg
                                     className={`w-[18px] h-[18px] transition-colors ${
-                                        item.active ? 'text-white' : 'text-gray-500 group-hover:text-gray-300'
+                                        item.active ? 'text-white' : 'text-blue-200/50 group-hover:text-blue-100'
                                     }`}
                                     fill="none"
                                     stroke="currentColor"
@@ -152,14 +154,14 @@ export default function Sidebar() {
                 </ul>
             </nav>
 
-            <div className="px-3 pb-4 pt-2 border-t border-gray-800/60">
+            <div className="px-3 pb-4 pt-2 border-t border-white/10">
                 <Link
                     href="/logout"
                     method="post"
                     as="button"
-                    className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150"
+                    className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-blue-100/70 hover:bg-red-500/15 hover:text-red-400 transition-all duration-150"
                 >
-                    <svg className="w-[18px] h-[18px] text-gray-500 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-[18px] h-[18px] text-blue-200/50 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                     Sair
@@ -173,7 +175,7 @@ export default function Sidebar() {
             
             <button
                 onClick={() => setMobileOpen(true)}
-                className="fixed top-4 left-4 z-50 md:hidden p-2 bg-[#111827] rounded-lg shadow-lg text-gray-300"
+                className="fixed top-4 left-4 z-50 md:hidden p-2 bg-[#071F30] rounded-lg shadow-lg text-white"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -183,13 +185,13 @@ export default function Sidebar() {
             {mobileOpen && (
                 <div className="fixed inset-0 z-50 md:hidden">
                     <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-                    <aside className="relative flex flex-col w-64 h-full bg-[#111827] shadow-2xl">
+                    <aside className="relative flex flex-col w-64 h-full bg-[#071F30] shadow-2xl">
                         <SidebarContent />
                     </aside>
                 </div>
             )}
 
-            <aside className="fixed inset-y-0 left-0 hidden md:flex flex-col w-64 bg-[#111827] z-50">
+            <aside className="fixed inset-y-0 left-0 hidden md:flex flex-col w-64 bg-[#071F30] z-50">
                 <SidebarContent />
             </aside>
         </>

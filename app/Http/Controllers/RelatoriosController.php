@@ -105,6 +105,46 @@ class RelatoriosController extends Controller
             ];
         }
 
+        $bancoTalentosTotal = \App\Models\Candidatos::where('banco_de_talentos', true)->count();
+
+        $funil = [
+            'candidaturas' => $totalCandidaturas,
+            'entrevistas'  => \App\Models\Entrevista::count(),
+            'contratados'  => \App\Models\CandidatoVaga::where('status', 'contratado')->count(),
+        ];
+
+        $escolaridades = DB::table('candidatos')
+            ->select('nivel_escolaridade', DB::raw('count(*) as total'))
+            ->whereNotNull('nivel_escolaridade')
+            ->where('nivel_escolaridade', '<>', '')
+            ->groupBy('nivel_escolaridade')
+            ->orderBy('total', 'desc')
+            ->get()
+            ->map(fn($e) => [
+                'label' => $e->nivel_escolaridade,
+                'total' => (int) $e->total,
+            ])
+            ->toArray();
+
+        $regioes = DB::table('candidatos')
+            ->select('regiao', DB::raw('count(*) as total'))
+            ->whereNotNull('regiao')
+            ->where('regiao', '<>', '')
+            ->groupBy('regiao')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn($r) => [
+                'label' => $r->regiao,
+                'total' => (int) $r->total,
+            ])
+            ->toArray();
+
+        $entrevistasTipo = [
+            'online'     => \App\Models\Entrevista::where('tipo', 'Online')->count(),
+            'presencial' => \App\Models\Entrevista::where('tipo', 'Presencial')->count(),
+        ];
+
         return Inertia::render('Relatorios/Index', [
             'metricas' => [
                 'total_candidaturas'        => $totalCandidaturas,
@@ -112,10 +152,15 @@ class RelatoriosController extends Controller
                 'recrutador_destaque_total' => $recrutadorDestaqueTotal,
                 'tempo_medio_dias'          => $tempoMedioDias,
                 'vagas_preenchidas'         => $vagasPreenchidas,
+                'banco_talentos_total'      => $bancoTalentosTotal,
             ],
             'candidatos_por_status' => $candidatosPorStatus,
             'vagas_destaque'        => $vagasDestaque,
             'entrevistas_por_mes'   => $entrevistasPorMes,
+            'funil'                 => $funil,
+            'escolaridades'         => $escolaridades,
+            'regioes'               => $regioes,
+            'entrevistas_tipo'      => $entrevistasTipo,
         ]);
     }
 }

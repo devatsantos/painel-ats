@@ -104,8 +104,8 @@ export default function Entrevistas({ candidatos }) {
 
                                     {/* Header */}
                                     <div className="p-6 flex items-start gap-4">
-                                        <div className="w-12 h-12 bg-[#080073]/10 rounded-xl flex items-center justify-center shrink-0">
-                                            <span className="text-base font-bold text-[#080073]">
+                                        <div className="w-12 h-12 bg-[#071F30]/10 rounded-xl flex items-center justify-center shrink-0">
+                                            <span className="text-base font-bold text-[#071F30]">
                                                 {getIniciais(candidato.nome)}
                                             </span>
                                         </div>
@@ -124,7 +124,7 @@ export default function Entrevistas({ candidatos }) {
                                         <div className="flex flex-col gap-1.5">
                                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Data</p>
                                             <div className="flex items-center gap-2">
-                                                <svg className="w-4 h-4 text-[#080073] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-4 h-4 text-[#071F30] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                                 <span className="text-sm font-semibold text-gray-800">
@@ -198,7 +198,7 @@ export default function Entrevistas({ candidatos }) {
                                                     href={`/storage/${candidato.path_curriculo}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-[#080073] px-3 py-2 rounded-lg hover:bg-[#080073]/5 transition-colors"
+                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-[#071F30] px-3 py-2 rounded-lg hover:bg-[#071F30]/5 transition-colors"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -216,7 +216,7 @@ export default function Entrevistas({ candidatos }) {
                                             </button>
                                             <button
                                                 onClick={() => abrirResultado(candidato)}
-                                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-[#080073] hover:bg-[#080073]/90 px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-[#071F30] hover:bg-[#071F30]/90 px-4 py-2 rounded-lg transition-colors cursor-pointer"
                                             >
                                                 Resultado
                                             </button>
@@ -241,7 +241,7 @@ export default function Entrevistas({ candidatos }) {
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header colorido */}
-                        <div className="bg-[#080073] px-6 pt-8 pb-6 relative">
+                        <div className="bg-[#071F30] px-6 pt-8 pb-6 relative">
                             <button
                                 onClick={() => setModalCandidato(null)}
                                 className="absolute top-4 right-4 p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
@@ -287,8 +287,8 @@ export default function Entrevistas({ candidatos }) {
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Entrevista</p>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-[#080073]/8 rounded-lg flex items-center justify-center shrink-0">
-                                            <svg className="w-4 h-4 text-[#080073]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="w-8 h-8 bg-[#071F30]/8 rounded-lg flex items-center justify-center shrink-0">
+                                            <svg className="w-4 h-4 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
@@ -302,8 +302,8 @@ export default function Entrevistas({ candidatos }) {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-[#080073]/8 rounded-lg flex items-center justify-center shrink-0">
-                                            <svg className="w-4 h-4 text-[#080073]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="w-8 h-8 bg-[#071F30]/8 rounded-lg flex items-center justify-center shrink-0">
+                                            <svg className="w-4 h-4 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                             </svg>
                                         </div>
@@ -329,8 +329,8 @@ export default function Entrevistas({ candidatos }) {
                                     </div>
                                     {modalCandidato.entrevistador_nome && (
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-[#080073]/8 rounded-lg flex items-center justify-center shrink-0">
-                                                <svg className="w-4 h-4 text-[#080073]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div className="w-8 h-8 bg-[#071F30]/8 rounded-lg flex items-center justify-center shrink-0">
+                                                <svg className="w-4 h-4 text-[#071F30]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                 </svg>
                                             </div>
@@ -433,7 +433,7 @@ export default function Entrevistas({ candidatos }) {
                                             href={`/storage/${modalCandidato.path_curriculo}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2.5 px-4 py-3 bg-[#080073]/5 border border-[#080073]/15 text-[#080073] rounded-xl text-sm font-semibold hover:bg-[#080073]/10 transition-colors w-full"
+                                            className="inline-flex items-center gap-2.5 px-4 py-3 bg-[#071F30]/5 border border-[#071F30]/15 text-[#071F30] rounded-xl text-sm font-semibold hover:bg-[#071F30]/10 transition-colors w-full"
                                         >
                                             <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -455,7 +455,7 @@ export default function Entrevistas({ candidatos }) {
                             </button>
                             <button
                                 onClick={() => { abrirResultado(modalCandidato); setModalCandidato(null); }}
-                                className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#080073] hover:bg-[#080073]/90 px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#071F30] hover:bg-[#071F30]/90 px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
                             >
                                 Registrar Resultado
                             </button>
@@ -486,7 +486,7 @@ export default function Entrevistas({ candidatos }) {
                                             key={opcao.value}
                                             className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                                                 data.status === opcao.value
-                                                    ? 'border-[#080073] bg-[#080073]/5'
+                                                    ? 'border-[#071F30] bg-[#071F30]/5'
                                                     : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                         >
@@ -496,7 +496,7 @@ export default function Entrevistas({ candidatos }) {
                                                 value={opcao.value}
                                                 checked={data.status === opcao.value}
                                                 onChange={() => setData('status', opcao.value)}
-                                                className="mt-0.5 text-[#080073] focus:ring-[#080073]"
+                                                className="mt-0.5 text-[#071F30] focus:ring-[#071F30]"
                                             />
                                             <div>
                                                 <span className="text-sm font-semibold text-gray-800">{opcao.label}</span>
@@ -515,7 +515,7 @@ export default function Entrevistas({ candidatos }) {
                                         onChange={e => setData('observacao', e.target.value)}
                                         rows={3}
                                         placeholder="Anotações sobre a entrevista..."
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#080073]/40 focus:border-[#080073] resize-none"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#071F30]/40 focus:border-[#071F30] resize-none"
                                     />
                                 </div>
                             </div>
@@ -526,7 +526,7 @@ export default function Entrevistas({ candidatos }) {
                                 <button
                                     type="submit"
                                     disabled={!data.status || processing}
-                                    className="text-sm font-semibold text-white bg-[#080073] hover:bg-[#080073]/90 px-5 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="text-sm font-semibold text-white bg-[#071F30] hover:bg-[#071F30]/90 px-5 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {processing ? 'Salvando...' : 'Salvar Resultado'}
                                 </button>

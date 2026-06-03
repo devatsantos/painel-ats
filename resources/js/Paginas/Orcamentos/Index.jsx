@@ -155,8 +155,8 @@ export default function Orcamentos({ orcamentos }) {
                     <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
-                            <h3 className="text-lg sm:text-xl font-bold text-[#080073] flex items-center gap-2">
-                                <span className="w-1.5 h-5 sm:h-6 bg-[#080073] rounded-full inline-block"></span>
+                            <h3 className="text-lg sm:text-xl font-bold text-[#071F30] flex items-center gap-2">
+                                <span className="w-1.5 h-5 sm:h-6 bg-[#071F30] rounded-full inline-block"></span>
                                 Detalhes do Orçamento
                             </h3>
                             <button
