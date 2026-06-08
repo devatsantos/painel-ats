@@ -8,6 +8,7 @@ use App\Models\CandidatoVaga;
 use App\Models\Entrevista;
 use App\Models\Vagas;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -57,29 +58,30 @@ class PortalCandidatoController extends Controller
             ]);
         }
 
-        // Token de 7 dias válido — pula verificação por WhatsApp
+        // Token de 14 dias válido — pula verificação por WhatsApp
         $token = $request->input('token');
         if (
             $token &&
             $candidato->candidato_token &&
-            hash_equals($candidato->candidato_token, $token) &&
+            hash_equals($candidato->candidato_token, hash('sha256', $token)) &&
             $candidato->candidato_token_expira_em &&
             now()->isBefore($candidato->candidato_token_expira_em)
         ) {
             Auth::guard('candidato')->login($candidato);
+            request()->session()->regenerate();
             return response()->json([
                 'existe'       => true,
                 'token_valido' => true,
             ]);
         }
 
-        // Candidato existe — precisa de OTP
+        // Candidato existe — precisa de OTP (telefone mascarado)
         $tel = $candidato->telefone ?? '';
-        $digits = preg_replace('/\D/', '', $tel);
+        $telefoneMascarado = substr($tel, 0, 4) . str_repeat('*', max(0, strlen($tel) - 6)) . substr($tel, -2);
         return response()->json([
             'existe'    => true,
             'candidato' => [
-                'telefone' => $candidato->telefone,
+                'telefone_mascarado' => $telefoneMascarado,
             ],
         ]);
     }
@@ -154,12 +156,14 @@ class PortalCandidatoController extends Controller
 
         $candidato->update(['whatsapp_codigo' => null, 'whatsapp_codigo_expira_em' => null]);
         Auth::guard('candidato')->login($candidato);
+        request()->session()->regenerate();
 
         return response()->json(['success' => true]);
     }
 
     /**
-     * Gera token de 7 dias para o candidato autenticado no portal.
+     * Gera token de 14 dias para o candidato autenticado no portal.
+     * Armazena apenas o hash SHA-256 do token no banco — o token original é retornado ao cliente.
      */
     public function gerarToken()
     {
@@ -170,8 +174,8 @@ class PortalCandidatoController extends Controller
 
         $token = Str::random(64);
         $candidato->update([
-            'candidato_token'           => $token,
-            'candidato_token_expira_em' => now()->addDays(7),
+            'candidato_token'           => hash('sha256', $token),
+            'candidato_token_expira_em' => now()->addDays(14),
         ]);
 
         return response()->json(['token' => $token]);
@@ -339,5 +343,74 @@ class PortalCandidatoController extends Controller
         $candidato->update($validated);
 
         return redirect()->route('Portal.perfil')->with('success', 'Perfil atualizado com sucesso!');
+    }
+
+    /**
+     * Logout dedicado para o guard candidato.
+     * Invalida sessão, token persistente e limpa dados de autenticação.
+     */
+    public function logout(Request $request)
+    {
+        $candidato = Auth::guard('candidato')->user();
+
+        // Invalida o token persistente no banco
+        if ($candidato) {
+            $candidato->update([
+                'candidato_token'           => null,
+                'candidato_token_expira_em' => null,
+            ]);
+        }
+
+        Auth::guard('candidato')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('Portal.login');
+    }
+
+    /**
+     * Verificação alternativa por data de nascimento para o portal.
+     * Fator fraco — logado para auditoria.
+     */
+    public function verificarNascimento(Request $request)
+    {
+        $request->validate([
+            'cpf'             => 'required|string',
+            'data_nascimento' => 'required|date_format:Y-m-d',
+        ]);
+
+        $candidato = Candidatos::where('cpf', $request->cpf)->first();
+
+        if (!$candidato) {
+            return response()->json(['error' => 'Candidato não encontrado.'], 404);
+        }
+
+        if (!$candidato->data_nascimento) {
+            return response()->json(['error' => 'Não há data de nascimento cadastrada para este CPF. Escolha outra forma de verificação.'], 422);
+        }
+
+        $dataBD        = Carbon::parse($candidato->data_nascimento)->format('Y-m-d');
+        $dataFornecida = Carbon::parse($request->data_nascimento)->format('Y-m-d');
+
+        if (!hash_equals($dataBD, $dataFornecida)) {
+            Log::warning('Portal: tentativa de verificação por nascimento falhou.', [
+                'cpf_hash' => md5($request->cpf),
+                'ip'       => $request->ip(),
+            ]);
+            return response()->json(['error' => 'Data de nascimento incorreta. Tente novamente.'], 422);
+        }
+
+        Log::info('Portal: login via verificação por nascimento.', [
+            'candidato_id' => $candidato->id,
+            'ip'           => $request->ip(),
+        ]);
+
+        Auth::guard('candidato')->login($candidato);
+        request()->session()->regenerate();
+
+        return response()->json([
+            'success'   => true,
+            'candidato' => $candidato->only(['nome', 'email', 'telefone']),
+        ]);
     }
 }

@@ -93,6 +93,7 @@ class CandidatosController extends Controller
                 // Aprovado no quiz mas ainda não agendou — login necessário aqui pois vai direto ao agendamento
                 if ($candidatoVaga->status === 'selecionado') {
                     Auth::guard('candidato')->login($candidato);
+                    request()->session()->regenerate();
                     return response()->json([
                         'existe'      => true,
                         'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
@@ -101,16 +102,17 @@ class CandidatosController extends Controller
                 }
             }
 
-            // Token de 7 dias válido — pula verificação por WhatsApp
+            // Token de 14 dias válido — pula verificação por WhatsApp
             $token = $request->input('token');
             if (
                 $token &&
                 $candidato->candidato_token &&
-                hash_equals($candidato->candidato_token, $token) &&
+                hash_equals($candidato->candidato_token, hash('sha256', $token)) &&
                 $candidato->candidato_token_expira_em &&
                 now()->isBefore($candidato->candidato_token_expira_em)
             ) {
                 Auth::guard('candidato')->login($candidato);
+                request()->session()->regenerate();
                 return response()->json([
                     'existe'       => true,
                     'token_valido' => true,
@@ -197,6 +199,7 @@ class CandidatosController extends Controller
 
         $candidato->update(['whatsapp_codigo' => null, 'whatsapp_codigo_expira_em' => null]);
         Auth::guard('candidato')->login($candidato);
+        request()->session()->regenerate();
 
         return response()->json(['success' => true]);
     }
@@ -210,8 +213,8 @@ class CandidatosController extends Controller
 
         $token = Str::random(64);
         $candidato->update([
-            'candidato_token'          => $token,
-            'candidato_token_expira_em' => now()->addDays(7),
+            'candidato_token'          => hash('sha256', $token),
+            'candidato_token_expira_em' => now()->addDays(14),
         ]);
 
         return response()->json(['token' => $token]);
@@ -238,10 +241,20 @@ class CandidatosController extends Controller
         $dataFornecida = Carbon::parse($request->data_nascimento)->format('Y-m-d');
 
         if (!hash_equals($dataBD, $dataFornecida)) {
+            Log::warning('Candidatura: tentativa de verificação por nascimento falhou.', [
+                'cpf_hash' => md5($request->cpf),
+                'ip'       => $request->ip(),
+            ]);
             return response()->json(['error' => 'Data de nascimento incorreta. Tente novamente.'], 422);
         }
 
+        Log::info('Candidatura: login via verificação por nascimento.', [
+            'candidato_id' => $candidato->id,
+            'ip'           => $request->ip(),
+        ]);
+
         Auth::guard('candidato')->login($candidato);
+        request()->session()->regenerate();
 
         return response()->json([
             'success'   => true,
@@ -298,6 +311,7 @@ class CandidatosController extends Controller
             ]);
             
             Auth::guard('candidato')->login($candidato);
+            request()->session()->regenerate();
             
             return redirect()->back()->with('success', 'Candidato cadastrado/atualizado com sucesso!')->with('candidato_id', $candidato->id);
         } catch (\Exception $e) {

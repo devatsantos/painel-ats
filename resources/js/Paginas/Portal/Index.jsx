@@ -56,7 +56,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                             Perfil
                         </Link>
                         <Link
-                            href="/logout"
+                            href="/portal/logout"
                             method="post"
                             as="button"
                             className="ml-2 px-3 py-2 text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"

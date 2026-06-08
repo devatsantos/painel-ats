@@ -29,7 +29,7 @@ export default function PortalLogin() {
     const [erroGeral, setErroGeral] = useState('');
 
     function salvarTokenCandidato(cpf, token) {
-        const expira = Date.now() + 7 * 24 * 60 * 60 * 1000;
+        const expira = Date.now() + 14 * 24 * 60 * 60 * 1000;
         localStorage.setItem(`crh_tok_${cpf.replace(/\D/g, '')}`, JSON.stringify({ token, expira }));
     }
 
@@ -73,8 +73,8 @@ export default function PortalLogin() {
             if (res.data.existe) {
                 const c = res.data.candidato;
                 setCandidatoPendente(c);
-                const digits = (c.telefone || '').replace(/\D/g, '');
-                setUltimosDigitos(digits.slice(-3));
+                const mascarado = c.telefone_mascarado || '';
+                setUltimosDigitos(mascarado.slice(-3));
                 setModalConfirmacao(true);
             } else {
                 setErroGeral('CPF não encontrado. Cadastre-se primeiro em uma de nossas vagas.');
@@ -116,7 +116,7 @@ export default function PortalLogin() {
                 cpf: cpfInput,
                 codigo: codigoInput,
             });
-            // Salva token para não exigir 2FA por 7 dias
+            // Salva token para não exigir 2FA por 14 dias
             try { const t = await axios.post('/portal/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
             router.visit('/portal/dashboard');
         } catch (err) {
@@ -155,12 +155,12 @@ export default function PortalLogin() {
         setVerificandoNascimento(true);
         setErroNascimento('');
         try {
-            await axios.post('/candidatura/verificar-nascimento', {
+            await axios.post('/portal/verificar-nascimento', {
                 cpf: cpfInput,
                 data_nascimento: nascimentoInput,
             });
             // verificar-nascimento faz login no guard candidato
-            try { const t = await axios.post('/candidatura/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
+            try { const t = await axios.post('/portal/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
             router.visit('/portal/dashboard');
         } catch (err) {
             setErroNascimento(err.response?.data?.error || 'Dados incorretos. Tente novamente.');

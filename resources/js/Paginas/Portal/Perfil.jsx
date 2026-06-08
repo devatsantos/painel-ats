@@ -85,7 +85,7 @@ export default function PortalPerfil({ candidato }) {
                         <Link href="/portal/perfil" className="px-3 py-2 text-sm font-semibold text-[#0C4773] bg-blue-50 rounded-lg">
                             Perfil
                         </Link>
-                        <Link href="/logout" method="post" as="button" className="ml-2 px-3 py-2 text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <Link href="/portal/logout" method="post" as="button" className="ml-2 px-3 py-2 text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             Sair
                         </Link>
                     </nav>

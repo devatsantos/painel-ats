@@ -42,6 +42,8 @@ Route::post('/portal/enviar-codigo', [App\Http\Controllers\PortalCandidatoContro
     ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/portal/verificar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCodigo'])
     ->middleware('throttle:verificar-codigo-whatsapp');
+Route::post('/portal/verificar-nascimento', [App\Http\Controllers\PortalCandidatoController::class, 'verificarNascimento'])
+    ->middleware('throttle:verificar-nascimento');
 
 // Portal do Candidato — Rotas protegidas
 Route::middleware('auth:candidato')->prefix('portal')->group(function () {
@@ -50,6 +52,7 @@ Route::middleware('auth:candidato')->prefix('portal')->group(function () {
     Route::get('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'perfil'])->name('Portal.perfil');
     Route::put('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'atualizarPerfil'])->name('Portal.perfil.update');
     Route::post('/token', [App\Http\Controllers\PortalCandidatoController::class, 'gerarToken'])->name('Portal.token');
+    Route::post('/logout', [App\Http\Controllers\PortalCandidatoController::class, 'logout'])->name('Portal.logout');
 });
 
 // Ouvidoria - Rotas Públicas

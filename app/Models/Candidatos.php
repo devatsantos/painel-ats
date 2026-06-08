@@ -36,6 +36,13 @@ class Candidatos extends Authenticatable
         'candidato_token_expira_em'  => 'datetime',
     ];
 
+    protected $hidden = [
+        'whatsapp_codigo',
+        'whatsapp_codigo_expira_em',
+        'candidato_token',
+        'candidato_token_expira_em',
+    ];
+
     public function vagas()
     {
         return $this->belongsToMany(Vagas::class, 'candidato_vaga', 'candidato_id', 'vaga_id')
