@@ -17,6 +17,8 @@ Route::post('/candidatura/verificar-cpf', [App\Http\Controllers\CandidatosContro
     ->middleware('throttle:verificar-cpf');
 Route::post('/candidatura/enviar-codigo', [App\Http\Controllers\CandidatosController::class, 'enviarCodigoWhatsApp'])
     ->middleware('throttle:enviar-codigo-whatsapp');
+Route::post('/candidatura/enviar-codigo-email', [App\Http\Controllers\CandidatosController::class, 'enviarCodigoEmail'])
+    ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/candidatura/verificar-codigo', [App\Http\Controllers\CandidatosController::class, 'verificarCodigoWhatsApp'])
     ->middleware('throttle:verificar-codigo-whatsapp');
 Route::post('/candidatura/verificar-nascimento', [App\Http\Controllers\CandidatosController::class, 'verificarNascimento'])
@@ -39,6 +41,8 @@ Route::get('/portal', [App\Http\Controllers\PortalCandidatoController::class, 'l
 Route::post('/portal/verificar-cpf', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCpf'])
     ->middleware('throttle:verificar-cpf');
 Route::post('/portal/enviar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'enviarCodigo'])
+    ->middleware('throttle:enviar-codigo-whatsapp');
+Route::post('/portal/enviar-codigo-email', [App\Http\Controllers\PortalCandidatoController::class, 'enviarCodigoEmail'])
     ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/portal/verificar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCodigo'])
     ->middleware('throttle:verificar-codigo-whatsapp');
@@ -63,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/entrevistas', [App\Http\Controllers\EntrevistasController::class, 'index'])->name('Entrevistas');
     Route::put('/entrevistas/{entrevista}/status', [App\Http\Controllers\EntrevistasController::class, 'atualizarStatus'])->name('Entrevistas.status');
     Route::put('/entrevistas/{entrevista}/pegar', [App\Http\Controllers\EntrevistasController::class, 'pegarEntrevista'])->name('Entrevistas.pegar');
+    Route::put('/entrevistas/{entrevista}/adiar', [App\Http\Controllers\EntrevistasController::class, 'adiar'])->name('Entrevistas.adiar');
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('Dashboard');
     Route::get('/vagas', [App\Http\Controllers\VagasController::class, 'index'])->name('Vagas');
     Route::post('/vagas', [App\Http\Controllers\VagasController::class, 'store'])->name('Vagas.store');
@@ -95,5 +100,9 @@ Route::middleware('auth')->group(function () {
     // Ouvidoria - Rotas Administrativas
     Route::get('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'index'])->name('Ouvidoria');
     Route::delete('/ouvidoria/{ouvidoria}', [App\Http\Controllers\OuvidoriaController::class, 'delete'])->name('Ouvidoria.delete');
+
+    // Logs de Erro
+    Route::get('/logs', [App\Http\Controllers\LogsController::class, 'index'])->name('Logs');
+    Route::delete('/logs', [App\Http\Controllers\LogsController::class, 'clear'])->name('Logs.clear');
     }
 );

@@ -30,10 +30,6 @@ class DashboardController extends Controller
 
         $totalVagas = Vagas::where('ativo', true)->count();
 
-        $totalCandidatos = Candidatos::count();
-
-        $totalContratados = CandidatoVaga::where('status', 'contratado')->count();
-
         $candidatosPorStatus = CandidatoVaga::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get()
@@ -91,22 +87,123 @@ class DashboardController extends Controller
                 'contratados' => (int) $v->contratados,
             ]);
 
-        $atividadesRecentes = Entrevista::with(['candidatoVaga.candidato', 'candidatoVaga.vaga'])
-            ->orderBy('created_at', 'desc')
+        $statusLabels = [
+            'selecionado'    => 'Selecionado',
+            'contratado'     => 'Contratado',
+            'reprovado'      => 'Reprovado',
+            'recusou_vaga'   => 'Recusou a Vaga',
+            'sem_vaga'       => 'Sem Vaga',
+            'nao_compareceu' => 'Não Compareceu',
+            'desclassificado'=> 'Desclassificado',
+        ];
+
+        $vagasRecentes = Vagas::latest()->limit(5)->get()->map(fn($v) => [
+            'tipo'      => 'vaga_criada',
+            'descricao' => "A vaga de \"{$v->titulo}\" foi aberta pela equipe de RH.",
+            'data_raw'  => $v->created_at,
+        ]);
+
+        $candidaturasRecentes = CandidatoVaga::with(['candidato', 'vaga'])
+            ->latest()
             ->limit(5)
             ->get()
-            ->map(fn($e) => [
-                'candidato' => $e->candidatoVaga?->candidato?->nome,
-                'vaga'      => $e->candidatoVaga?->vaga?->titulo,
-                'data'      => $e->created_at?->diffForHumans(),
+            ->filter(fn($cv) => $cv->candidato && $cv->vaga)
+            ->map(fn($cv) => [
+                'tipo'      => 'candidatura',
+                'descricao' => "O candidato {$cv->candidato->nome} se candidatou para a vaga \"{$cv->vaga->titulo}\".",
+                'data_raw'  => $cv->created_at,
             ]);
+
+        $triagensAprovadas = CandidatoVaga::with(['candidato', 'vaga'])
+            ->where('status', 'selecionado')
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->filter(fn($cv) => $cv->candidato && $cv->vaga)
+            ->map(fn($cv) => [
+                'tipo'      => 'triagem_aprovado',
+                'descricao' => "O candidato {$cv->candidato->nome} foi aprovado na triagem para a vaga \"{$cv->vaga->titulo}\" e aguarda agendamento.",
+                'data_raw'  => $cv->updated_at,
+            ]);
+
+        $resultadosRecentes = CandidatoVaga::with(['candidato', 'vaga'])
+            ->whereIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->filter(fn($cv) => $cv->candidato && $cv->vaga)
+            ->map(fn($cv) => [
+                'tipo'      => 'resultado',
+                'descricao' => "O status do candidato {$cv->candidato->nome} para a vaga \"{$cv->vaga->titulo}\" foi alterado para " . ($statusLabels[$cv->status] ?? $cv->status) . ".",
+                'data_raw'  => $cv->updated_at,
+            ]);
+
+        $talentosRecentes = Candidatos::where('banco_de_talentos', true)
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(fn($c) => [
+                'tipo'      => 'novo_talento',
+                'descricao' => "O perfil de {$c->nome} foi registrado no Banco de Talentos.",
+                'data_raw'  => $c->created_at,
+            ]);
+
+        $entrevistasAgendadas = Entrevista::with(['candidatoVaga.candidato', 'candidatoVaga.vaga'])
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->filter(fn($e) => $e->candidatoVaga?->candidato && $e->candidatoVaga?->vaga)
+            ->map(fn($e) => [
+                'tipo'      => 'entrevista_agendada',
+                'descricao' => "Uma entrevista ({$e->tipo}) foi agendada para o candidato {$e->candidatoVaga->candidato->nome} na vaga de \"{$e->candidatoVaga->vaga->titulo}\".",
+                'data_raw'  => $e->created_at,
+            ]);
+
+        $entrevistasAssumidas = Entrevista::with(['candidatoVaga.candidato', 'candidatoVaga.vaga', 'user'])
+            ->whereNotNull('user_id')
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->filter(fn($e) => $e->candidatoVaga?->candidato && $e->candidatoVaga?->vaga && $e->user)
+            ->map(fn($e) => [
+                'tipo'      => 'entrevista_assumida',
+                'descricao' => "O recrutador {$e->user->nome} assumiu a entrevista do candidato {$e->candidatoVaga->candidato->nome} para a vaga \"{$e->candidatoVaga->vaga->titulo}\".",
+                'data_raw'  => $e->updated_at,
+            ]);
+
+        $bloqueiosRecentes = \App\Models\BloqueioAgenda::latest()
+            ->limit(5)
+            ->get()
+            ->map(fn($b) => [
+                'tipo'      => 'agenda_bloqueada',
+                'descricao' => $b->dia_todo 
+                    ? "A agenda para o dia " . Carbon::parse($b->data)->format('d/m/Y') . " foi bloqueada: \"{$b->motivo}\"."
+                    : "O horário das " . Carbon::parse($b->hora_inicio)->format('H:i') . " às " . Carbon::parse($b->hora_fim)->format('H:i') . " no dia " . Carbon::parse($b->data)->format('d/m/Y') . " foi bloqueado: \"{$b->motivo}\".",
+                'data_raw'  => $b->created_at,
+            ]);
+
+        $atividadesRecentes = collect()
+            ->concat($vagasRecentes)
+            ->concat($candidaturasRecentes)
+            ->concat($triagensAprovadas)
+            ->concat($resultadosRecentes)
+            ->concat($talentosRecentes)
+            ->concat($entrevistasAgendadas)
+            ->concat($entrevistasAssumidas)
+            ->concat($bloqueiosRecentes)
+            ->sortByDesc('data_raw')
+            ->take(10)
+            ->map(fn($act) => [
+                'tipo'      => $act['tipo'],
+                'descricao' => $act['descricao'],
+                'data'      => Carbon::parse($act['data_raw'])->diffForHumans(),
+            ])
+            ->values();
 
         return Inertia::render('Dashboard/Index', [
             'totalEntrevistasMes'      => $totalEntrevistasMes,
             'variacaoEntrevistas'      => $variacaoEntrevistas,
             'totalVagas'               => $totalVagas,
-            'totalCandidatos'          => $totalCandidatos,
-            'totalContratados'         => $totalContratados,
             'candidatosPorStatus'      => $candidatosPorStatus,
             'aguardandoEntrevista'     => $aguardandoEntrevista,
             'proximasEntrevistas'      => $proximasEntrevistas,

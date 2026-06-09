@@ -43,8 +43,6 @@ export default function Dashboard({
     totalEntrevistasMes,
     variacaoEntrevistas,
     totalVagas,
-    totalCandidatos,
-    totalContratados,
     candidatosPorStatus,
     aguardandoEntrevista,
     proximasEntrevistas,
@@ -82,7 +80,7 @@ export default function Dashboard({
                     </header>
 
                     {/* â”€â”€ KPI Cards â”€â”€ */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                         {/* Entrevistas no mês */}
                         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
@@ -140,23 +138,6 @@ export default function Dashboard({
                             <div className="p-3.5 bg-emerald-50 rounded-2xl shrink-0">
                                 <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Total de Candidatos */}
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Total de candidatos</p>
-                                <h3 className="text-3xl font-bold text-violet-600">{totalCandidatos}</h3>
-                                <p className="text-xs text-violet-600 font-medium mt-2 flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    {totalContratados} contratados
-                                </p>
-                            </div>
-                            <div className="p-3.5 bg-violet-50 rounded-2xl shrink-0">
-                                <svg className="w-7 h-7 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </div>
                         </div>
@@ -282,23 +263,104 @@ export default function Dashboard({
                                 <h2 className="text-base font-bold text-gray-900 border-l-4 border-blue-500 pl-3">Atividades Recentes</h2>
                             </div>
                             <div className="space-y-5">
-                                {atividadesRecentes && atividadesRecentes.length > 0 ? atividadesRecentes.map((atividade, index) => (
-                                    <div key={index} className="flex gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                                            <svg className="w-5 h-5 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                {atividadesRecentes && atividadesRecentes.length > 0 ? atividadesRecentes.map((atividade, index) => {
+                                    const CONFIG = {
+                                        vaga_criada: {
+                                            bg: 'bg-emerald-50',
+                                            text: 'text-emerald-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                            )
+                                        },
+                                        candidatura: {
+                                            bg: 'bg-blue-50',
+                                            text: 'text-blue-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            )
+                                        },
+                                        resultado: {
+                                            bg: 'bg-purple-50',
+                                            text: 'text-purple-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            )
+                                        },
+                                        novo_talento: {
+                                            bg: 'bg-amber-50',
+                                            text: 'text-amber-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                                </svg>
+                                            )
+                                        },
+                                        entrevista_agendada: {
+                                            bg: 'bg-indigo-50',
+                                            text: 'text-indigo-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            )
+                                        },
+                                        triagem_aprovado: {
+                                            bg: 'bg-teal-50',
+                                            text: 'text-teal-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                </svg>
+                                            )
+                                        },
+                                        entrevista_assumida: {
+                                            bg: 'bg-sky-50',
+                                            text: 'text-sky-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H9m2-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2zM9 14l2 2 4-4" />
+                                                </svg>
+                                            )
+                                        },
+                                        agenda_bloqueada: {
+                                            bg: 'bg-rose-50',
+                                            text: 'text-rose-600',
+                                            icon: (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            )
+                                        }
+                                    };
+                                    const cfg = CONFIG[atividade.tipo] || {
+                                        bg: 'bg-gray-50',
+                                        text: 'text-gray-600',
+                                        icon: (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        )
+                                    };
+                                    return (
+                                        <div key={index} className="flex gap-4">
+                                            <div className={`w-10 h-10 rounded-full ${cfg.bg} ${cfg.text} flex items-center justify-center shrink-0`}>
+                                                {cfg.icon}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm text-gray-700 leading-snug">
+                                                    {atividade.descricao}
+                                                </p>
+                                                <p className="text-xs text-gray-400 mt-1 font-medium">{atividade.data}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm text-gray-700">
-                                                Entrevista agendada com{' '}
-                                                <span className="font-semibold text-gray-900">{atividade.candidato ?? 'Candidato'}</span>
-                                                {atividade.vaga && (
-                                                    <> para a vaga de <span className="font-bold text-[#0C4773]">{atividade.vaga}</span></>
-                                                )}.
-                                            </p>
-                                            <p className="text-xs text-gray-400 mt-0.5 font-medium">{atividade.data}</p>
-                                        </div>
-                                    </div>
-                                )) : (
+                                    );
+                                }) : (
                                     <p className="text-sm text-gray-400 text-center py-8">Nenhuma atividade recente.</p>
                                 )}
                             </div>

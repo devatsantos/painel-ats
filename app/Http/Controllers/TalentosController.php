@@ -16,24 +16,53 @@ use App\Services\VideoConferenciaService;
 
 class TalentosController extends Controller
 {
-    public function index() {
+    public function index(Request $request) {
         $totalRegioes = Candidatos::where('banco_de_talentos', true)->distinct('regiao')->count('regiao');
-        $talentos = Candidatos::where('banco_de_talentos', true)->paginate(20);
+        
+        $regioes = Candidatos::where('banco_de_talentos', true)
+            ->whereNotNull('regiao')
+            ->where('regiao', '!=', '')
+            ->distinct()
+            ->orderBy('regiao')
+            ->pluck('regiao');
+
+        $query = Candidatos::where('banco_de_talentos', true);
+
+        if ($request->filled('busca')) {
+            $busca = $request->input('busca');
+            $query->where(function($q) use ($busca) {
+                $q->where('nome', 'like', "%{$busca}%")
+                  ->orWhere('nivel_escolaridade', 'like', "%{$busca}%");
+            });
+        }
+
+        if ($request->filled('regiao')) {
+            $query->where('regiao', $request->input('regiao'));
+        }
+
+        $talentos = $query->paginate(20)->withQueryString();
         $vagas = Vagas::where('ativo', true)->orderBy('titulo')->get(['id', 'titulo']);
+        
         return Inertia::render('Talentos/Index', [
             'talentos'     => $talentos,
             'vagas'        => $vagas,
             'totalRegioes' => $totalRegioes,
+            'regioes'      => $regioes,
+            'filtros'      => $request->only(['busca', 'regiao']),
         ]);
     }
 
     public function store(Request $request) {
         $validated = $request->validate([
             'nome'               => 'required|string|max:255',
-            'cpf'                => 'required|string|max:14|unique:candidatos,cpf',
+            'cpf'                => 'required|string|max:20|unique:candidatos,cpf',
+            'email'              => 'required|email|max:255',
             'telefone'           => 'required|string|max:20',
             'nivel_escolaridade' => 'required|string|max:255',
+            'cep'                => 'required|string|max:20',
+            'logradouro'         => 'required|string|max:255',
             'regiao'             => 'required|string|max:255',
+            'data_nascimento'    => 'nullable|date',
             'curriculo'          => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
         ]);
         $path = null;
@@ -44,9 +73,13 @@ class TalentosController extends Controller
         Candidatos::create([
             'nome'               => $validated['nome'],
             'cpf'                => $validated['cpf'],
+            'email'              => $validated['email'],
             'telefone'           => $validated['telefone'],
             'nivel_escolaridade' => $validated['nivel_escolaridade'],
+            'cep'                => $validated['cep'],
+            'logradouro'         => $validated['logradouro'],
             'regiao'             => $validated['regiao'],
+            'data_nascimento'    => $validated['data_nascimento'] ?? null,
             'path_curriculo'     => $path,
             'banco_de_talentos'  => true,
         ]);
@@ -57,10 +90,14 @@ class TalentosController extends Controller
     public function update(Request $request, Candidatos $candidato) {
         $validated = $request->validate([
             'nome'               => 'required|string|max:255',
-            'cpf'                => 'required|string|max:14|unique:candidatos,cpf,' . $candidato->id,
+            'cpf'                => 'required|string|max:20|unique:candidatos,cpf,' . $candidato->id,
+            'email'              => 'required|email|max:255',
             'telefone'           => 'required|string|max:20',
             'nivel_escolaridade' => 'required|string|max:255',
+            'cep'                => 'required|string|max:20',
+            'logradouro'         => 'required|string|max:255',
             'regiao'             => 'required|string|max:255',
+            'data_nascimento'    => 'nullable|date',
             'curriculo'          => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
         ]);
 
@@ -142,6 +179,8 @@ class TalentosController extends Controller
                 Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
             }
         }
+
+        $candidatoVaga->update(['status' => 'marcada']);
 
         Entrevista::create([
             'candidato_vaga_id' => $candidatoVaga->id,

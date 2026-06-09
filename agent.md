@@ -36,11 +36,11 @@ Dois guards separados — nunca misturar:
 | Guard | Model | Uso |
 |---|---|---|
 | `web` | `User` | Painel interno (RH/admin) — autentica por CPF+senha |
-| `candidato` | `Candidatos` | Fluxo público de candidatura — ativado **somente** após verificação OTP WhatsApp ou aprovação prévia no quiz |
+| `candidato` | `Candidatos` | Fluxo público de candidatura — ativado **somente** após verificação OTP WhatsApp / E-mail ou aprovação prévia no quiz |
 
 - Rotas internas: `middleware('auth')` | Candidatura autenticada: `middleware('auth:candidato')`
 - **`Auth::guard('candidato')->login()` só pode ocorrer em dois lugares:**
-  1. `verificarCodigoWhatsApp()` — após código OTP validado
+  1. `verificarCodigo()` / `verificarCodigoWhatsApp()` — após código OTP (WhatsApp ou E-mail) validado
   2. `verificarCpf()` — **exclusivamente** no branch `ja_aprovado` (candidato aprovado no quiz, indo direto ao agendamento)
   - ⚠️ Nunca chamar `login()` em `verificarCpf()` antes do OTP: permite bypass do 2FA por CPF alheio
 - Rate limiting de login: 5 tentativas/60s por CPF+IP — nunca remover
@@ -81,9 +81,10 @@ Sequência obrigatória — candidato não pode pular etapas:
    ├─ CPF novo                           → etapa 'formulario' (sem auth ainda)
    ├─ CPF existente + ja_agendado        → alerta, fluxo encerrado
    ├─ CPF existente + ja_aprovado        → login guard candidato + etapa 'entrevista' (pula quiz)
-   └─ CPF existente (padrão)             → etapa 'verificacao' (WhatsApp OTP, sem login ainda)
+   └─ CPF existente (padrão)             → etapa 'verificacao' (WhatsApp / E-mail OTP, sem login ainda)
 3. POST /candidatura/enviar-codigo       → gera código OTP (6 dígitos, expira 15min), envia WhatsApp
-4. POST /candidatura/verificar-codigo    → valida OTP → login guard candidato + etapa 'formulario'
+   POST /candidatura/enviar-codigo-email → gera código OTP (6 dígitos, expira 15min), envia e-mail
+4. POST /candidatura/verificar-codigo    → valida OTP (WhatsApp ou E-mail) → login guard candidato + etapa 'formulario'
 5. POST /candidatura                     → store: cadastro/atualização + vínculo à vaga (status: marcada) + login guard candidato
 6. GET  /candidatura/perguntas/{vaga}    → formulário com perguntas/alternativas [auth:candidato]
 7. POST /candidatura/salvar-respostas    → corrige quiz → aprovado (selecionado) ou bloqueado 30 dias [auth:candidato]
@@ -92,14 +93,14 @@ Sequência obrigatória — candidato não pode pular etapas:
 - Threshold: **por formulário**, armazenado em `formularios.threshold` (inteiro, min 1) — imutável via request; lido em `CandidatosController@salvarRespostas` como `$vaga->formulario->threshold`
 - Bloqueio: **30 dias** por `formulario_id` — verificado em `verificarCpf`, não só no frontend
 - Respostas: `updateOrCreate` em `resposta_candidatos`
-- Campos OTP no model `Candidatos`: `whatsapp_codigo` (varchar 10, nullable) | `whatsapp_codigo_expira_em` (timestamp, nullable)
+- Campos OTP no model `Candidatos`: `whatsapp_codigo` (varchar 10, nullable) | `whatsapp_codigo_expira_em` (timestamp, nullable) — **reutilizados para ambos os canais de envio (WhatsApp e E-mail)**
 
-### Rate Limiting WhatsApp (definido em `AppServiceProvider::boot()`)
+### Rate Limiting WhatsApp e E-mail (definido em `AppServiceProvider::boot()`)
 | Limiter | Limite | Chave |
 |---|---|---|
 | `enviar-codigo-whatsapp` | 1 envio / 5 min | CPF + IP |
 | `verificar-codigo-whatsapp` | 15 tentativas / 2 min | CPF + IP |
-- Aplicado como `->middleware('throttle:enviar-codigo-whatsapp')` nas rotas
+- Aplicado como `->middleware('throttle:enviar-codigo-whatsapp')` nas rotas de envio (tanto WhatsApp quanto E-mail)
 - Resposta 429: `{ "error": "mensagem amigável" }` — frontend exibe na tela de verificação
 
 ## 8. Inertia — Dados Compartilhados

@@ -9,6 +9,7 @@ const STATUS_CONFIG = {
     recusou_vaga:   { label: 'Recusou vaga',     color: 'bg-yellow-100 text-yellow-700',  dot: 'bg-yellow-500',  icon: '↩️' },
     sem_vaga:       { label: 'Sem vaga',         color: 'bg-gray-100 text-gray-600',      dot: 'bg-gray-400',    icon: '⏸️' },
     nao_compareceu: { label: 'Não compareceu',   color: 'bg-pink-100 text-pink-700',      dot: 'bg-pink-500',    icon: '🚫' },
+    desclassificado: { label: 'Desclassificado',  color: 'bg-rose-100 text-rose-700',      dot: 'bg-rose-500',    icon: '🚫' },
 };
 
 function saudacao() {

@@ -50,6 +50,7 @@ class RelatoriosController extends Controller
             'recusou_vaga'   => 'Recusaram vaga',
             'sem_vaga'       => 'Sem vaga',
             'nao_compareceu' => 'Não compareceu',
+            'desclassificado'=> 'Desclassificados',
         ];
 
         $candidatosPorStatusRaw = CandidatoVaga::select('status', DB::raw('count(*) as total'))

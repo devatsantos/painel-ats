@@ -37,6 +37,9 @@ export default function Candidatura({ vagas, candidato_id }) {
     const [nascimentoInput, setNascimentoInput] = useState('');
     const [erroNascimento, setErroNascimento] = useState('');
     const [verificandoNascimento, setVerificandoNascimento] = useState(false);
+    const [meioEnvio, setMeioEnvio] = useState('whatsapp'); // 'whatsapp' | 'email'
+    const [emailMascarado, setEmailMascarado] = useState('');
+    const [enviandoEmail, setEnviandoEmail] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         nome: '',
@@ -66,6 +69,9 @@ export default function Candidatura({ vagas, candidato_id }) {
         setSubetapaAlt('opcoes');
         setNascimentoInput('');
         setErroNascimento('');
+        setMeioEnvio('whatsapp');
+        setEmailMascarado('');
+        setEnviandoEmail(false);
         setPerguntas([]);
         setRespostas({});
         reset();
@@ -219,6 +225,7 @@ export default function Candidatura({ vagas, candidato_id }) {
             setTelefoneMascarado(codRes.data.telefone_mascarado || '');
             setCodigoInput('');
             setErroCodigo('');
+            setMeioEnvio('whatsapp');
             setEtapa('verificacao');
         } catch (errCod) {
             const msg = errCod.response?.data?.error || errCod.message || 'Erro ao enviar código.';
@@ -226,6 +233,26 @@ export default function Candidatura({ vagas, candidato_id }) {
             setEtapa('verificacao');
         } finally {
             setEnviandoCodigo(false);
+        }
+    }
+
+    async function confirmarEnvioEmail() {
+        setSubetapaAlt('opcoes');
+        setEnviandoEmail(true);
+        setErroCodigo('');
+        try {
+            const res = await axios.post('/candidatura/enviar-codigo-email', {
+                cpf: cpfInput,
+            });
+            setEmailMascarado(res.data.email_mascarado || '');
+            setCodigoInput('');
+            setMeioEnvio('email');
+            setEtapa('verificacao');
+        } catch (err) {
+            const msg = err.response?.data?.error || err.message || 'Erro ao enviar código por e-mail.';
+            alert('Erro: ' + msg);
+        } finally {
+            setEnviandoEmail(false);
         }
     }
 
@@ -281,11 +308,18 @@ export default function Candidatura({ vagas, candidato_id }) {
         setErroCodigo('');
         setCodigoInput('');
         try {
-            const res = await axios.post('/candidatura/enviar-codigo', {
-                cpf: cpfInput,
-                vaga_id: vagaSelecionada?.id,
-            });
-            setTelefoneMascarado(res.data.telefone_mascarado || '');
+            if (meioEnvio === 'email') {
+                const res = await axios.post('/candidatura/enviar-codigo-email', {
+                    cpf: cpfInput,
+                });
+                setEmailMascarado(res.data.email_mascarado || '');
+            } else {
+                const res = await axios.post('/candidatura/enviar-codigo', {
+                    cpf: cpfInput,
+                    vaga_id: vagaSelecionada?.id,
+                });
+                setTelefoneMascarado(res.data.telefone_mascarado || '');
+            }
         } catch (err) {
             setErroCodigo(err.response?.data?.error || 'Erro ao reenviar código. Tente novamente.');
         } finally {
@@ -592,17 +626,26 @@ export default function Candidatura({ vagas, candidato_id }) {
                         {etapa === 'verificacao' && (
                             <div className="p-6">
                                 <div className="text-center mb-6">
-                                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                        </svg>
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${meioEnvio === 'email' ? 'bg-blue-50' : 'bg-green-50'}`}>
+                                        {meioEnvio === 'email' ? (
+                                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                        )}
                                     </div>
-                                    <h3 className="text-base font-bold text-gray-900 mb-1">Verificação por WhatsApp</h3>
+                                    <h3 className="text-base font-bold text-gray-900 mb-1">
+                                        {meioEnvio === 'email' ? 'Verificação por E-mail' : 'Verificação por WhatsApp'}
+                                    </h3>
                                     <p className="text-sm text-gray-500">
-                                        Enviamos um código de 6 dígitos para o número{' '}
-                                        {telefoneMascarado && (
-                                            <span className="font-semibold text-gray-700">{telefoneMascarado}</span>
-                                        )}.
+                                        {meioEnvio === 'email' ? (
+                                            <>Enviamos um código de 6 dígitos para o e-mail <span className="font-semibold text-gray-700">{emailMascarado}</span>.</>
+                                        ) : (
+                                            <>Enviamos um código de 6 dígitos para o número{' '}{telefoneMascarado && (<span className="font-semibold text-gray-700">{telefoneMascarado}</span>)}.</>
+                                        )}
                                         <br />O código expira em <span className="font-semibold">15 minutos</span>.
                                     </p>
                                 </div>
@@ -689,8 +732,9 @@ export default function Candidatura({ vagas, candidato_id }) {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => setSubetapaAlt('email')}
-                                                className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/40 transition-all cursor-pointer"
+                                                onClick={confirmarEnvioEmail}
+                                                disabled={enviandoEmail}
+                                                className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/40 transition-all cursor-pointer disabled:opacity-50 text-left w-full"
                                             >
                                                 <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
                                                     <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -698,7 +742,9 @@ export default function Candidatura({ vagas, candidato_id }) {
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-semibold text-gray-800">Código por e-mail</p>
+                                                    <p className="text-sm font-semibold text-gray-800">
+                                                        {enviandoEmail ? 'Enviando...' : 'Código por e-mail'}
+                                                    </p>
                                                     <p className="text-xs text-gray-500">Receba um código no seu e-mail cadastrado</p>
                                                 </div>
                                             </button>
@@ -755,28 +801,6 @@ export default function Candidatura({ vagas, candidato_id }) {
                                             </button>
                                         </div>
                                     </>
-                                )}
-
-                                {subetapaAlt === 'email' && (
-                                    <div className="text-center">
-                                        <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-base font-bold text-gray-900 mb-2">Verificação por e-mail</h3>
-                                        <p className="text-sm text-gray-500 max-w-sm mx-auto mb-8">
-                                            Esta funcionalidade estará disponível em breve.<br />
-                                            Se precisar de ajuda, entre em contato com o nosso suporte.
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSubetapaAlt('opcoes')}
-                                            className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                                        >
-                                            Voltar
-                                        </button>
-                                    </div>
                                 )}
                             </div>
                         )}

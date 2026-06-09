@@ -22,6 +22,7 @@ use App\Services\VideoConferenciaService;
 use App\Services\WhatsAppService;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class CandidatosController extends Controller
 {
@@ -51,7 +52,7 @@ class CandidatosController extends Controller
 
             // Bloqueia se já tiver candidatura ativa em outra vaga
             $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado'])
+                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
                 ->where('vaga_id', '!=', $request->vaga_id)
                 ->with('vaga:id,titulo')
                 ->first();
@@ -92,13 +93,22 @@ class CandidatosController extends Controller
 
                 // Aprovado no quiz mas ainda não agendou — login necessário aqui pois vai direto ao agendamento
                 if ($candidatoVaga->status === 'selecionado') {
-                    Auth::guard('candidato')->login($candidato);
-                    request()->session()->regenerate();
-                    return response()->json([
-                        'existe'      => true,
-                        'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
-                        'ja_aprovado' => true,
-                    ]);
+                    if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(7))) {
+                        // Reseta a candidatura
+                        RespostaCandidato::where('candidato_id', $candidato->id)
+                            ->where('vaga_id', $request->vaga_id)
+                            ->delete();
+                        $candidatoVaga->delete();
+                        $candidatoVaga = null;
+                    } else {
+                        Auth::guard('candidato')->login($candidato);
+                        request()->session()->regenerate();
+                        return response()->json([
+                            'existe'      => true,
+                            'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
+                            'ja_aprovado' => true,
+                        ]);
+                    }
                 }
             }
 
@@ -204,6 +214,66 @@ class CandidatosController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function enviarCodigoEmail(Request $request)
+    {
+        $request->validate([
+            'cpf' => 'required|string',
+        ]);
+
+        $candidato = Candidatos::where('cpf', $request->cpf)->first();
+
+        if (!$candidato) {
+            return response()->json(['error' => 'Candidato não encontrado.'], 404);
+        }
+
+        if (empty($candidato->email)) {
+            return response()->json(['error' => 'Candidato não possui e-mail cadastrado.'], 422);
+        }
+
+        $codigo = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $candidato->update([
+            'whatsapp_codigo'           => $codigo,
+            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+        ]);
+
+        try {
+            Mail::raw(
+                "Olá, {$candidato->nome}! 👋\n\nSeu código de acesso ao processo seletivo é:\n\n{$codigo}\n\nEste código expira em 15 minutos. Não compartilhe com ninguém.",
+                function ($message) use ($candidato) {
+                    $message->to($candidato->email)
+                        ->subject("Código de Acesso - Processo Seletivo");
+                }
+            );
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar e-mail OTP para candidatura.', [
+                'candidato_id' => $candidato->id,
+                'erro' => $e->getMessage(),
+            ]);
+        }
+
+        $email = $candidato->email;
+        $parts = explode('@', $email);
+        if (count($parts) === 2) {
+            $name = $parts[0];
+            $domain = $parts[1];
+            $len = strlen($name);
+            if ($len > 2) {
+                $maskedName = substr($name, 0, 1) . str_repeat('*', $len - 2) . substr($name, -1);
+            } else {
+                $maskedName = str_repeat('*', $len);
+            }
+            $emailMascarado = $maskedName . '@' . $domain;
+        } else {
+            $emailMascarado = '***@***.***';
+        }
+
+        return response()->json([
+            'success'         => true,
+            'email_mascarado' => $emailMascarado,
+        ]);
+    }
+
     public function gerarToken(Request $request)
     {
         $candidato = Auth::guard('candidato')->user();
@@ -295,7 +365,7 @@ class CandidatosController extends Controller
 
             // Bloqueia candidatura se já houver processo ativo em outra vaga
             $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado'])
+                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
                 ->where('vaga_id', '!=', $vagaId)
                 ->with('vaga:id,titulo')
                 ->first();
@@ -487,6 +557,8 @@ class CandidatosController extends Controller
                     Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
                 }
             }
+
+            $candidatoVaga->update(['status' => 'marcada']);
 
             $entrevista = Entrevista::create([
                 'candidato_vaga_id' => $candidatoVaga->id,

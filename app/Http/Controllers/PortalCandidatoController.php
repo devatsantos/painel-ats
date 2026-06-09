@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Services\WhatsAppService;
+use Illuminate\Support\Facades\Mail;
 
 class PortalCandidatoController extends Controller
 {
@@ -161,6 +162,66 @@ class PortalCandidatoController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function enviarCodigoEmail(Request $request)
+    {
+        $request->validate([
+            'cpf' => 'required|string',
+        ]);
+
+        $candidato = Candidatos::where('cpf', $request->cpf)->first();
+
+        if (!$candidato) {
+            return response()->json(['error' => 'Candidato não encontrado.'], 404);
+        }
+
+        if (empty($candidato->email)) {
+            return response()->json(['error' => 'Candidato não possui e-mail cadastrado.'], 422);
+        }
+
+        $codigo = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $candidato->update([
+            'whatsapp_codigo'           => $codigo,
+            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+        ]);
+
+        try {
+            Mail::raw(
+                "Olá, {$candidato->nome}! 👋\n\nSeu código de acesso ao Portal do Candidato é:\n\n{$codigo}\n\nEste código expira em 15 minutos. Não compartilhe com ninguém.",
+                function ($message) use ($candidato) {
+                    $message->to($candidato->email)
+                        ->subject("Código de Acesso - Portal do Candidato");
+                }
+            );
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar e-mail OTP para o portal.', [
+                'candidato_id' => $candidato->id,
+                'erro' => $e->getMessage(),
+            ]);
+        }
+
+        $email = $candidato->email;
+        $parts = explode('@', $email);
+        if (count($parts) === 2) {
+            $name = $parts[0];
+            $domain = $parts[1];
+            $len = strlen($name);
+            if ($len > 2) {
+                $maskedName = substr($name, 0, 1) . str_repeat('*', $len - 2) . substr($name, -1);
+            } else {
+                $maskedName = str_repeat('*', $len);
+            }
+            $emailMascarado = $maskedName . '@' . $domain;
+        } else {
+            $emailMascarado = '***@***.***';
+        }
+
+        return response()->json([
+            'success'         => true,
+            'email_mascarado' => $emailMascarado,
+        ]);
+    }
+
     /**
      * Gera token de 14 dias para o candidato autenticado no portal.
      * Armazena apenas o hash SHA-256 do token no banco — o token original é retornado ao cliente.
@@ -187,6 +248,19 @@ class PortalCandidatoController extends Controller
     public function index()
     {
         $candidato = Auth::guard('candidato')->user();
+
+        // Limpa candidaturas "selecionado" que expiraram (mais de 7 dias)
+        $expiradas = CandidatoVaga::where('candidato_id', $candidato->id)
+            ->where('status', 'selecionado')
+            ->where('updated_at', '<', now()->subDays(7))
+            ->get();
+
+        foreach ($expiradas as $ev) {
+            \App\Models\RespostaCandidato::where('candidato_id', $candidato->id)
+                ->where('vaga_id', $ev->vaga_id)
+                ->delete();
+            $ev->delete();
+        }
 
         $candidaturas = CandidatoVaga::where('candidato_id', $candidato->id)
             ->with(['vaga:id,titulo,local,horario,salario', 'entrevista'])
@@ -252,6 +326,14 @@ class PortalCandidatoController extends Controller
             ->where('vaga_id', $vagaId)
             ->with(['vaga', 'entrevista.user:id,nome'])
             ->firstOrFail();
+
+        if ($candidatoVaga->status === 'selecionado' && $candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(7))) {
+            \App\Models\RespostaCandidato::where('candidato_id', $candidato->id)
+                ->where('vaga_id', $vagaId)
+                ->delete();
+            $candidatoVaga->delete();
+            return redirect()->route('Portal')->with('error', 'O prazo de 7 dias para agendamento da sua entrevista expirou. Você precisará se candidatar novamente.');
+        }
 
         $vaga = $candidatoVaga->vaga;
 

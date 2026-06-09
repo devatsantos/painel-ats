@@ -13,11 +13,13 @@ const STATUS_CONFIG = {
     recusou_vaga:   { label: 'Recusou a Vaga',  bg: 'bg-orange-100', text: 'text-orange-700' },
     sem_vaga:       { label: 'Sem Vaga',        bg: 'bg-gray-200',   text: 'text-gray-600' },
     nao_compareceu: { label: 'Não Compareceu',  bg: 'bg-yellow-100', text: 'text-yellow-700' },
+    desclassificado: { label: 'Desclassificado', bg: 'bg-rose-100',   text: 'text-rose-700' },
 };
 
 const OPCOES_RESULTADO = [
     { value: 'contratado',     label: 'Contratado',      desc: 'Candidato aprovado e contratado' },
     { value: 'reprovado',      label: 'Reprovado',       desc: 'Candidato não aprovado na entrevista' },
+    { value: 'desclassificado', label: 'Desclassificado',  desc: 'Candidato desclassificado antes da entrevista' },
     { value: 'recusou_vaga',   label: 'Recusou a Vaga',  desc: 'Candidato optou por não aceitar a vaga' },
     { value: 'sem_vaga',       label: 'Sem Vaga',        desc: 'Não há vaga disponível no momento' },
     { value: 'nao_compareceu', label: 'Não Compareceu',  desc: 'Candidato não apareceu na entrevista' },
@@ -34,6 +36,9 @@ export default function Entrevistas({ candidatos }) {
     const [modalCandidato, setModalCandidato] = useState(null);
     const [modalResultado, setModalResultado] = useState(null);
     const [entrevistasPegas, setEntrevistasPegas] = useState(new Set());
+    const [modalAdiar, setModalAdiar] = useState(null);
+    const [justificativa, setJustificativa] = useState('');
+    const [adiando, setAdiando] = useState(false);
 
     const { data, setData, put, processing, errors, reset } = useForm({
         status: '',
@@ -48,6 +53,32 @@ export default function Entrevistas({ candidatos }) {
     function fecharResultado() {
         setModalResultado(null);
         reset();
+    }
+
+    function abrirAdiar(candidato) {
+        setModalAdiar(candidato);
+        setJustificativa('');
+    }
+
+    function fecharAdiar() {
+        setModalAdiar(null);
+        setJustificativa('');
+    }
+
+    function submitAdiar(e) {
+        e.preventDefault();
+        setAdiando(true);
+        router.put(`/entrevistas/${modalAdiar.entrevista_id}/adiar`, {
+            justificativa: justificativa
+        }, {
+            onSuccess: () => {
+                fecharAdiar();
+                setAdiando(false);
+            },
+            onError: () => {
+                setAdiando(false);
+            }
+        });
     }
 
     function pegarEntrevista(entrevistaId) {
@@ -184,7 +215,7 @@ export default function Entrevistas({ candidatos }) {
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
                                                     </svg>
-                                                    Pegar
+                                                    Conduzir
                                                 </button>
                                             )}
                                         </div>
@@ -214,6 +245,14 @@ export default function Entrevistas({ candidatos }) {
                                             >
                                                 Detalhes
                                             </button>
+                                            {['marcada', 'selecionado'].includes(candidato.status) && (
+                                                <button
+                                                    onClick={() => abrirAdiar(candidato)}
+                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                                                >
+                                                    Adiar
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => abrirResultado(candidato)}
                                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#0C4773]/90 px-4 py-2 rounded-lg transition-colors cursor-pointer"
@@ -529,6 +568,56 @@ export default function Entrevistas({ candidatos }) {
                                     className="text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#0C4773]/90 px-5 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {processing ? 'Salvando...' : 'Salvar Resultado'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {modalAdiar && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={fecharAdiar}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <div>
+                                <h2 className="text-base font-bold text-gray-900">Adiar Entrevista</h2>
+                                <p className="text-xs text-gray-400 mt-0.5">{modalAdiar.nome} — {modalAdiar.vaga_titulo}</p>
+                            </div>
+                            <button onClick={fecharAdiar} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <form onSubmit={submitAdiar}>
+                            <div className="p-6 space-y-4">
+                                <p className="text-sm text-gray-655 font-medium text-amber-800 bg-amber-50 p-3.5 rounded-xl border border-amber-200/50">
+                                    Esta ação removerá o agendamento atual da entrevista. O candidato será notificado por WhatsApp e convidado a selecionar um novo horário através do portal.
+                                </p>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                                        Motivo/Justificativa <span className="text-gray-400 font-normal normal-case">(opcional, será enviado ao candidato)</span>
+                                    </label>
+                                    <textarea
+                                        value={justificativa}
+                                        onChange={e => setJustificativa(e.target.value)}
+                                        rows={3}
+                                        placeholder="Ex: Tivemos um imprevisto na agenda interna e precisamos reagendar..."
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] resize-none"
+                                        maxLength={1000}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+                                <button type="button" onClick={fecharAdiar} className="text-sm font-medium text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={adiando}
+                                    className="text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {adiando ? 'Confirmando...' : 'Confirmar e Adiar'}
                                 </button>
                             </div>
                         </form>

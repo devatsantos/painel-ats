@@ -16,6 +16,7 @@ export default function Sidebar() {
     const isAgenda = url.startsWith('/agenda');
     const isRelatorios = url.startsWith('/relatorios');
     const isOuvidoria = url.startsWith('/ouvidoria');
+    const isLogs = url.startsWith('/logs');
     const navItems = [
         {
             label: 'Dashboard',
@@ -99,6 +100,15 @@ export default function Sidebar() {
             adminOnly: true,
             icon: (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            )
+        },
+        {
+            label: 'Logs de Erro',
+            href: '/logs',
+            active: isLogs,
+            adminOnly: true,
+            icon: (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             )
         }
     ];

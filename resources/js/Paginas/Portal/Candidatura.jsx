@@ -1,5 +1,6 @@
-import React from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
+import axios from 'axios';
 
 const STATUS_CONFIG = {
     marcada:        { label: 'Inscrito',         color: 'bg-blue-100 text-blue-700',      step: 1 },
@@ -9,6 +10,7 @@ const STATUS_CONFIG = {
     recusou_vaga:   { label: 'Recusou vaga',     color: 'bg-yellow-100 text-yellow-700',  step: -1 },
     sem_vaga:       { label: 'Sem vaga',         color: 'bg-gray-100 text-gray-600',      step: -1 },
     nao_compareceu: { label: 'Não compareceu',   color: 'bg-pink-100 text-pink-700',      step: -1 },
+    desclassificado: { label: 'Desclassificado',  color: 'bg-rose-100 text-rose-700',      step: -1 },
 };
 
 const TIMELINE_STEPS = [
@@ -20,6 +22,53 @@ const TIMELINE_STEPS = [
 
 export default function PortalCandidatura({ vaga, status, entrevista, dataCandidatura }) {
     const { auth } = usePage().props;
+    
+    const [dataEntrevista, setDataEntrevista] = useState('');
+    const [slotSelecionado, setSlotSelecionado] = useState('');
+    const [slots, setSlots] = useState([]);
+    const [carregandoSlots, setCarregandoSlots] = useState(false);
+    const [erroData, setErroData] = useState('');
+    const [tipoEntrevista, setTipoEntrevista] = useState('Online');
+    const [agendando, setAgendando] = useState(false);
+
+    async function buscarSlots(data) {
+        if (!data) return;
+        setCarregandoSlots(true);
+        setSlots([]);
+        setSlotSelecionado('');
+        try {
+            const res = await axios.get('/candidatura/slots-disponiveis', { params: { data } });
+            setSlots(res.data.slots || []);
+        } catch (err) {
+            setSlots([]);
+        } finally {
+            setCarregandoSlots(false);
+        }
+    }
+
+    async function handleAgendarEntrevista(e) {
+        e.preventDefault();
+        if (!dataEntrevista || !slotSelecionado) return alert('Selecione data e horário.');
+        setAgendando(true);
+        try {
+            const dataHora = `${dataEntrevista}T${slotSelecionado}:00`;
+            await axios.post('/candidatura/agendar-entrevista', {
+                vaga_id: vaga.id,
+                data_hora: dataHora,
+                tipo: tipoEntrevista,
+            });
+            router.reload({
+                preserveScroll: true,
+                onSuccess: () => {
+                    alert('Entrevista agendada com sucesso!');
+                }
+            });
+        } catch (error) {
+            alert('Não foi possível agendar: ' + (error.response?.data?.message || error.response?.data?.error || error.message));
+        } finally {
+            setAgendando(false);
+        }
+    }
     const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.marcada;
 
     // Determina o step atual da timeline
@@ -189,6 +238,115 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                         )}
                     </div>
                 </div>
+
+                {/* Agendar Entrevista (após adiamento ou se pendente) */}
+                {status === 'selecionado' && !entrevista && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-emerald-50/20">
+                            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <span className="w-2.5 h-5 bg-emerald-500 rounded-full" />
+                                Agendar sua Entrevista
+                            </h2>
+                            <p className="text-xs text-gray-400 mt-0.5">Selecione uma data e horário de sua preferência para realizar a entrevista.</p>
+                        </div>
+                        <form onSubmit={handleAgendarEntrevista} className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Seleção de Data */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700">Data de Preferência</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        value={dataEntrevista}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setDataEntrevista(val);
+                                            setErroData('');
+                                            setSlots([]);
+                                            setSlotSelecionado('');
+                                            if (val) {
+                                                const diaSemana = new Date(val + 'T00:00:00').getDay();
+                                                if (diaSemana === 0 || diaSemana === 6) {
+                                                    setErroData('Entrevistas são realizadas apenas de segunda a sexta-feira.');
+                                                    return;
+                                                }
+                                            }
+                                            buscarSlots(val);
+                                        }}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] transition-all"
+                                    />
+                                    {erroData && (
+                                        <p className="text-xs font-medium text-red-500">{erroData}</p>
+                                    )}
+                                </div>
+
+                                {/* Tipo de Entrevista */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700">Modelo de Entrevista</label>
+                                    <select
+                                        value={tipoEntrevista}
+                                        onChange={e => setTipoEntrevista(e.target.value)}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] transition-all"
+                                    >
+                                        <option value="Online">Online (Reunião por vídeo)</option>
+                                        <option value="Presencial">Presencial (No escritório da empresa)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Horários disponíveis */}
+                            {dataEntrevista && !erroData && (
+                                <div className="space-y-3 pt-2">
+                                    <label className="block text-sm font-semibold text-gray-700">Horários Disponíveis</label>
+                                    {carregandoSlots ? (
+                                        <div className="flex items-center gap-2 py-4">
+                                            <div className="w-5 h-5 border-2 border-gray-300 border-t-[#0C4773] rounded-full animate-spin" />
+                                            <span className="text-sm text-gray-400 font-medium">Buscando horários na agenda...</span>
+                                        </div>
+                                    ) : slots.length === 0 ? (
+                                        <p className="text-sm text-red-500 font-medium bg-red-50 border border-red-200/50 p-4 rounded-xl">
+                                            ⚠️ Não há horários disponíveis para esta data. Por favor, escolha outro dia útil.
+                                        </p>
+                                    ) : (
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                                            {slots.map(slot => (
+                                                <button
+                                                    key={slot}
+                                                    type="button"
+                                                    onClick={() => setSlotSelecionado(slot)}
+                                                    className={`py-3 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${
+                                                        slotSelecionado === slot
+                                                            ? 'bg-[#0C4773] text-white border-[#0C4773] shadow-md shadow-[#0C4773]/10 scale-105'
+                                                            : 'bg-white text-gray-700 border-gray-200 hover:border-[#0C4773]/40 hover:bg-[#0C4773]/5'
+                                                    }`}
+                                                >
+                                                    {slot}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Submit */}
+                            <div className="pt-4 border-t border-gray-100 flex justify-end">
+                                <button
+                                    type="submit"
+                                    disabled={agendando || !slotSelecionado || !dataEntrevista || !!erroData}
+                                    className="w-full sm:w-auto inline-flex justify-center items-center gap-2 py-3 px-8 text-sm font-bold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-100 transition-all cursor-pointer disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none shadow-lg shadow-emerald-600/10"
+                                >
+                                    {agendando ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Reservando horário...
+                                        </>
+                                    ) : 'Confirmar Agendamento'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
 
                 {/* Card Entrevista */}
                 {entrevista && (

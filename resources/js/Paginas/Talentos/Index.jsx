@@ -1,14 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../Componentes/Index';
 import Paginacao from '../Componentes/Paginacao.jsx';
 import { useForm, router } from '@inertiajs/react';
 import WhatsAppLink from '../Componentes/WhatsAppLink.jsx';
+import axios from 'axios';
 
-export default function Talentos({ talentos, vagas, totalRegioes }) {
+export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], filtros = {} }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [talentoId, setTalentoId] = useState(null);
-    const [buscaCargo, setBuscaCargo] = useState('');
+    const [buscaCargo, setBuscaCargo] = useState(filtros.busca || '');
+    const [filtroRegiao, setFiltroRegiao] = useState(filtros.regiao || '');
+
+    const [typingTimeout, setTypingTimeout] = useState(null);
+    const [buscandoCep, setBuscandoCep] = useState(false);
+
+    const maskCPF = (value) => {
+        return value
+            .replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+            .replace(/(-\d{2})\d+?$/, '$1');
+    };
+
+    const maskPhone = (value) => {
+        let v = value.replace(/\D/g, '');
+        if (v.length <= 10) {
+            v = v.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            v = v.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        return v.substring(0, 15);
+    };
+
+    const maskCEP = (value) => {
+        return value
+            .replace(/\D/g, '')
+            .replace(/(\d{5})(\d)/, '$1-$2')
+            .replace(/(-\d{3})\d+?$/, '$1');
+    };
+
+    const handleSearchChange = (val) => {
+        setBuscaCargo(val);
+        if (typingTimeout) clearTimeout(typingTimeout);
+        setTypingTimeout(
+            setTimeout(() => {
+                router.get('/talentos', { busca: val, regiao: filtroRegiao }, { preserveState: true, replace: true, preserveScroll: true });
+            }, 400)
+        );
+    };
+
+    const handleRegiaoChange = (val) => {
+        setFiltroRegiao(val);
+        router.get('/talentos', { busca: buscaCargo, regiao: val }, { preserveState: true, replace: true, preserveScroll: true });
+    };
 
     // Modal de agendamento de entrevista
     const [modalEntrevista, setModalEntrevista] = useState(null);
@@ -66,12 +112,32 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
     const { data, setData, post, processing, delete: destroy, errors, reset, clearErrors } = useForm({
         nome: '',
         cpf: '',
+        email: '',
         telefone: '',
         nivel_escolaridade: '',
+        cep: '',
+        logradouro: '',
         regiao: '',
+        data_nascimento: '',
         curriculo: null,
         _method: 'post',
     });
+
+    useEffect(() => {
+        const cepLimpo = data.cep ? data.cep.replace(/\D/g, '') : '';
+        if (cepLimpo.length === 8) {
+            setBuscandoCep(true);
+            axios.get(`https://viacep.com.br/ws/${cepLimpo}/json/`)
+                .then(response => {
+                    if (!response.data.erro) {
+                        const { logradouro } = response.data;
+                        setData(prev => ({ ...prev, logradouro: logradouro || '', cep: data.cep }));
+                    }
+                })
+                .catch(err => console.error(err))
+                .finally(() => setBuscandoCep(false));
+        }
+    }, [data.cep]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -93,9 +159,13 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
         setData({
             nome: talento.nome,
             cpf: talento.cpf,
+            email: talento.email || '',
             telefone: talento.telefone,
             nivel_escolaridade: talento.nivel_escolaridade,
+            cep: talento.cep || '',
+            logradouro: talento.logradouro || '',
             regiao: talento.regiao,
+            data_nascimento: talento.data_nascimento ? talento.data_nascimento.split('T')[0] : '',
             curriculo: null,
             _method: 'put',
         });
@@ -122,9 +192,13 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
         setData({
             nome: '',
             cpf: '',
+            email: '',
             telefone: '',
             nivel_escolaridade: '',
+            cep: '',
+            logradouro: '',
             regiao: '',
+            data_nascimento: '',
             curriculo: null,
             _method: 'post',
         });
@@ -202,23 +276,35 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                         </div>
                     </div>
 
-                    <div className="mb-6 flex">
-                        <div className="relative w-full">
+                    <div className="mb-6 flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                             </div>
                             <input 
                                 type="text"
-                                placeholder="Buscar por Cargo / Formação..."
-                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 shadow-sm transition-shadow"
+                                placeholder="Buscar por Nome, Cargo ou Formação..."
+                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 shadow-sm transition-shadow outline-none"
                                 value={buscaCargo}
-                                onChange={(e) => setBuscaCargo(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                             />
+                        </div>
+                        <div className="sm:w-64">
+                            <select
+                                value={filtroRegiao}
+                                onChange={(e) => handleRegiaoChange(e.target.value)}
+                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                            >
+                                <option value="">Todas as Regiões</option>
+                                {regioes.map(r => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {talentos.data.filter(t => (t.nivel_escolaridade ?? '').toLowerCase().includes(buscaCargo.toLowerCase()) || t.nome.toLowerCase().includes(buscaCargo.toLowerCase())).map((talento) => (
+                        {talentos.data.map((talento) => (
                             <div key={talento.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
                                 <div className="p-6">
                                     <div className="flex items-start gap-4">
@@ -236,7 +322,7 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                     <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
                                         <div className="flex items-center gap-2 text-gray-600">
                                             <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2H5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
                                             </svg>
                                             <span>{talento.cpf}</span>
                                         </div>
@@ -247,17 +333,25 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                             <span>{talento.telefone}</span>
                                             <WhatsAppLink telefone={talento.telefone} />
                                         </div>
+                                        {talento.email && (
+                                            <div className="flex items-center gap-2 text-gray-600 col-span-2">
+                                                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <span className="truncate">{talento.email}</span>
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-2 text-gray-600 col-span-2">
                                             <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                             <span>{talento.regiao}</span>
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="border-t border-gray-100 px-6 py-3.5 bg-gray-50/50 flex items-center justify-between">
+                            <div className="border-t border-gray-100 px-6 py-3.5 bg-gray-50/50 flex items-center justify-between">
                                     <a
                                         href={`/storage/${talento.path_curriculo}`}
                                         target="_blank"
@@ -435,11 +529,16 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                             </button>
                         </div>
 
-                        <form id="form-talento" onSubmit={handleSubmit} className="overflow-y-auto px-6 py-5 space-y-5">
+                        <form id="form-talento" onSubmit={handleSubmit} className="overflow-y-auto px-6 py-5 space-y-6">
+                            {/* Dados Pessoais e Contato */}
                             <div>
-                                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Informações Pessoais</h3>
+                                <h3 className="text-sm font-bold text-[#0C4773] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                    <span className="w-1.5 h-4 bg-[#0C4773] rounded-full"></span>
+                                    Dados Pessoais e Contato
+                                </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="sm:col-span-2">
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome Completo</label>
                                         <input
                                             type="text"
                                             value={data.nome}
@@ -451,77 +550,145 @@ export default function Talentos({ talentos, vagas, totalRegioes }) {
                                         {errors.nome && <span className="text-red-500 text-xs mt-1 block">{errors.nome}</span>}
                                     </div>
                                     <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CPF</label>
                                         <input
                                             type="text"
                                             value={data.cpf}
-                                            onChange={e => setData('cpf', e.target.value)}
+                                            onChange={e => setData('cpf', maskCPF(e.target.value))}
                                             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
-                                            placeholder="CPF (000.000.000-00)"
+                                            placeholder="000.000.000-00"
                                             required
                                         />
                                         {errors.cpf && <span className="text-red-500 text-xs mt-1 block">{errors.cpf}</span>}
                                     </div>
-
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Contato e Localização</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">E-mail</label>
+                                        <input
+                                            type="email"
+                                            value={data.email}
+                                            onChange={e => setData('email', e.target.value)}
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            placeholder="email@exemplo.com"
+                                            required
+                                        />
+                                        {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Telefone</label>
                                         <input
                                             type="text"
                                             value={data.telefone}
-                                            onChange={e => setData('telefone', e.target.value)}
+                                            onChange={e => setData('telefone', maskPhone(e.target.value))}
                                             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
-                                            placeholder="Telefone (00) 00000-0000"
+                                            placeholder="(00) 00000-0000"
                                             required
                                         />
                                         {errors.telefone && <span className="text-red-500 text-xs mt-1 block">{errors.telefone}</span>}
                                     </div>
                                     <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nível de Escolaridade</label>
+                                        <select
+                                            value={data.nivel_escolaridade}
+                                            onChange={e => setData('nivel_escolaridade', e.target.value)}
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition cursor-pointer"
+                                            required
+                                        >
+                                            <option value="">Selecione</option>
+                                            <option value="fundamental">Fundamental</option>
+                                            <option value="medio">Ensino Médio</option>
+                                            <option value="tecnico">Técnico</option>
+                                            <option value="graduacao">Graduação</option>
+                                            <option value="posgraduacao">Pós-graduação</option>
+                                        </select>
+                                        {errors.nivel_escolaridade && <span className="text-red-500 text-xs mt-1 block">{errors.nivel_escolaridade}</span>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Data de Nascimento</label>
+                                        <input
+                                            type="date"
+                                            value={data.data_nascimento}
+                                            onChange={e => setData('data_nascimento', e.target.value)}
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            max={new Date().toISOString().split('T')[0]}
+                                        />
+                                        {errors.data_nascimento && <span className="text-red-500 text-xs mt-1 block">{errors.data_nascimento}</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Localização */}
+                            <div>
+                                <h3 className="text-sm font-bold text-[#0C4773] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                    <span className="w-1.5 h-4 bg-[#0C4773] rounded-full"></span>
+                                    Localização
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="relative">
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CEP</label>
                                         <input
                                             type="text"
-                                            value={data.regiao}
-                                            onChange={e => setData('regiao', e.target.value)}
+                                            value={data.cep}
+                                            onChange={e => setData('cep', maskCEP(e.target.value))}
                                             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
-                                            placeholder="Região / Cidade - UF"
+                                            placeholder="00000-000"
                                             required
                                         />
+                                        {buscandoCep && <span className="absolute right-3 top-8 text-xs font-bold text-[#0C4773] animate-pulse">Buscando...</span>}
+                                        {errors.cep && <span className="text-red-500 text-xs mt-1 block">{errors.cep}</span>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Logradouro</label>
+                                        <input
+                                            type="text"
+                                            value={data.logradouro}
+                                            onChange={e => setData('logradouro', e.target.value)}
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            placeholder="Rua, Avenida, etc."
+                                            required
+                                        />
+                                        {errors.logradouro && <span className="text-red-500 text-xs mt-1 block">{errors.logradouro}</span>}
+                                    </div>
+                                    <div className="sm:col-span-2">
+                                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Região</label>
+                                        <select
+                                            value={data.regiao}
+                                            onChange={e => setData('regiao', e.target.value)}
+                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition cursor-pointer"
+                                            required
+                                        >
+                                            <option value="">Selecione uma região</option>
+                                            <option value="Zona Sul">Zona Sul</option>
+                                            <option value="Zona Norte">Zona Norte</option>
+                                            <option value="Zona Leste">Zona Leste</option>
+                                            <option value="Zona Oeste">Zona Oeste</option>
+                                            <option value="Centro">Centro</option>
+                                            <option value="ABC">ABC</option>
+                                        </select>
                                         {errors.regiao && <span className="text-red-500 text-xs mt-1 block">{errors.regiao}</span>}
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Formação e Currículo */}
                             <div>
-                                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Formação e Currículo</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <input
-                                            type="text"
-                                            value={data.nivel_escolaridade}
-                                            onChange={e => setData('nivel_escolaridade', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
-                                            placeholder="Ex: Ensino Superior em Engenharia de Software"
-                                            required
-                                        />
-                                        {errors.nivel_escolaridade && <span className="text-red-500 text-xs mt-1 block">{errors.nivel_escolaridade}</span>}
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="file"
-                                            accept=".pdf"
-                                            onChange={e => setData('curriculo', e.target.files[0])}
-                                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#0C4773]/10 file:text-[#0C4773] hover:file:bg-[#0C4773]/20 file:cursor-pointer file:transition-colors"
-                                            required={!editMode}
-                                        />
-                                        {editMode && (
-                                            <p className="text-xs text-gray-400 mt-2 ml-1">
-                                                * Se deseja manter o currículo atual, não precisa enviar outro arquivo.
-                                            </p>
-                                        )}
-                                        {errors.curriculo && <span className="text-red-500 text-xs mt-1 block">{errors.curriculo}</span>}
-                                    </div>
+                                <h3 className="text-sm font-bold text-[#0C4773] mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                    <span className="w-1.5 h-4 bg-[#0C4773] rounded-full"></span>
+                                    Currículo
+                                </h3>
+                                <div>
+                                    <input
+                                        type="file"
+                                        accept=".pdf"
+                                        onChange={e => setData('curriculo', e.target.files[0])}
+                                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#0C4773]/10 file:text-[#0C4773] hover:file:bg-[#0C4773]/20 file:cursor-pointer file:transition-colors"
+                                        required={!editMode}
+                                    />
+                                    {editMode && (
+                                        <p className="text-xs text-gray-400 mt-2 ml-1">
+                                            * Se deseja manter o currículo atual, não precisa enviar outro arquivo.
+                                        </p>
+                                    )}
+                                    {errors.curriculo && <span className="text-red-500 text-xs mt-1 block">{errors.curriculo}</span>}
                                 </div>
                             </div>
                         </form>

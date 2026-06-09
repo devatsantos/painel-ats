@@ -24,6 +24,9 @@ export default function PortalLogin() {
     const [nascimentoInput, setNascimentoInput] = useState('');
     const [erroNascimento, setErroNascimento] = useState('');
     const [verificandoNascimento, setVerificandoNascimento] = useState(false);
+    const [meioEnvio, setMeioEnvio] = useState('whatsapp'); // 'whatsapp' | 'email'
+    const [emailMascarado, setEmailMascarado] = useState('');
+    const [enviandoEmail, setEnviandoEmail] = useState(false);
 
     // Erro geral
     const [erroGeral, setErroGeral] = useState('');
@@ -97,6 +100,7 @@ export default function PortalLogin() {
             });
             setTelefoneMascarado(codRes.data.telefone_mascarado || '');
             setCodigoInput('');
+            setMeioEnvio('whatsapp');
             setEtapa('verificacao');
         } catch (err) {
             const msg = err.response?.data?.error || err.message || 'Erro ao enviar código.';
@@ -104,6 +108,27 @@ export default function PortalLogin() {
             setEtapa('verificacao');
         } finally {
             setEnviandoCodigo(false);
+        }
+    }
+
+    async function confirmarEnvioEmail() {
+        setSubetapaAlt('opcoes');
+        setEnviandoEmail(true);
+        setErroCodigo('');
+        setErroGeral('');
+        try {
+            const res = await axios.post('/portal/enviar-codigo-email', {
+                cpf: cpfInput,
+            });
+            setEmailMascarado(res.data.email_mascarado || '');
+            setCodigoInput('');
+            setMeioEnvio('email');
+            setEtapa('verificacao');
+        } catch (err) {
+            const msg = err.response?.data?.error || err.message || 'Erro ao enviar código por e-mail.';
+            setErroGeral(msg);
+        } finally {
+            setEnviandoEmail(false);
         }
     }
 
@@ -131,10 +156,17 @@ export default function PortalLogin() {
         setErroCodigo('');
         setCodigoInput('');
         try {
-            const res = await axios.post('/portal/enviar-codigo', {
-                cpf: cpfInput,
-            });
-            setTelefoneMascarado(res.data.telefone_mascarado || '');
+            if (meioEnvio === 'email') {
+                const res = await axios.post('/portal/enviar-codigo-email', {
+                    cpf: cpfInput,
+                });
+                setEmailMascarado(res.data.email_mascarado || '');
+            } else {
+                const res = await axios.post('/portal/enviar-codigo', {
+                    cpf: cpfInput,
+                });
+                setTelefoneMascarado(res.data.telefone_mascarado || '');
+            }
         } catch (err) {
             setErroCodigo(err.response?.data?.error || 'Erro ao reenviar código. Tente novamente.');
         } finally {
@@ -250,18 +282,29 @@ export default function PortalLogin() {
                         </div>
                     )}
 
-                    {/* Etapa Verificação WhatsApp */}
                     {etapa === 'verificacao' && (
                         <div className="p-8">
                             <div className="text-center mb-6">
-                                <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    </svg>
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 ${meioEnvio === 'email' ? 'bg-blue-50' : 'bg-green-50'}`}>
+                                    {meioEnvio === 'email' ? (
+                                        <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                    )}
                                 </div>
-                                <h2 className="text-lg font-bold text-gray-900">Verificação por WhatsApp</h2>
+                                <h2 className="text-lg font-bold text-gray-900">
+                                    {meioEnvio === 'email' ? 'Verificação por E-mail' : 'Verificação por WhatsApp'}
+                                </h2>
                                 <p className="text-sm text-gray-500 mt-1">
-                                    Enviamos um código de 6 dígitos para {telefoneMascarado && <span className="font-semibold text-gray-700">{telefoneMascarado}</span>}.
+                                    {meioEnvio === 'email' ? (
+                                        <>Enviamos um código de 6 dígitos para <span className="font-semibold text-gray-700">{emailMascarado}</span>.</>
+                                    ) : (
+                                        <>Enviamos um código de 6 dígitos para <span className="font-semibold text-gray-700">{telefoneMascarado}</span>.</>
+                                    )}
                                     <br />Expira em <span className="font-semibold">15 minutos</span>.
                                 </p>
                             </div>
@@ -337,6 +380,25 @@ export default function PortalLogin() {
                                         <div>
                                             <p className="text-sm font-semibold text-gray-800">Data de nascimento</p>
                                             <p className="text-xs text-gray-500">Confirme a data cadastrada anteriormente</p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={confirmarEnvioEmail}
+                                        disabled={enviandoEmail}
+                                        className="mt-3 w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#0C4773] hover:bg-blue-50/40 transition-all cursor-pointer text-left disabled:opacity-50"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                                            <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-800">
+                                                {enviandoEmail ? 'Enviando...' : 'Código por e-mail'}
+                                            </p>
+                                            <p className="text-xs text-gray-500">Receba um código de acesso no e-mail cadastrado</p>
                                         </div>
                                     </button>
 
