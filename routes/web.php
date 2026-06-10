@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if(Auth::check()){
+        if(Auth::user()->role === 'recepcao'){
+            return redirect()->route('Recepcao');
+        }
         return redirect()->route('Dashboard');
     } else {
         return redirect()->route('login');
@@ -98,6 +101,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
     Route::get('/base-de-dados', [App\Http\Controllers\BaseDeDadosController::class, 'index'])->name('BaseDeDados');
+
+    // Recepção — Mini-sistema de controle de visitantes
+    Route::get('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'index'])->name('Recepcao');
+    Route::post('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'store'])->name('Recepcao.store');
+    Route::put('/recepcao/{recepcao}', [App\Http\Controllers\RecepcaoController::class, 'update'])->name('Recepcao.update');
+    Route::put('/recepcao/{recepcao}/saida', [App\Http\Controllers\RecepcaoController::class, 'registrarSaida'])->name('Recepcao.saida');
+    Route::delete('/recepcao/{recepcao}', [App\Http\Controllers\RecepcaoController::class, 'delete'])->name('Recepcao.delete');
 
     // Ouvidoria - Rotas Administrativas
     Route::get('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'index'])->name('Ouvidoria');

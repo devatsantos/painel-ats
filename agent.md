@@ -44,7 +44,7 @@ Dois guards separados — nunca misturar:
   2. `verificarCpf()` — **exclusivamente** no branch `ja_aprovado` (candidato aprovado no quiz, indo direto ao agendamento)
   - ⚠️ Nunca chamar `login()` em `verificarCpf()` antes do OTP: permite bypass do 2FA por CPF alheio
 - Rate limiting de login: 5 tentativas/60s por CPF+IP — nunca remover
-- Controle de acesso interno por `role` (campo `string` na tabela `users`): `admin` | `recrutador` | `coordenador`
+- Controle de acesso interno por `role` (campo `string` na tabela `users`): `admin` | `recrutador` | `coordenador` | `recepcao`
 - Guard de admin: `abort_unless(auth()->user()->role === 'admin', 403)` — nunca usar `is_admin`
 - `role` compartilhado via `HandleInertiaRequests` como `auth.user.role`
 
@@ -131,6 +131,7 @@ Sequência obrigatória — candidato não pode pular etapas:
 | Reprovados | `ReprovadosController` | `Reprovado`, `Formulario` | `/reprovados` ⚠️ pendente |
 | Relatórios | `RelatoriosController` | — (dados estáticos por ora) | `/relatorios` |
 | Portal Candidato | `PortalCandidatoController` | `Candidatos`, `CandidatoVaga`, `Entrevista`, `Vagas` | `/portal` |
+| Recepção | `RecepcaoController` | `Recepcao`, `User` | `/recepcao` — página exclusiva para role `recepcao` |
 
 ## 11. Pendentes
 - `ReprovadosController`: listagem de reprovados com filtro por formulário/data + página JSX

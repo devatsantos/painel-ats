@@ -27,6 +27,12 @@ class AuthController extends Controller
         if (auth()->attempt($credenciais)) {
             $request->session()->regenerate();
             RateLimiter::clear($chaveBloqueio);
+
+            // Usuários da recepção são redirecionados para a tela exclusiva
+            if (auth()->user()->role === 'recepcao') {
+                return redirect()->route('Recepcao');
+            }
+
             return redirect()->intended('/');
         }
 

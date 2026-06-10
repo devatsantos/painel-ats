@@ -144,6 +144,7 @@ export default function Usuarios({usuarios}) {
                                                             usuario.role === 'admin'         ? 'bg-purple-100 text-purple-700' :
                                                             usuario.role === 'recrutador'    ? 'bg-blue-100 text-blue-700' :
                                                             usuario.role === 'coordenador'   ? 'bg-amber-100 text-amber-700' :
+                                                            usuario.role === 'recepcao'      ? 'bg-teal-100 text-teal-700' :
                                                             'bg-gray-100 text-gray-600'
                                                         }`}>
                                                             {usuario.role.charAt(0).toUpperCase() + usuario.role.slice(1)}
@@ -273,6 +274,7 @@ export default function Usuarios({usuarios}) {
                                     <option value="admin">Administrador</option>
                                     <option value="recrutador">Recrutador</option>
                                     <option value="coordenador">Coordenador</option>
+                                    <option value="recepcao">Recepção</option>
                                 </select>
                                 {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
                             </div>

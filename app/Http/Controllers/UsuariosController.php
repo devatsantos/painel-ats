@@ -20,7 +20,7 @@ class UsuariosController extends Controller
             'nome' => 'required|string|max:255',
             'cpf' => 'required|string|max:14|unique:users,cpf',
             'password' => 'required|string|min:8',
-            'role' => 'nullable|string|in:admin,recrutador,coordenador'
+            'role' => 'nullable|string|in:admin,recrutador,coordenador,recepcao'
         ]);
 
         User::create([
@@ -43,7 +43,7 @@ class UsuariosController extends Controller
             'nome' => 'required|string|max:255',
             'cpf' => 'required|string|max:14|unique:users,cpf,' . $usuario->id,
             'password' => 'nullable|string|min:8',
-            'role' => 'nullable|string|in:admin,recrutador,coordenador'
+            'role' => 'nullable|string|in:admin,recrutador,coordenador,recepcao'
         ]);
 
         $usuario->update([
