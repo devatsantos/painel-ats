@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
+import FlashMessages from '../Componentes/FlashMessages';
 
 const STATUS_CONFIG = {
     marcada:        { label: 'Inscrito',         color: 'bg-blue-100 text-blue-700',      dot: 'bg-blue-500',    icon: '📋' },
@@ -69,6 +70,7 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
             </header>
 
             <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+                <FlashMessages />
 
                 {/* Saudação */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -81,15 +83,43 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                             <p className="text-sm text-gray-400">Acompanhe suas candidaturas e entrevistas</p>
                         </div>
                     </div>
-                    <Link
-                        href="/portal/perfil"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Editar Perfil
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/portal/banco-de-talentos"
+                            method="post"
+                            as="button"
+                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                                candidato?.banco_de_talentos
+                                    ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-[#0C4773] hover:border-[#0C4773]/30'
+                            }`}
+                        >
+                            {candidato?.banco_de_talentos ? (
+                                <>
+                                    <svg className="w-4 h-4 text-emerald-600 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                    No Banco de Talentos
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.961 0 1.36 1.242.588 1.81l-3.97 2.883a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.971-2.883a1 1 0 00-1.17 0l-3.97 2.883c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118L2.98 10.1c-.773-.568-.374-1.81.588-1.81h4.907a1 1 0 00.95-.69l1.519-4.674z" />
+                                    </svg>
+                                    Participar do Banco de Talentos
+                                </>
+                            )}
+                        </Link>
+                        <Link
+                            href="/portal/perfil"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Editar Perfil
+                        </Link>
+                    </div>
                 </div>
 
                 {/* KPI Cards */}

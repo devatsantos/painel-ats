@@ -6,20 +6,34 @@ export default function Logs({ logs, fileSize, filters }) {
     const [busca, setBusca] = useState(filters.search || '');
     const [level, setLevel] = useState(filters.level || '');
     const [expandedLogIndex, setExpandedLogIndex] = useState(null);
+    const [typingTimeout, setTypingTimeout] = useState(null);
 
-    // Debounce search input to avoid spamming requests
+    // Sync state with props when filters change
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (busca !== (filters.search || '') || level !== (filters.level || '')) {
-                router.get('/logs', 
-                    { search: busca, level: level }, 
-                    { preserveState: true, replace: true }
-                );
-            }
-        }, 300);
+        setBusca(filters.search || '');
+        setLevel(filters.level || '');
+    }, [filters]);
 
-        return () => clearTimeout(timer);
-    }, [busca, level]);
+    const handleSearchChange = (val) => {
+        setBusca(val);
+        if (typingTimeout) clearTimeout(typingTimeout);
+        setTypingTimeout(
+            setTimeout(() => {
+                router.get('/logs', 
+                    { search: val, level: level }, 
+                    { preserveState: true, replace: true, preserveScroll: true }
+                );
+            }, 400)
+        );
+    };
+
+    const handleLevelChange = (val) => {
+        setLevel(val);
+        router.get('/logs', 
+            { search: busca, level: val }, 
+            { preserveState: true, replace: true, preserveScroll: true }
+        );
+    };
 
     const handleClearLogs = () => {
         if (confirm('Tem certeza de que deseja limpar permanentemente todo o arquivo de logs do sistema?')) {
@@ -87,7 +101,7 @@ export default function Logs({ logs, fileSize, filters }) {
                             <input
                                 type="text"
                                 value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                                 placeholder="Pesquisar por mensagem ou conteúdo do erro..."
                                 className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                             />
@@ -95,7 +109,7 @@ export default function Logs({ logs, fileSize, filters }) {
                         <div className="w-full md:w-64">
                             <select
                                 value={level}
-                                onChange={(e) => setLevel(e.target.value)}
+                                onChange={(e) => handleLevelChange(e.target.value)}
                                 className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                             >
                                 <option value="">Todos os Níveis</option>

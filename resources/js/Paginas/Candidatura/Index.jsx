@@ -139,6 +139,12 @@ export default function Candidatura({ vagas, candidato_id }) {
             }
 
             if (res.data.token_valido) {
+                if (res.data.ja_agendado) {
+                    alert('Você já possui uma entrevista agendada para esta vaga.');
+                    setVerificandoCpf(false);
+                    return;
+                }
+
                 // Token de 7 dias válido — pula WhatsApp, preenche formulário diretamente
                 const c = res.data.candidato;
                 setCandidatoExistente(c);
@@ -155,7 +161,11 @@ export default function Candidatura({ vagas, candidato_id }) {
                     data_nascimento: c.data_nascimento ? c.data_nascimento.split('T')[0] : '',
                 }));
                 setVerificandoCpf(false);
-                setEtapa('formulario');
+                if (res.data.ja_aprovado) {
+                    setEtapa('entrevista');
+                } else {
+                    setEtapa('formulario');
+                }
                 return;
             }
 
@@ -184,12 +194,20 @@ export default function Candidatura({ vagas, candidato_id }) {
         setVerificandoCodigo(true);
         setErroCodigo('');
         try {
-            await axios.post('/candidatura/verificar-codigo', {
+            const res = await axios.post('/candidatura/verificar-codigo', {
                 cpf: cpfInput,
                 codigo: codigoInput,
+                vaga_id: vagaSelecionada?.id,
             });
+
+            if (res.data.ja_agendado) {
+                alert('Você já possui uma entrevista agendada para esta vaga.');
+                fecharModal();
+                return;
+            }
+
             // Código válido — preenche o formulário com dados do candidato
-            const c = candidatoPendente;
+            const c = res.data.candidato || candidatoPendente;
             setCandidatoExistente(c);
             setData(prev => ({
                 ...prev,
@@ -206,7 +224,12 @@ export default function Candidatura({ vagas, candidato_id }) {
             setCandidatoPendente(null);
             // Salva token para não exigir 2FA por 7 dias
             try { const t = await axios.post('/candidatura/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
-            setEtapa('formulario');
+            
+            if (res.data.ja_aprovado) {
+                setEtapa('entrevista');
+            } else {
+                setEtapa('formulario');
+            }
         } catch (err) {
             setErroCodigo(err.response?.data?.error || 'Código inválido. Tente novamente.');
         } finally {
@@ -278,7 +301,15 @@ export default function Candidatura({ vagas, candidato_id }) {
             const res = await axios.post('/candidatura/verificar-nascimento', {
                 cpf: cpfInput,
                 data_nascimento: nascimentoInput,
+                vaga_id: vagaSelecionada?.id,
             });
+
+            if (res.data.ja_agendado) {
+                alert('Você já possui uma entrevista agendada para esta vaga.');
+                fecharModal();
+                return;
+            }
+
             const c = res.data.candidato;
             setCandidatoExistente(c);
             setData(prev => ({
@@ -295,7 +326,12 @@ export default function Candidatura({ vagas, candidato_id }) {
             }));
             setCandidatoPendente(null);
             try { const t = await axios.post('/candidatura/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
-            setEtapa('formulario');
+            
+            if (res.data.ja_aprovado) {
+                setEtapa('entrevista');
+            } else {
+                setEtapa('formulario');
+            }
         } catch (err) {
             setErroNascimento(err.response?.data?.error || 'Dados incorretos. Tente novamente.');
         } finally {

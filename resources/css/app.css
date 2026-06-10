@@ -23,3 +23,53 @@
     background-color: #F6F7F9 !important;
   }
 }
+
+/* ── Bento Grid Animations ── */
+@keyframes bentoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bento-card {
+  animation: bentoFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px -8px rgba(12, 71, 115, 0.12),
+              0 4px 12px -4px rgba(0, 0, 0, 0.06);
+}
+
+.bento-delay-1 { animation-delay: 0.05s; }
+.bento-delay-2 { animation-delay: 0.1s; }
+.bento-delay-3 { animation-delay: 0.15s; }
+.bento-delay-4 { animation-delay: 0.2s; }
+.bento-delay-5 { animation-delay: 0.25s; }
+.bento-delay-6 { animation-delay: 0.3s; }
+
+/* ── Panel Animations ── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.panel-slide-in {
+  animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.overlay-fade-in {
+  animation: overlayFadeIn 0.25s ease-out both;
+}

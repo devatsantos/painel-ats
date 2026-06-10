@@ -11,14 +11,15 @@ const STATUS_CONFIG = {
     nao_compareceu: { bar: 'bg-pink-400',    badge: 'bg-pink-100 text-pink-700'      },
 };
 
-function KpiCard({ label, value, suffix = '', sub }) {
+function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-blue-50/60' }) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 hover:shadow-md transition-shadow">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
-            <p className="text-3xl font-extrabold text-gray-900 tracking-tight">
+        <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
+            <p className="relative z-10 text-3xl font-extrabold text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
             </p>
-            {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+            {sub && <p className="relative z-10 text-xs text-gray-400 mt-0.5">{sub}</p>}
         </div>
     );
 }
@@ -51,18 +52,18 @@ export default function Relatorios({
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Visão geral</p>
                                 <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Relatórios</h1>
                             </div>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                Dados em tempo real
-                            </span>
                         </header>
 
-                        {/* KPIs */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        {/* ── Bento Grid ── */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto">
+
+                            {/* ─── Row 1: KPIs com destaque visual ─── */}
                             <KpiCard
                                 label="Total de candidaturas"
                                 value={metricas.total_candidaturas}
                                 sub="Acumulado"
+                                delay="bento-delay-1"
+                                accent="from-[#0C4773]/8"
                             />
                             <KpiCard
                                 label="Mais contratações no mês"
@@ -71,30 +72,36 @@ export default function Relatorios({
                                 sub={metricas.recrutador_destaque_total > 0 
                                     ? `Destaque: ${metricas.recrutador_destaque_nome}` 
                                     : "Nenhuma contratação este mês"}
+                                delay="bento-delay-2"
+                                accent="from-amber-50/60"
                             />
                             <KpiCard
                                 label="Tempo médio até contratação"
                                 value={metricas.tempo_medio_dias}
                                 suffix=" dias"
                                 sub="Da candidatura ao contrato"
+                                delay="bento-delay-3"
+                                accent="from-violet-50/60"
                             />
-                            <KpiCard
-                                label="Vagas preenchidas"
-                                value={metricas.vagas_preenchidas}
-                                sub="Vagas com candidatos contratados"
-                            />
-                            <KpiCard
-                                label="Banco de Talentos"
-                                value={metricas.banco_talentos_total}
-                                sub="Candidatos qualificados na base"
-                            />
-                        </div>
 
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            {/* KPI Destaque: Vagas + Banco (empilhados em 1 col) */}
+                            <div className="bento-card bento-delay-4 bg-gradient-to-br from-[#0C4773] to-[#007EAE] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-between relative overflow-hidden">
+                                <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
+                                <div className="absolute right-12 -top-4 w-16 h-16 bg-white/5 rounded-full" />
+                                <div className="relative z-10">
+                                    <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">Vagas preenchidas</p>
+                                    <p className="text-3xl font-extrabold text-white tracking-tight">{metricas.vagas_preenchidas}</p>
+                                </div>
+                                <div className="relative z-10 mt-3 pt-3 border-t border-white/15">
+                                    <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">Banco de Talentos</p>
+                                    <p className="text-2xl font-extrabold text-white tracking-tight">{metricas.banco_talentos_total}</p>
+                                    <p className="text-xs text-white/60 mt-0.5">Candidatos qualificados na base</p>
+                                </div>
+                            </div>
 
-                            {/* Candidatos por status */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                <h2 className="text-sm font-bold text-gray-700 mb-5">Candidatos por status</h2>
+                            {/* ─── Candidatos por Status (2 cols) ─── */}
+                            <div className="bento-card bento-delay-4 sm:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-[#0C4773] pl-3">Candidatos por status</h2>
                                 <div className="space-y-3.5">
                                     {candidatos_por_status.map(item => {
                                         const cfg = STATUS_CONFIG[item.status] ?? { bar: 'bg-gray-300', badge: 'bg-gray-100 text-gray-600' };
@@ -119,9 +126,9 @@ export default function Relatorios({
                                 </div>
                             </div>
 
-                            {/* Entrevistas por mês */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                <h2 className="text-sm font-bold text-gray-700 mb-5">Entrevistas por mês</h2>
+                            {/* ─── Entrevistas por Mês (2 cols) ─── */}
+                            <div className="bento-card bento-delay-5 sm:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-violet-500 pl-3">Entrevistas por mês</h2>
                                 <div className="flex items-end justify-between gap-2 h-40">
                                     {entrevistas_por_mes.map(item => {
                                         const heightPct = Math.round((item.total / maxEntrevistas) * 100);
@@ -140,15 +147,11 @@ export default function Relatorios({
                                     })}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Detalhes de Candidatos e Funil */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-
-                            {/* Funil de Recrutamento */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+                            {/* ─── Funil de Recrutamento (1 col) ─── */}
+                            <div className="bento-card bento-delay-5 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
                                 <div>
-                                    <h2 className="text-sm font-bold text-gray-700 mb-5">Funil de Recrutamento</h2>
+                                    <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-emerald-500 pl-3">Funil de Recrutamento</h2>
                                     <div className="space-y-4">
                                         <div className="relative">
                                             <div className="flex justify-between items-center bg-[#0C4773]/5 border border-[#0C4773]/10 rounded-xl p-4">
@@ -209,10 +212,10 @@ export default function Relatorios({
                                 </div>
                             </div>
 
-                            {/* Modalidade de Entrevistas */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+                            {/* ─── Modalidade de Entrevistas (1 col) ─── */}
+                            <div className="bento-card bento-delay-5 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
                                 <div>
-                                    <h2 className="text-sm font-bold text-gray-700 mb-5">Modalidade de Entrevistas</h2>
+                                    <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-blue-500 pl-3">Modalidade de Entrevistas</h2>
                                     <div className="space-y-6 mt-4">
                                         <div>
                                             <div className="flex justify-between text-xs font-semibold text-gray-500 mb-1">
@@ -271,9 +274,9 @@ export default function Relatorios({
                                 </div>
                             </div>
 
-                            {/* Escolaridade dos Candidatos */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                <h2 className="text-sm font-bold text-gray-700 mb-5">Escolaridade dos Candidatos</h2>
+                            {/* ─── Escolaridade dos Candidatos (1 col) ─── */}
+                            <div className="bento-card bento-delay-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-indigo-500 pl-3">Escolaridade dos Candidatos</h2>
                                 <div className="space-y-3.5 max-h-[220px] overflow-y-auto pr-1">
                                     {escolaridades.length > 0 ? (
                                         escolaridades.map((item, idx) => {
@@ -305,9 +308,9 @@ export default function Relatorios({
                                 </div>
                             </div>
 
-                            {/* Regiões de Origem */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                <h2 className="text-sm font-bold text-gray-700 mb-5">Principais Regiões de Origem</h2>
+                            {/* ─── Regiões de Origem (1 col) ─── */}
+                            <div className="bento-card bento-delay-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <h2 className="text-sm font-bold text-gray-700 mb-5 border-l-4 border-teal-500 pl-3">Principais Regiões de Origem</h2>
                                 <div className="space-y-3.5 max-h-[220px] overflow-y-auto pr-1">
                                     {regioes.length > 0 ? (
                                         regioes.map((item, idx) => {
@@ -338,47 +341,48 @@ export default function Relatorios({
                                     )}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Vagas em destaque */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100">
-                                <h2 className="text-sm font-bold text-gray-700">Vagas — candidaturas e contratações</h2>
+                            {/* ─── Vagas em Destaque — Tabela (full width) ─── */}
+                            <div className="bento-card bento-delay-6 sm:col-span-2 lg:col-span-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-100">
+                                    <h2 className="text-sm font-bold text-gray-700 border-l-4 border-[#0C4773] pl-3">Vagas — candidaturas e contratações</h2>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="text-left border-b border-gray-100">
+                                                <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Vaga</th>
+                                                <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Candidaturas</th>
+                                                <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Contratações</th>
+                                                <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Taxa</th>
+                                                <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {vagas_destaque.map((vaga, i) => {
+                                                const taxa = vaga.candidaturas > 0 ? Math.round((vaga.contratacoes / vaga.candidaturas) * 100) : 0;
+                                                return (
+                                                    <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-6 py-3.5 font-medium text-gray-800">{vaga.titulo}</td>
+                                                        <td className="px-6 py-3.5 text-center text-gray-600">{vaga.candidaturas}</td>
+                                                        <td className="px-6 py-3.5 text-center text-gray-600">{vaga.contratacoes}</td>
+                                                        <td className="px-6 py-3.5 text-center">
+                                                            <span className="font-semibold text-gray-700">{taxa}%</span>
+                                                        </td>
+                                                        <td className="px-6 py-3.5 text-center">
+                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${vaga.ativo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${vaga.ativo ? 'bg-emerald-400' : 'bg-gray-400'}`} />
+                                                                {vaga.ativo ? 'Ativa' : 'Encerrada'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="text-left border-b border-gray-100">
-                                            <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Vaga</th>
-                                            <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Candidaturas</th>
-                                            <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Contratações</th>
-                                            <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Taxa</th>
-                                            <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {vagas_destaque.map((vaga, i) => {
-                                            const taxa = vaga.candidaturas > 0 ? Math.round((vaga.contratacoes / vaga.candidaturas) * 100) : 0;
-                                            return (
-                                                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                                                    <td className="px-6 py-3.5 font-medium text-gray-800">{vaga.titulo}</td>
-                                                    <td className="px-6 py-3.5 text-center text-gray-600">{vaga.candidaturas}</td>
-                                                    <td className="px-6 py-3.5 text-center text-gray-600">{vaga.contratacoes}</td>
-                                                    <td className="px-6 py-3.5 text-center">
-                                                        <span className="font-semibold text-gray-700">{taxa}%</span>
-                                                    </td>
-                                                    <td className="px-6 py-3.5 text-center">
-                                                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${vaga.ativo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${vaga.ativo ? 'bg-emerald-400' : 'bg-gray-400'}`} />
-                                                            {vaga.ativo ? 'Ativa' : 'Encerrada'}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+
                         </div>
 
                     </div>

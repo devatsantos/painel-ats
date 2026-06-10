@@ -12,7 +12,6 @@ Route::get('/', function () {
 });
 
 Route::get('/candidatura', [App\Http\Controllers\CandidatosController::class, 'candidatura'])->name('Candidatura');
-Route::post('/candidatura', [App\Http\Controllers\CandidatosController::class, 'store']);
 Route::post('/candidatura/verificar-cpf', [App\Http\Controllers\CandidatosController::class, 'verificarCpf'])
     ->middleware('throttle:verificar-cpf');
 Route::post('/candidatura/enviar-codigo', [App\Http\Controllers\CandidatosController::class, 'enviarCodigoWhatsApp'])
@@ -23,6 +22,7 @@ Route::post('/candidatura/verificar-codigo', [App\Http\Controllers\CandidatosCon
     ->middleware('throttle:verificar-codigo-whatsapp');
 Route::post('/candidatura/verificar-nascimento', [App\Http\Controllers\CandidatosController::class, 'verificarNascimento'])
     ->middleware('throttle:verificar-nascimento');
+Route::post('/candidatura', [App\Http\Controllers\CandidatosController::class, 'store']);
 
 Route::middleware('auth:candidato')->group(function () {
     Route::get('/candidatura/perguntas/{vaga}', [App\Http\Controllers\CandidatosController::class, 'perguntas']);
@@ -56,6 +56,7 @@ Route::middleware('auth:candidato')->prefix('portal')->group(function () {
     Route::get('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'perfil'])->name('Portal.perfil');
     Route::put('/perfil', [App\Http\Controllers\PortalCandidatoController::class, 'atualizarPerfil'])->name('Portal.perfil.update');
     Route::post('/token', [App\Http\Controllers\PortalCandidatoController::class, 'gerarToken'])->name('Portal.token');
+    Route::post('/banco-de-talentos', [App\Http\Controllers\PortalCandidatoController::class, 'toggleBancoTalentos'])->name('Portal.banco-talentos');
     Route::post('/logout', [App\Http\Controllers\PortalCandidatoController::class, 'logout'])->name('Portal.logout');
 });
 
@@ -96,6 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'update'])->name('Agenda.update');
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
+    Route::get('/base-de-dados', [App\Http\Controllers\BaseDeDadosController::class, 'index'])->name('BaseDeDados');
 
     // Ouvidoria - Rotas Administrativas
     Route::get('/ouvidoria', [App\Http\Controllers\OuvidoriaController::class, 'index'])->name('Ouvidoria');

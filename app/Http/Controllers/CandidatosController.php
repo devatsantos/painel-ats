@@ -91,7 +91,7 @@ class CandidatosController extends Controller
                     ]);
                 }
 
-                // Aprovado no quiz mas ainda não agendou — login necessário aqui pois vai direto ao agendamento
+                // Aprovado no quiz mas ainda não agendou
                 if ($candidatoVaga->status === 'selecionado') {
                     if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(7))) {
                         // Reseta a candidatura
@@ -100,14 +100,6 @@ class CandidatosController extends Controller
                             ->delete();
                         $candidatoVaga->delete();
                         $candidatoVaga = null;
-                    } else {
-                        Auth::guard('candidato')->login($candidato);
-                        request()->session()->regenerate();
-                        return response()->json([
-                            'existe'      => true,
-                            'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
-                            'ja_aprovado' => true,
-                        ]);
                     }
                 }
             }
@@ -123,10 +115,23 @@ class CandidatosController extends Controller
             ) {
                 Auth::guard('candidato')->login($candidato);
                 request()->session()->regenerate();
+
+                $jaAprovado = false;
+                $jaAgendado = false;
+
+                if ($candidatoVaga) {
+                    $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
+                    if (!$jaAgendado && $candidatoVaga->status === 'selecionado') {
+                        $jaAprovado = true;
+                    }
+                }
+
                 return response()->json([
                     'existe'       => true,
                     'token_valido' => true,
                     'candidato'    => $candidato->only(self::CAMPOS_PUBLICOS),
+                    'ja_aprovado'  => $jaAprovado,
+                    'ja_agendado'  => $jaAgendado,
                 ]);
             }
         }
@@ -184,8 +189,9 @@ class CandidatosController extends Controller
     public function verificarCodigoWhatsApp(Request $request)
     {
         $request->validate([
-            'cpf'    => 'required|string',
-            'codigo' => 'required|string|min:6|max:6',
+            'cpf'     => 'required|string',
+            'codigo'  => 'required|string|min:6|max:6',
+            'vaga_id' => 'nullable|exists:vagas,id',
         ]);
 
         $candidato = Candidatos::where('cpf', $request->cpf)->first();
@@ -211,7 +217,28 @@ class CandidatosController extends Controller
         Auth::guard('candidato')->login($candidato);
         request()->session()->regenerate();
 
-        return response()->json(['success' => true]);
+        $jaAprovado = false;
+        $jaAgendado = false;
+
+        if ($request->vaga_id) {
+            $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
+                ->where('vaga_id', $request->vaga_id)
+                ->first();
+
+            if ($candidatoVaga) {
+                $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
+                if (!$jaAgendado && $candidatoVaga->status === 'selecionado') {
+                    $jaAprovado = true;
+                }
+            }
+        }
+
+        return response()->json([
+            'success'     => true,
+            'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
+            'ja_aprovado' => $jaAprovado,
+            'ja_agendado' => $jaAgendado,
+        ]);
     }
 
     public function enviarCodigoEmail(Request $request)
@@ -295,6 +322,7 @@ class CandidatosController extends Controller
         $request->validate([
             'cpf'             => 'required|string',
             'data_nascimento' => 'required|date_format:Y-m-d',
+            'vaga_id'         => 'nullable|exists:vagas,id',
         ]);
 
         $candidato = Candidatos::where('cpf', $request->cpf)->first();
@@ -326,9 +354,27 @@ class CandidatosController extends Controller
         Auth::guard('candidato')->login($candidato);
         request()->session()->regenerate();
 
+        $jaAprovado = false;
+        $jaAgendado = false;
+
+        if ($request->vaga_id) {
+            $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
+                ->where('vaga_id', $request->vaga_id)
+                ->first();
+
+            if ($candidatoVaga) {
+                $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
+                if (!$jaAgendado && $candidatoVaga->status === 'selecionado') {
+                    $jaAprovado = true;
+                }
+            }
+        }
+
         return response()->json([
-            'success'   => true,
-            'candidato' => $candidato->only(self::CAMPOS_PUBLICOS),
+            'success'     => true,
+            'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
+            'ja_aprovado' => $jaAprovado,
+            'ja_agendado' => $jaAgendado,
         ]);
     }
 
@@ -346,6 +392,14 @@ class CandidatosController extends Controller
             'data_nascimento' => 'nullable|date',
             'vaga_id' => 'required|exists:vagas,id',
         ]);
+
+        // Se o candidato já existe, exige autenticação (OTP) para evitar bypass
+        $candidatoExistente = Candidatos::where('cpf', $validated['cpf'])->first();
+        if ($candidatoExistente && !Auth::guard('candidato')->check()) {
+            return redirect()->back()->withErrors([
+                'cpf' => 'Sessão expirada. Por favor, verifique seu CPF novamente.',
+            ]);
+        }
 
         try {
             if ($request->hasFile('path_curriculo')) {

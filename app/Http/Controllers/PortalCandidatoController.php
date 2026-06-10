@@ -306,8 +306,9 @@ class PortalCandidatoController extends Controller
 
         return Inertia::render('Portal/Index', [
             'candidato'         => [
-                'nome'  => $candidato->nome,
-                'email' => $candidato->email,
+                'nome'              => $candidato->nome,
+                'email'             => $candidato->email,
+                'banco_de_talentos' => (bool) $candidato->banco_de_talentos,
             ],
             'candidaturas'      => $candidaturas,
             'proximaEntrevista' => $proxima,
@@ -494,5 +495,23 @@ class PortalCandidatoController extends Controller
             'success'   => true,
             'candidato' => $candidato->only(['nome', 'email', 'telefone']),
         ]);
+    }
+
+    /**
+     * Adiciona ou remove o candidato autenticado do Banco de Talentos.
+     */
+    public function toggleBancoTalentos(Request $request)
+    {
+        $candidato = Auth::guard('candidato')->user();
+        if (!$candidato) {
+            return redirect()->route('Portal.login');
+        }
+
+        $candidato->update([
+            'banco_de_talentos' => !$candidato->banco_de_talentos
+        ]);
+
+        $status = $candidato->banco_de_talentos ? 'incluído no' : 'removido do';
+        return redirect()->back()->with('success', "Você foi {$status} Banco de Talentos com sucesso!");
     }
 }

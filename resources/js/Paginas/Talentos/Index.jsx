@@ -499,7 +499,7 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
                                 <button
                                     type="submit"
                                     disabled={submittingEntrevista || !entrevista.vaga_id || !entrevista.hora}
-                                    className="text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                    className="text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#007EAE] px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                                 >
                                     {submittingEntrevista ? 'Agendando...' : 'Confirmar Entrevista'}
                                 </button>

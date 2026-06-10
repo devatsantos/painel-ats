@@ -61,7 +61,7 @@ export default function Orcamentos({ orcamentos }) {
 
                                 <button
                                     onClick={() => setModalOrcamento(orcamento)}
-                                    className="mt-2 w-full inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 focus:ring-4 focus:outline-none focus:ring-blue-100 font-medium rounded-lg text-sm bg-white border border-gray-200 transition-all"
+                                    className="mt-2 w-full inline-flex items-center justify-center p-2 text-white bg-[#0C4773] hover:bg-[#007EAE] focus:ring-4 focus:outline-none focus:ring-blue-100 font-medium rounded-lg text-sm transition-all"
                                 >
                                     Ver Detalhes
                                 </button>
@@ -125,7 +125,7 @@ export default function Orcamentos({ orcamentos }) {
                                             <td className="px-4 py-4 text-right">
                                                 <button
                                                     onClick={() => setModalOrcamento(orcamento)}
-                                                    className="inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 focus:ring-4 focus:outline-none focus:ring-blue-100 font-medium rounded-lg text-sm bg-white border border-gray-200 transition-all"
+                                                    className="inline-flex items-center justify-center p-2 text-white bg-[#0C4773] hover:bg-[#007EAE] focus:ring-4 focus:outline-none focus:ring-blue-100 font-medium rounded-lg text-sm transition-all"
                                                 >
                                                     Detalhes
                                                 </button>
