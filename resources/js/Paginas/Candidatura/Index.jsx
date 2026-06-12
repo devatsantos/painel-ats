@@ -17,7 +17,7 @@ export default function Candidatura({ vagas, candidato_id }) {
     const [slots, setSlots] = useState([]);
     const [carregandoSlots, setCarregandoSlots] = useState(false);
     const [erroData, setErroData] = useState('');
-    const [tipoEntrevista, setTipoEntrevista] = useState('Online');
+    const [tipoEntrevista, setTipoEntrevista] = useState('Presencial');
     const [agendando, setAgendando] = useState(false);
 
     // Verificação WhatsApp
@@ -1102,14 +1102,20 @@ export default function Candidatura({ vagas, candidato_id }) {
 
                                         <div>
                                             <label className={labelClasses}>Modelo de Entrevista</label>
-                                            <select
-                                                className={inputClasses}
-                                                value={tipoEntrevista}
-                                                onChange={e => setTipoEntrevista(e.target.value)}
-                                            >
-                                                <option value="Online">Online</option>
-                                                <option value="Presencial">Presencial</option>
-                                            </select>
+                                            {vagaSelecionada.permite_online ? (
+                                                <select
+                                                    className={inputClasses}
+                                                    value={tipoEntrevista}
+                                                    onChange={e => setTipoEntrevista(e.target.value)}
+                                                >
+                                                    <option value="Online">Online</option>
+                                                    <option value="Presencial">Presencial</option>
+                                                </select>
+                                            ) : (
+                                                <p className="mt-1 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-2.5 font-medium">
+                                                    🏢 Presencial (no escritório da empresa)
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

@@ -28,7 +28,7 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
     const [slots, setSlots] = useState([]);
     const [carregandoSlots, setCarregandoSlots] = useState(false);
     const [erroData, setErroData] = useState('');
-    const [tipoEntrevista, setTipoEntrevista] = useState('Online');
+    const [tipoEntrevista, setTipoEntrevista] = useState('Presencial');
     const [agendando, setAgendando] = useState(false);
 
     async function buscarSlots(data) {
@@ -284,14 +284,20 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                 {/* Tipo de Entrevista */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">Modelo de Entrevista</label>
-                                    <select
-                                        value={tipoEntrevista}
-                                        onChange={e => setTipoEntrevista(e.target.value)}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] transition-all"
-                                    >
-                                        <option value="Online">Online (Reunião por vídeo)</option>
-                                        <option value="Presencial">Presencial (No escritório da empresa)</option>
-                                    </select>
+                                    {vaga.permite_online ? (
+                                        <select
+                                            value={tipoEntrevista}
+                                            onChange={e => setTipoEntrevista(e.target.value)}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] transition-all"
+                                        >
+                                            <option value="Online">Online (Reunião por vídeo)</option>
+                                            <option value="Presencial">Presencial (No escritório da empresa)</option>
+                                        </select>
+                                    ) : (
+                                        <p className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-600">
+                                            🏢 Presencial (no escritório da empresa)
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

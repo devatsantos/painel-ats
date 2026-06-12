@@ -584,6 +584,12 @@ class CandidatosController extends Controller
                 return response()->json(['error' => 'Candidato não vinculado a esta vaga.'], 400);
             }
 
+            // Bloqueia entrevista online se a vaga não permitir
+            $vaga = Vagas::find($request->vaga_id);
+            if ($request->tipo === 'Online' && !$vaga->permite_online) {
+                return response()->json(['error' => 'Esta vaga não permite entrevista online.'], 422);
+            }
+
             // Validação de slot (backend)
             $dataHora = Carbon::parse($request->data_hora);
             $agenda   = new AgendaService();
@@ -602,7 +608,6 @@ class CandidatosController extends Controller
             $linkMeet = null;
             if ($request->tipo === 'Online') {
                 try {
-                    $vaga     = Vagas::find($request->vaga_id);
                     $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
                     $meet     = new VideoConferenciaService();
                     $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(30));
@@ -619,7 +624,7 @@ class CandidatosController extends Controller
                 'data_hora'         => $dataHora,
                 'tipo'              => $request->tipo,
                 'link_meet'         => $linkMeet,
-                'user_id'           => null,
+                'user_id'           => $vaga->user_id,
             ]);
 
             // WhatsApp

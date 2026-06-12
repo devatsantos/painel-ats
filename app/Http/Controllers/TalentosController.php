@@ -182,12 +182,14 @@ class TalentosController extends Controller
 
         $candidatoVaga->update(['status' => 'marcada']);
 
+        $vaga = $vaga ?? Vagas::find($validated['vaga_id']);
+
         Entrevista::create([
             'candidato_vaga_id' => $candidatoVaga->id,
             'data_hora'         => $dataHora,
             'tipo'              => $validated['tipo'],
             'link_meet'         => $linkMeet,
-            'user_id'           => null,
+            'user_id'           => $vaga->user_id,
         ]);
 
         return redirect()->route('Talentos')->with('success', 'Entrevista agendada com sucesso.');

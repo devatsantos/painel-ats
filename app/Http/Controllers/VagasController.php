@@ -6,13 +6,21 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Vagas;
 use App\Models\Formulario;
+use App\Models\User;
 
 class VagasController extends Controller
 {
     public function index() {
-        $vagas = Vagas::orderBy('created_at', 'desc')->paginate(20);
+        $vagas = Vagas::with('recrutador:id,nome')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
         $formularios = Formulario::all();
-        return Inertia::render('Vagas/Index', ['vagas' => $vagas, 'formularios' => $formularios]);
+        $recrutadores = User::select('id', 'nome')->orderBy('nome')->get();
+        return Inertia::render('Vagas/Index', [
+            'vagas' => $vagas,
+            'formularios' => $formularios,
+            'recrutadores' => $recrutadores,
+        ]);
     }
 
     /**
@@ -34,6 +42,8 @@ class VagasController extends Controller
             'status_efetivacao' => 'required|string|max:50',
             'ativo'             => 'boolean',
             'pcd'               => 'boolean',
+            'permite_online'    => 'boolean',
+            'user_id'           => 'nullable|exists:users,id',
             'formulario_id'     => 'required|exists:formularios,id',
         ];
     }

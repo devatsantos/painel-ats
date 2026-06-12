@@ -22,11 +22,18 @@ class Vagas extends Model
         'status_efetivacao',
         'ativo',
         'pcd',
+        'permite_online',
+        'user_id',
         'formulario_id'
     ];
 
     public function formulario()
     {
         return $this->belongsTo(Formulario::class);
+    }
+
+    public function recrutador()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

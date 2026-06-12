@@ -3,7 +3,7 @@ import { Link, usePage, useForm, router } from '@inertiajs/react';
 import Sidebar from '../Componentes/Index';
 import Paginacao from '../Componentes/Paginacao.jsx';
 
-export default function Vagas({vagas, formularios}) {
+export default function Vagas({vagas, formularios, recrutadores}) {
     const [modalVaga, setModalVaga] = useState(null);
     const [vagaEditando, setVagaEditando] = useState(null);
     const [novaVaga, setNovaVaga] = useState(false);
@@ -28,6 +28,8 @@ export default function Vagas({vagas, formularios}) {
         status_efetivacao: '',
         ativo: false,
         pcd: false,
+        permite_online: false,
+        user_id: '',
         formulario_id: '',
     });
 
@@ -47,6 +49,8 @@ export default function Vagas({vagas, formularios}) {
             status_efetivacao: vaga.status_efetivacao || '',
             ativo: vaga.ativo ? true : false,
             pcd: vaga.pcd ? true : false,
+            permite_online: vaga.permite_online ? true : false,
+            user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id || '',
         });
     };
@@ -65,6 +69,8 @@ export default function Vagas({vagas, formularios}) {
             status_efetivacao: vaga.status_efetivacao,
             ativo: !vaga.ativo,
             pcd: vaga.pcd ? true : false,
+            permite_online: vaga.permite_online ? true : false,
+            user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id,
         }, {
             preserveScroll: true,
@@ -193,6 +199,14 @@ export default function Vagas({vagas, formularios}) {
                                                 </svg>
                                                 {vaga.local}
                                             </div>
+                                            {vaga.recrutador && (
+                                                <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                    {vaga.recrutador.nome}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
                                             <button
@@ -214,6 +228,11 @@ export default function Vagas({vagas, formularios}) {
                                             {vaga.pcd ? (
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                                     PCD
+                                                </span>
+                                            ) : null}
+                                            {vaga.permite_online ? (
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                                    💻 Online
                                                 </span>
                                             ) : null}
                                         </div>
@@ -523,6 +542,23 @@ export default function Vagas({vagas, formularios}) {
                                         </select>
                                         {errors.formulario_id && <p className="text-red-500 text-xs mt-1">{errors.formulario_id}</p>}
                                     </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Recrutador Responsável</label>
+                                        <select
+                                            value={data.user_id}
+                                            onChange={e => setData('user_id', e.target.value || '')}
+                                            className="ds-input"
+                                        >
+                                            <option value="">Nenhum (sem recrutador)</option>
+                                            {recrutadores && recrutadores.map((rec) => (
+                                                <option key={rec.id} value={rec.id}>
+                                                    {rec.nome}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.user_id && <p className="text-red-500 text-xs mt-1">{errors.user_id}</p>}
+                                    </div>
                                 </div>
                             </div>
 
@@ -664,6 +700,14 @@ export default function Vagas({vagas, formularios}) {
                                     </div>
                                     <input type="checkbox" checked={data.pcd} onChange={e => setData('pcd', e.target.checked)} className="sr-only" />
                                     <span className="text-sm font-medium text-gray-700">Vaga PCD</span>
+                                </label>
+
+                                <label className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition">
+                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.permite_online ? 'bg-purple-600' : 'bg-gray-300'}`}>
+                                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${data.permite_online ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                                    </div>
+                                    <input type="checkbox" checked={data.permite_online} onChange={e => setData('permite_online', e.target.checked)} className="sr-only" />
+                                    <span className="text-sm font-medium text-gray-700">Permite Entrevista Online</span>
                                 </label>
                             </div>
 
