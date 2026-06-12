@@ -82,12 +82,12 @@ export default function Usuarios({usuarios}) {
     return (
         <>
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-6 lg:p-10">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Usuários</h1>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Usuários</h1>
                             <p className="text-gray-500 mt-1">Gerencie os usuários com acesso ao painel.</p>
                         </div>
                         <button onClick={handleCreate} className="inline-flex items-center gap-2 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
@@ -197,8 +197,8 @@ export default function Usuarios({usuarios}) {
             </div>
 
             {modalCriar && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={closeModal}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={closeModal}>
+                    <div className="ds-modal-panel max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
                             <div>
@@ -212,7 +212,7 @@ export default function Usuarios({usuarios}) {
                             <button
                                 type="button"
                                 onClick={closeModal}
-                                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                                className="ds-btn-icon"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

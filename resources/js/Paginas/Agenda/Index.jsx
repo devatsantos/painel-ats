@@ -171,11 +171,11 @@ export default function Agenda({ bloqueios, configuracao }) {
                                         <table className="w-full text-sm">
                                         <thead>
                                             <tr className="border-b border-gray-100 bg-gray-50">
-                                                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Data</th>
-                                                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Horário</th>
-                                                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Motivo</th>
-                                                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
-                                                <th className="px-6 py-3.5 w-28"></th>
+                                                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Data</th>
+                                                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Horário</th>
+                                                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Motivo</th>
+                                                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
+                                                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Ações</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
@@ -184,12 +184,12 @@ export default function Agenda({ bloqueios, configuracao }) {
                                                     key={b.id}
                                                     className={`group transition-colors ${b.origem === 'feriado' ? 'bg-purple-50/40 hover:bg-purple-50' : 'hover:bg-gray-50'}`}
                                                 >
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-4 py-3 whitespace-nowrap">
                                                         <span className="font-semibold text-gray-800 capitalize">
                                                             {formatarData(b.data)}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+                                                    <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                                                         {b.dia_todo ? (
                                                             <span className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">
                                                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -203,8 +203,8 @@ export default function Agenda({ bloqueios, configuracao }) {
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{b.motivo}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-4 py-3 text-gray-600 max-w-[180px] xl:max-w-[240px] truncate" title={b.motivo}>{b.motivo}</td>
+                                                    <td className="px-4 py-3 whitespace-nowrap">
                                                         {b.origem === 'feriado' ? (
                                                             <span className="inline-flex items-center gap-1 text-xs font-semibold bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full">
                                                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -221,25 +221,25 @@ export default function Agenda({ bloqueios, configuracao }) {
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-4 py-3 text-right">
                                                         {b.origem !== 'feriado' && (
                                                             <div className="flex items-center justify-end gap-1">
                                                                 <button
                                                                     onClick={() => abrirEdicao(b)}
-                                                                    className="p-1.5 text-gray-400 hover:text-[#0C4773] hover:bg-[#0C4773]/10 rounded-lg transition-colors cursor-pointer"
+                                                                    className="p-1.5 text-gray-500 hover:text-[#0C4773] hover:bg-[#0C4773]/10 rounded-lg transition-colors cursor-pointer"
                                                                     title="Editar"
                                                                 >
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                                     </svg>
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleDelete(b)}
-                                                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                                                                     title="Remover"
                                                                 >
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                     </svg>
                                                                 </button>
                                                             </div>

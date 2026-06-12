@@ -26,8 +26,11 @@ export default function Login() {
         <div className="min-h-screen bg-[#F6F7F9] flex items-center justify-center p-4">
             <Head title="Login - Painel RH" />
             
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10">
-                <div className="text-center mb-10">
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10 ds-login-card relative overflow-hidden">
+                {/* Gradient accent top */}
+                <div className="absolute top-0 left-0 right-0 ds-accent-line" />
+
+                <div className="text-center mb-10 pt-2">
                     <img 
                         src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS.png" 
                         alt="AT & Santos Logo" 
@@ -39,7 +42,7 @@ export default function Login() {
                 
                 <div>
                     {erroMsg && (
-                        <div className="flex items-center gap-2 bg-red-50 text-red-600 rounded-lg px-4 py-3 mb-6 text-sm">
+                        <div className="flex items-center gap-2 bg-red-50 text-red-600 rounded-xl px-4 py-3 mb-6 text-sm border border-red-100">
                             <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                             </svg>
@@ -56,7 +59,7 @@ export default function Login() {
                                 name="cpf"
                                 value={data.cpf}
                                 onChange={(e) => setData('cpf', maskCPF(e.target.value))}
-                                className={`w-full px-4 py-2.5 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-all outline-none text-sm ${formErrors.cpf ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`ds-input ${formErrors.cpf ? 'ds-input-error' : ''}`}
                                 placeholder="000.000.000-00"
                             />
                         </div>
@@ -71,7 +74,7 @@ export default function Login() {
                                     name="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#0C4773]/20 focus:border-[#0C4773] transition-all outline-none text-sm ${formErrors.password ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`ds-input pr-11 ${formErrors.password ? 'ds-input-error' : ''}`}
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -96,7 +99,7 @@ export default function Login() {
                         <button 
                             type="submit" 
                             disabled={processing}
-                            className={`w-full py-3 px-4 mt-2 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm flex justify-center items-center gap-2 ${processing && 'opacity-70 cursor-wait'}`}
+                            className="ds-btn ds-btn-primary w-full py-3 text-sm mt-2"
                         >
                             {processing ? (
                                 <>

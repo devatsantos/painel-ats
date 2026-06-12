@@ -118,7 +118,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                     <header className="mb-8">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Base de Dados</h1>
+                                <h1 className="text-2xl font-black text-gray-900 tracking-tight">Base de Dados</h1>
                                 <p className="text-gray-500 mt-1">Todos os candidatos registrados no sistema.</p>
                             </div>
                         </div>
@@ -191,7 +191,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                                 <input
                                     type="text"
                                     placeholder="Buscar por nome, CPF, e-mail ou telefone..."
-                                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 shadow-sm transition-shadow outline-none"
+                                    className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full pl-10 p-2.5 shadow-sm transition-all outline-none"
                                     value={busca}
                                     onChange={(e) => handleSearchChange(e.target.value)}
                                 />
@@ -200,7 +200,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                             <select
                                 value={filtroRegiao}
                                 onChange={(e) => handleRegiaoChange(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                                className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full p-2.5 shadow-sm transition-all outline-none cursor-pointer"
                             >
                                 <option value="">Todas as Regiões</option>
                                 {regioes.map(r => (
@@ -211,7 +211,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                             <select
                                 value={filtroEscolaridade}
                                 onChange={(e) => handleEscolaridadeChange(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                                className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full p-2.5 shadow-sm transition-all outline-none cursor-pointer"
                             >
                                 <option value="">Escolaridade</option>
                                 <option value="fundamental">Fundamental</option>
@@ -224,7 +224,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                             <select
                                 value={filtroStatus}
                                 onChange={(e) => handleStatusChange(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                                className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full p-2.5 shadow-sm transition-all outline-none cursor-pointer"
                             >
                                 <option value="">Todos os Status</option>
                                 <option value="marcada">Marcada</option>
@@ -242,7 +242,7 @@ export default function BaseDeDados({ candidatos, regioes = [], vagas = [], tota
                                 <select
                                     value={filtroVaga}
                                     onChange={(e) => handleVagaChange(e.target.value)}
-                                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-80 p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                                    className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full sm:w-80 p-2.5 shadow-sm transition-all outline-none cursor-pointer"
                                 >
                                     <option value="">Todas as Vagas</option>
                                     {vagas.map(v => (

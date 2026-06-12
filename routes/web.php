@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'update'])->name('Agenda.update');
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
+    Route::get('/relatorios/recrutadores', [App\Http\Controllers\RelatoriosController::class, 'recrutadores'])->name('Relatorios.recrutadores');
     Route::get('/base-de-dados', [App\Http\Controllers\BaseDeDadosController::class, 'index'])->name('BaseDeDados');
 
     // Recepção — Mini-sistema de controle de visitantes

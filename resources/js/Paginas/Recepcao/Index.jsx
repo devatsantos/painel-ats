@@ -8,13 +8,13 @@ function getIniciais(nome) {
 
 function KpiCard({ label, value, icon, accent = 'bg-blue-50 text-blue-600' }) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 group hover:shadow-md transition-shadow duration-300">
-            <div className={`w-12 h-12 rounded-xl ${accent} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+        <div className="ds-kpi">
+            <div className={`ds-kpi-icon ${accent}`}>
                 {icon}
             </div>
-            <div>
-                <p className="text-2xl font-extrabold text-gray-900 tracking-tight">{value}</p>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
+            <div className="relative z-10">
+                <p className="ds-kpi-value">{value}</p>
+                <p className="ds-kpi-label">{label}</p>
             </div>
         </div>
     );
@@ -30,9 +30,24 @@ function FlashMessage() {
     );
 }
 
-export default function Recepcao({ registros, filtros, metricas, entrevistas_presenciais = [] }) {
+export default function Recepcao({ registros, filtros, metricas, entrevistas_presenciais = [], horario_servidor }) {
     const { props } = usePage();
     const nomeUsuario = props.auth?.user?.nome ?? 'Recepcionista';
+
+    // Calcula a diferença entre o relógio do servidor e o relógio local do cliente
+    const serverTime = new Date(horario_servidor);
+    const localTime = new Date();
+    const serverOffset = serverTime.getTime() - localTime.getTime();
+
+    const obterHorarioAtualServidor = () => {
+        const dataServidor = new Date(Date.now() + serverOffset);
+        const ano = dataServidor.getFullYear();
+        const mes = String(dataServidor.getMonth() + 1).padStart(2, '0');
+        const dia = String(dataServidor.getDate()).padStart(2, '0');
+        const horas = String(dataServidor.getHours()).padStart(2, '0');
+        const minutos = String(dataServidor.getMinutes()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+    };
 
     const [modalAberto, setModalAberto] = useState(false);
     const [editando, setEditando] = useState(null);
@@ -44,14 +59,14 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
         posto_cargo_empresa: '',
         departamento_responsavel: '',
         contato: '',
-        horario_entrada: new Date().toISOString().slice(0, 16),
+        horario_entrada: obterHorarioAtualServidor(),
         retorno: '',
         indicacao: '',
     });
 
     const abrirNovoRegistro = () => {
         reset();
-        setData('horario_entrada', new Date().toISOString().slice(0, 16));
+        setData('horario_entrada', obterHorarioAtualServidor());
         setEditando(null);
         setModalAberto(true);
     };
@@ -107,7 +122,8 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
             <div className="min-h-screen bg-gray-50 font-sans">
 
                 {/* ── Top Bar ── */}
-                <header className="bg-[#071F30] text-white shadow-lg">
+                <header className="bg-[#071F30] text-white shadow-lg relative">
+                    <div className="absolute bottom-0 left-0 right-0 ds-accent-line" />
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <img 
@@ -125,7 +141,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                 <p className="text-xs font-semibold text-white/90">{nomeUsuario}</p>
                                 <p className="text-[10px] text-blue-200/50 uppercase tracking-wider">Recepção</p>
                             </div>
-                            <div className="w-9 h-9 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-bold">
+                            <div className="ds-avatar ds-avatar-md bg-teal-500 text-white">
                                 {getIniciais(nomeUsuario)}
                             </div>
                             <Link
@@ -177,7 +193,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                     </div>
 
                     {/* ── Entrevistas Presenciais do Dia ── */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="ds-card-static overflow-hidden">
                         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
@@ -194,7 +210,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                     </p>
                                 </div>
                             </div>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-semibold">
+                            <span className="ds-badge bg-orange-50 text-orange-600 border border-orange-100/50">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -205,18 +221,18 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
 
                         {entrevistas_presenciais.length > 0 ? (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
+                                <table className="ds-table">
                                     <thead>
-                                        <tr className="bg-gray-50/50 border-b border-gray-100">
-                                            <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Horário</th>
-                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Candidato</th>
-                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Telefone</th>
-                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Vaga</th>
-                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Recrutador</th>
-                                            <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                                        <tr>
+                                            <th className="text-center">Horário</th>
+                                            <th>Candidato</th>
+                                            <th className="hidden md:table-cell">Telefone</th>
+                                            <th>Vaga</th>
+                                            <th className="hidden lg:table-cell">Recrutador</th>
+                                            <th className="text-center">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50">
+                                    <tbody>
                                         {entrevistas_presenciais.map((ent) => {
                                             const statusConfig = {
                                                 marcada:        { label: 'Agendada',        cls: 'bg-blue-100 text-blue-700' },
@@ -230,8 +246,8 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                             const st = statusConfig[ent.status] ?? { label: ent.status, cls: 'bg-gray-100 text-gray-600' };
 
                                             return (
-                                                <tr key={ent.id} className="hover:bg-orange-50/30 transition-colors">
-                                                    <td className="px-5 py-3 text-center">
+                                                <tr key={ent.id} className="hover:bg-orange-50/30">
+                                                    <td className="text-center">
                                                         <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-lg">
                                                             <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -239,21 +255,21 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                             {new Date(ent.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </td>
-                                                    <td className="px-5 py-3">
+                                                    <td>
                                                         <div className="flex items-center gap-2.5">
-                                                            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                                            <div className="ds-avatar ds-avatar-sm bg-orange-500 text-white">
                                                                 {getIniciais(ent.candidato_nome)}
                                                             </div>
                                                             <span className="font-medium text-gray-800">{ent.candidato_nome}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-5 py-3 text-gray-500 text-xs hidden md:table-cell">{ent.candidato_telefone || '—'}</td>
-                                                    <td className="px-5 py-3">
+                                                    <td className="text-gray-500 text-xs hidden md:table-cell">{ent.candidato_telefone || '—'}</td>
+                                                    <td>
                                                         <span className="text-gray-700 text-xs font-medium">{ent.vaga_titulo}</span>
                                                     </td>
-                                                    <td className="px-5 py-3 text-gray-500 text-xs hidden lg:table-cell">{ent.entrevistador}</td>
-                                                    <td className="px-5 py-3 text-center">
-                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${st.cls}`}>
+                                                    <td className="text-gray-500 text-xs hidden lg:table-cell">{ent.entrevistador}</td>
+                                                    <td className="text-center">
+                                                        <span className={`ds-badge ${st.cls}`}>
                                                             {st.label}
                                                         </span>
                                                     </td>
@@ -264,11 +280,13 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                 </table>
                             </div>
                         ) : (
-                            <div className="px-6 py-10 text-center">
-                                <svg className="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p className="text-sm text-gray-400 font-medium">Nenhuma entrevista presencial nesta data.</p>
+                            <div className="ds-empty">
+                                <div className="ds-empty-icon">
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <p className="ds-empty-title">Nenhuma entrevista presencial nesta data.</p>
                             </div>
                         )}
                     </div>
@@ -286,19 +304,19 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                     placeholder="Buscar por nome, assunto ou depto..."
                                     onKeyDown={(e) => e.key === 'Enter' && handleFiltro('busca', e.target.value)}
                                     onBlur={(e) => e.target.value !== filtros.busca && handleFiltro('busca', e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                    className="ds-input pl-9"
                                 />
                             </div>
                             <input
                                 type="date"
                                 value={filtros.data}
                                 onChange={(e) => handleFiltro('data', e.target.value)}
-                                className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                className="ds-input w-auto"
                             />
                         </div>
                         <button
                             onClick={abrirNovoRegistro}
-                            className="inline-flex items-center gap-2 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+                            className="ds-btn ds-btn-primary"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -308,27 +326,27 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                     </div>
 
                     {/* ── Tabela de Registros ── */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="ds-card-static overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
+                            <table className="ds-table">
                                 <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-100">
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Visitante</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Assunto</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Departamento</th>
-                                        <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Horário</th>
-                                        <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th className="text-right px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Ações</th>
+                                    <tr>
+                                        <th>Visitante</th>
+                                        <th>Assunto</th>
+                                        <th className="hidden md:table-cell">Departamento</th>
+                                        <th className="text-center">Horário</th>
+                                        <th className="text-center">Status</th>
+                                        <th className="text-right">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50">
+                                <tbody>
                                     {registros.data.length > 0 ? (
                                         registros.data.map((reg) => (
-                                            <tr key={reg.id} className="hover:bg-gray-50/50 transition-colors">
+                                            <tr key={reg.id}>
                                                 {/* Visitante: nome + contato + cargo */}
-                                                <td className="px-5 py-3">
+                                                <td>
                                                     <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-full bg-[#0C4773] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                                        <div className="ds-avatar ds-avatar-sm bg-[#0C4773] text-white">
                                                             {getIniciais(reg.nome)}
                                                         </div>
                                                         <div className="min-w-0">
@@ -340,15 +358,15 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                     </div>
                                                 </td>
                                                 {/* Assunto + indicação */}
-                                                <td className="px-5 py-3 max-w-[200px]">
+                                                <td className="max-w-[200px]">
                                                     <p className="text-gray-700 truncate" title={reg.assunto}>{reg.assunto}</p>
                                                     {reg.indicacao && (
                                                         <p className="text-[11px] text-gray-400 truncate mt-0.5" title={reg.indicacao}>Indicação: {reg.indicacao}</p>
                                                     )}
                                                 </td>
                                                 {/* Departamento + retorno */}
-                                                <td className="px-5 py-3 hidden md:table-cell">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
+                                                <td className="hidden md:table-cell">
+                                                    <span className="ds-badge bg-blue-50 text-blue-700">
                                                         {reg.departamento_responsavel}
                                                     </span>
                                                     {reg.retorno && (
@@ -356,7 +374,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                     )}
                                                 </td>
                                                 {/* Horário: entrada → saída */}
-                                                <td className="px-5 py-3 text-center">
+                                                <td className="text-center">
                                                     <div className="inline-flex items-center gap-1.5 font-mono text-xs">
                                                         <span className="font-bold text-gray-700">
                                                             {reg.horario_entrada ? new Date(reg.horario_entrada).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
@@ -368,25 +386,25 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                     </div>
                                                 </td>
                                                 {/* Status */}
-                                                <td className="px-5 py-3 text-center">
+                                                <td className="text-center">
                                                     {reg.horario_saida ? (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
+                                                        <span className="ds-badge bg-gray-100 text-gray-500">
                                                             Saiu
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                                        <span className="ds-badge bg-emerald-100 text-emerald-700">
                                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                             Presente
                                                         </span>
                                                     )}
                                                 </td>
                                                 {/* Ações */}
-                                                <td className="px-5 py-3">
+                                                <td className="text-right">
                                                     <div className="flex items-center justify-end gap-1">
                                                         {!reg.horario_saida && (
                                                             <button
                                                                 onClick={() => handleSaida(reg.id)}
-                                                                className="p-1.5 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                                                className="ds-btn-icon ds-btn-icon-success"
                                                                 title="Registrar saída"
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +414,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                         )}
                                                         <button
                                                             onClick={() => abrirEdicao(reg)}
-                                                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                                                            className="ds-btn-icon"
                                                             title="Editar"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,7 +423,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                         </button>
                                                         <button
                                                             onClick={() => setConfirmDelete(reg.id)}
-                                                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                                            className="ds-btn-icon ds-btn-icon-danger"
                                                             title="Excluir"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,12 +436,16 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-16 text-center">
-                                                <svg className="w-14 h-14 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                <p className="text-sm text-gray-400 font-medium">Nenhum visitante registrado nesta data.</p>
-                                                <p className="text-xs text-gray-300 mt-1">Clique em "Novo Visitante" para começar.</p>
+                                            <td colSpan={6}>
+                                                <div className="ds-empty">
+                                                    <div className="ds-empty-icon">
+                                                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <p className="ds-empty-title">Nenhum visitante registrado nesta data.</p>
+                                                    <p className="ds-empty-desc">Clique em "Novo Visitante" para começar.</p>
+                                                </div>
                                             </td>
                                         </tr>
                                     )}
@@ -445,7 +467,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                             onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                                                 link.active
-                                                    ? 'bg-[#0C4773] text-white'
+                                                    ? 'bg-[#0C4773] text-white shadow-sm'
                                                     : link.url
                                                         ? 'text-gray-600 hover:bg-gray-200'
                                                         : 'text-gray-300 cursor-not-allowed'
@@ -466,10 +488,10 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
 
             {/* ── Modal Novo/Editar Visitante ── */}
             {modalAberto && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={fecharModal}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={fecharModal}>
+                    <div className="ds-modal-panel max-w-2xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                         
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
+                        <div className="ds-modal-header shrink-0">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">
                                     {editando ? 'Editar Visitante' : 'Novo Visitante'}
@@ -478,14 +500,14 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                     {editando ? 'Atualize as informações do visitante' : 'Registre a entrada de um novo visitante'}
                                 </p>
                             </div>
-                            <button type="button" onClick={fecharModal} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                            <button type="button" onClick={fecharModal} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
 
-                        <form id="form-recepcao" onSubmit={handleSubmit} className="overflow-y-auto px-6 py-5 space-y-4">
+                        <form id="form-recepcao" onSubmit={handleSubmit} className="overflow-y-auto ds-scrollbar px-6 py-5 space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Nome <span className="text-red-400">*</span></label>
@@ -493,7 +515,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.nome}
                                         onChange={e => setData('nome', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className={`ds-input ${errors.nome ? 'ds-input-error' : ''}`}
                                         placeholder="Nome do visitante"
                                         required
                                     />
@@ -505,7 +527,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.assunto}
                                         onChange={e => setData('assunto', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className={`ds-input ${errors.assunto ? 'ds-input-error' : ''}`}
                                         placeholder="Motivo da visita"
                                         required
                                     />
@@ -520,21 +542,28 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.posto_cargo_empresa}
                                         onChange={e => setData('posto_cargo_empresa', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className="ds-input"
                                         placeholder="Ex: Analista - Empresa X"
                                     />
                                     {errors.posto_cargo_empresa && <p className="text-red-500 text-xs mt-1">{errors.posto_cargo_empresa}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Depto Responsável <span className="text-red-400">*</span></label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={data.departamento_responsavel}
                                         onChange={e => setData('departamento_responsavel', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
-                                        placeholder="Departamento que vai receber"
+                                        className="ds-input"
                                         required
-                                    />
+                                    >
+                                        <option value="">Selecione o departamento</option>
+                                        <option value="RH">RH</option>
+                                        <option value="Departamento Pessoal">Departamento Pessoal</option>
+                                        <option value="Financeiro">Financeiro</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Contratos">Contratos</option>
+                                        <option value="Operacional">Operacional</option>
+                                        <option value="Doutor">Doutor</option>
+                                    </select>
                                     {errors.departamento_responsavel && <p className="text-red-500 text-xs mt-1">{errors.departamento_responsavel}</p>}
                                 </div>
                             </div>
@@ -546,7 +575,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.contato}
                                         onChange={e => setData('contato', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className="ds-input"
                                         placeholder="Telefone ou e-mail"
                                     />
                                     {errors.contato && <p className="text-red-500 text-xs mt-1">{errors.contato}</p>}
@@ -557,7 +586,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="datetime-local"
                                         value={data.horario_entrada}
                                         onChange={e => setData('horario_entrada', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className="ds-input"
                                         required
                                     />
                                     {errors.horario_entrada && <p className="text-red-500 text-xs mt-1">{errors.horario_entrada}</p>}
@@ -571,7 +600,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.indicacao}
                                         onChange={e => setData('indicacao', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className="ds-input"
                                         placeholder="Quem indicou ou encaminhou"
                                     />
                                     {errors.indicacao && <p className="text-red-500 text-xs mt-1">{errors.indicacao}</p>}
@@ -582,7 +611,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                         type="text"
                                         value={data.retorno}
                                         onChange={e => setData('retorno', e.target.value)}
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                        className="ds-input"
                                         placeholder="Observação sobre retorno"
                                     />
                                     {errors.retorno && <p className="text-red-500 text-xs mt-1">{errors.retorno}</p>}
@@ -590,15 +619,15 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                             </div>
                         </form>
 
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-2xl shrink-0">
-                            <button type="button" onClick={fecharModal} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors cursor-pointer">
+                        <div className="ds-modal-footer shrink-0">
+                            <button type="button" onClick={fecharModal} className="ds-btn ds-btn-ghost">
                                 Cancelar
                             </button>
                             <button
                                 type="submit"
                                 form="form-recepcao"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#007EAE] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
+                                className="ds-btn ds-btn-primary"
                             >
                                 {processing ? (
                                     <>
@@ -617,8 +646,8 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
 
             {/* ── Modal Confirmar Exclusão ── */}
             {confirmDelete && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setConfirmDelete(null)}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={() => setConfirmDelete(null)}>
+                    <div className="ds-modal-panel max-w-sm p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -627,10 +656,10 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                         <h3 className="text-lg font-bold text-gray-800 mb-1">Excluir registro?</h3>
                         <p className="text-sm text-gray-500 mb-6">Esta ação não pode ser desfeita.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                            <button onClick={() => setConfirmDelete(null)} className="ds-btn ds-btn-secondary flex-1">
                                 Cancelar
                             </button>
-                            <button onClick={() => handleDelete(confirmDelete)} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors cursor-pointer">
+                            <button onClick={() => handleDelete(confirmDelete)} className="ds-btn ds-btn-danger flex-1">
                                 Excluir
                             </button>
                         </div>

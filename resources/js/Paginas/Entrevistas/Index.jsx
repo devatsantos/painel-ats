@@ -97,18 +97,18 @@ export default function Entrevistas({ candidatos }) {
         <>
             <Head title="Entrevistas" />
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-6 lg:p-10">
                     
                     <FlashMessages />
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Entrevistas</h1>
-                            <p className="text-gray-500 mt-1">Acompanhe os candidatos e suas entrevistas.</p>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Entrevistas</h1>
+                            <p className="text-sm text-gray-400 mt-1">Acompanhe os candidatos e suas entrevistas.</p>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg">
+                            <span className="ds-badge bg-white border border-gray-200 text-gray-500 px-3 py-1.5">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -131,20 +131,18 @@ export default function Entrevistas({ candidatos }) {
                         {candidatos.data.map((candidato) => {
                             const status = STATUS_CONFIG[candidato.status] || STATUS_CONFIG.marcada;
                             return (
-                                <div key={candidato.id} className="bg-white rounded-2xl border border-gray-200 hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden">
+                                <div key={candidato.id} className="ds-card flex flex-col overflow-hidden">
 
                                     {/* Header */}
                                     <div className="p-6 flex items-start gap-4">
-                                        <div className="w-12 h-12 bg-[#0C4773]/10 rounded-xl flex items-center justify-center shrink-0">
-                                            <span className="text-base font-bold text-[#0C4773]">
-                                                {getIniciais(candidato.nome)}
-                                            </span>
+                                        <div className="ds-avatar ds-avatar-lg bg-[#0C4773]/10 text-[#0C4773] rounded-xl">
+                                            {getIniciais(candidato.nome)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-base font-bold text-gray-900 truncate">{candidato.nome}</p>
                                             <p className="text-sm text-gray-400 truncate mt-0.5">{candidato.vaga_titulo}</p>
                                         </div>
-                                        <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${status.bg} ${status.text}`}>
+                                        <span className={`ds-badge shrink-0 ${status.bg} ${status.text}`}>
                                             {status.label}
                                         </span>
                                     </div>
@@ -210,7 +208,7 @@ export default function Entrevistas({ candidatos }) {
                                             ) : (
                                                 <button
                                                     onClick={() => pegarEntrevista(candidato.entrevista_id)}
-                                                    className="self-start inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                                                    className="ds-btn text-xs text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 self-start"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
@@ -222,14 +220,14 @@ export default function Entrevistas({ candidatos }) {
                                     </div>
 
                                     {/* Rodapé */}
-                                    <div className="mt-auto px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-2">
+                                    <div className="mt-auto px-6 py-3.5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2">
                                             {candidato.path_curriculo && (
                                                 <a
                                                     href={`/storage/${candidato.path_curriculo}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0C4773] px-3 py-2 rounded-lg hover:bg-[#0C4773]/5 transition-colors"
+                                                    className="ds-btn ds-btn-ghost text-[#0C4773] text-sm px-3 py-2 hover:bg-[#0C4773]/5"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -241,21 +239,21 @@ export default function Entrevistas({ candidatos }) {
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => setModalCandidato(candidato)}
-                                                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+                                                className="ds-btn ds-btn-ghost text-sm px-3 py-2"
                                             >
                                                 Detalhes
                                             </button>
                                             {['marcada', 'selecionado'].includes(candidato.status) && (
                                                 <button
                                                     onClick={() => abrirAdiar(candidato)}
-                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                                                    className="ds-btn text-sm text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-2"
                                                 >
                                                     Adiar
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => abrirResultado(candidato)}
-                                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#0C4773]/90 px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                                                className="ds-btn ds-btn-primary text-sm px-4 py-2"
                                             >
                                                 Resultado
                                             </button>
@@ -270,20 +268,20 @@ export default function Entrevistas({ candidatos }) {
             </div>
 
             {modalCandidato && (
-                <div className="fixed inset-0 z-[100] flex justify-end" onClick={() => setModalCandidato(null)}>
+                <div className="ds-panel-overlay" onClick={() => setModalCandidato(null)}>
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
                     {/* Painel lateral */}
                     <div
-                        className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col overflow-hidden"
+                        className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col overflow-hidden ds-panel-slide"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header colorido */}
                         <div className="bg-[#0C4773] px-6 pt-8 pb-6 relative">
                             <button
                                 onClick={() => setModalCandidato(null)}
-                                className="absolute top-4 right-4 p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                                className="absolute top-4 right-4 ds-btn-icon text-white/60 hover:text-white hover:bg-white/10"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -488,13 +486,13 @@ export default function Entrevistas({ candidatos }) {
                         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3 shrink-0">
                             <button
                                 onClick={() => setModalCandidato(null)}
-                                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-200 transition-colors cursor-pointer"
+                                className="ds-btn ds-btn-ghost"
                             >
                                 Fechar
                             </button>
                             <button
                                 onClick={() => { abrirResultado(modalCandidato); setModalCandidato(null); }}
-                                className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#0C4773]/90 px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
+                                className="ds-btn ds-btn-primary"
                             >
                                 Registrar Resultado
                             </button>
@@ -504,14 +502,14 @@ export default function Entrevistas({ candidatos }) {
             )}
 
             {modalResultado && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={fecharResultado}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={fecharResultado}>
+                    <div className="ds-modal-panel max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">Registrar Resultado</h2>
                                 <p className="text-xs text-gray-400 mt-0.5">{modalResultado.nome} — {modalResultado.vaga_titulo}</p>
                             </div>
-                            <button onClick={fecharResultado} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <button onClick={fecharResultado} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -523,9 +521,9 @@ export default function Entrevistas({ candidatos }) {
                                     {OPCOES_RESULTADO.map(opcao => (
                                         <label
                                             key={opcao.value}
-                                            className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                                            className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all duration-200 ${
                                                 data.status === opcao.value
-                                                    ? 'border-[#0C4773] bg-[#0C4773]/5'
+                                                    ? 'border-[#0C4773] bg-[#0C4773]/5 shadow-sm'
                                                     : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                         >
@@ -554,18 +552,18 @@ export default function Entrevistas({ candidatos }) {
                                         onChange={e => setData('observacao', e.target.value)}
                                         rows={3}
                                         placeholder="Anotações sobre a entrevista..."
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] resize-none"
+                                        className="ds-input resize-none"
                                     />
                                 </div>
                             </div>
                             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-                                <button type="button" onClick={fecharResultado} className="text-sm font-medium text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                                <button type="button" onClick={fecharResultado} className="ds-btn ds-btn-ghost">
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={!data.status || processing}
-                                    className="text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#0C4773]/90 px-5 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="ds-btn ds-btn-primary"
                                 >
                                     {processing ? 'Salvando...' : 'Salvar Resultado'}
                                 </button>
@@ -576,14 +574,14 @@ export default function Entrevistas({ candidatos }) {
             )}
 
             {modalAdiar && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={fecharAdiar}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={fecharAdiar}>
+                    <div className="ds-modal-panel max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">Adiar Entrevista</h2>
                                 <p className="text-xs text-gray-400 mt-0.5">{modalAdiar.nome} — {modalAdiar.vaga_titulo}</p>
                             </div>
-                            <button onClick={fecharAdiar} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <button onClick={fecharAdiar} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -603,19 +601,19 @@ export default function Entrevistas({ candidatos }) {
                                         onChange={e => setJustificativa(e.target.value)}
                                         rows={3}
                                         placeholder="Ex: Tivemos um imprevisto na agenda interna e precisamos reagendar..."
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#0C4773]/40 focus:border-[#0C4773] resize-none"
+                                        className="ds-input resize-none"
                                         maxLength={1000}
                                     />
                                 </div>
                             </div>
                             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-                                <button type="button" onClick={fecharAdiar} className="text-sm font-medium text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                                <button type="button" onClick={fecharAdiar} className="ds-btn ds-btn-ghost">
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={adiando}
-                                    className="text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="ds-btn bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {adiando ? 'Confirmando...' : 'Confirmar e Adiar'}
                                 </button>

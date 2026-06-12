@@ -82,7 +82,7 @@ export default function Edit({ formulario }) {
         <>
             <Head title={`Editar: ${formulario.titulo_formulario}`} />
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-4 pt-16 sm:p-6 md:p-8 lg:p-10 max-w-full overflow-hidden">
                     <div className="flex items-center justify-between mb-8">
                         <div>
@@ -92,7 +92,7 @@ export default function Edit({ formulario }) {
                                 </svg>
                                 Voltar para Formulários
                             </Link>
-                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">
                                 Editar Formulário
                             </h1>
                         </div>

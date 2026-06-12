@@ -224,7 +224,7 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
                     <header className="mb-8">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Banco de Talentos</h1>
+                                <h1 className="text-2xl font-black text-gray-900 tracking-tight">Banco de Talentos</h1>
                                 <p className="text-gray-500 mt-1">Gerencie os currículos e perfis dos candidatos.</p>
                             </div>
                             <button
@@ -284,7 +284,7 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
                             <input 
                                 type="text"
                                 placeholder="Buscar por Nome, Cargo ou Formação..."
-                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 shadow-sm transition-shadow outline-none"
+                                className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full pl-10 p-2.5 shadow-sm transition-all outline-none"
                                 value={buscaCargo}
                                 onChange={(e) => handleSearchChange(e.target.value)}
                             />
@@ -293,7 +293,7 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
                             <select
                                 value={filtroRegiao}
                                 onChange={(e) => handleRegiaoChange(e.target.value)}
-                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm transition-shadow outline-none cursor-pointer"
+                                className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 block w-full p-2.5 shadow-sm transition-all outline-none cursor-pointer"
                             >
                                 <option value="">Todas as Regiões</option>
                                 {regioes.map(r => (
@@ -410,13 +410,13 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
             {/* Modal agendar entrevista */}
             {modalEntrevista && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={fecharModalEntrevista}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col" onClick={e => e.stopPropagation()}>
+                    <div className="ds-modal-panel max-w-md flex flex-col" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">Agendar Entrevista</h2>
                                 <p className="text-sm text-gray-400 mt-0.5">{modalEntrevista.nome}</p>
                             </div>
-                            <button type="button" onClick={fecharModalEntrevista} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                            <button type="button" onClick={fecharModalEntrevista} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
@@ -510,8 +510,8 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
             )}
 
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={closeModal}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={closeModal}>
+                    <div className="ds-modal-panel max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
                             <div>
@@ -522,7 +522,7 @@ export default function Talentos({ talentos, vagas, totalRegioes, regioes = [], 
                                     {editMode ? `Atualizando informações de ${data.nome}` : 'Cadastre um novo perfil no banco de talentos'}
                                 </p>
                             </div>
-                            <button type="button" onClick={closeModal} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                            <button type="button" onClick={closeModal} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>

@@ -136,15 +136,15 @@ export default function Vagas({vagas, formularios}) {
     return (
         <>
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-6 lg:p-10">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Vagas</h1>
-                            <p className="text-gray-500 mt-1">Gerencie as vagas disponíveis na empresa.</p>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Vagas</h1>
+                            <p className="text-sm text-gray-400 mt-1">Gerencie as vagas disponíveis na empresa.</p>
                         </div>
-                        <button onClick={handleCreate} className="inline-flex items-center justify-center gap-2 bg-[#0C4773] hover:bg-[#007EAE] text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
+                        <button onClick={handleCreate} className="ds-btn ds-btn-primary">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
@@ -160,7 +160,7 @@ export default function Vagas({vagas, formularios}) {
                         </div>
                         <input
                             type="text"
-                            className="w-full pl-14 pr-12 py-4 rounded-2xl border-0 ring-1 ring-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0C4773] shadow-sm transition-all sm:text-base text-sm"
+                            className="ds-input pl-14 py-3.5 sm:text-base text-sm"
                             placeholder="Pesquisar vagas por título ou local..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -180,7 +180,7 @@ export default function Vagas({vagas, formularios}) {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {filteredVagas.length > 0 ? (
                             filteredVagas.map((vaga) => (
-                                <div key={vaga.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                                <div key={vaga.id} className="ds-card overflow-hidden">
                                 
                                 <div className="px-6 pt-6 pb-4 border-b border-gray-100">
                                     <div className="flex items-start justify-between gap-3">
@@ -283,17 +283,17 @@ export default function Vagas({vagas, formularios}) {
                                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
                                     <button 
                                         onClick={() => handleEdit(vaga)}
-                                        className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
+                                        className="ds-btn ds-btn-ghost text-sm px-4 py-2">
                                         Editar
                                     </button>
-                                    <button className="text-sm font-medium text-red-500 hover:text-red-700 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors cursor-pointer" onClick={() => handleDelete(vaga)}>
+                                    <button className="ds-btn ds-btn-ghost text-red-500 hover:text-red-700 hover:bg-red-50 text-sm px-4 py-2" onClick={() => handleDelete(vaga)}>
                                         Excluir
                                     </button>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white rounded-2xl shadow-sm border border-gray-200">
+                        <div className="col-span-full ds-empty ds-card-static p-12">
                             <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -309,8 +309,8 @@ export default function Vagas({vagas, formularios}) {
             </div>
 
             {modalVaga && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setModalVaga(null)}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={() => setModalVaga(null)}>
+                    <div className="ds-modal-panel max-w-2xl mx-4 max-h-[85vh] overflow-y-auto ds-scrollbar" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100">
                             <div>
@@ -323,7 +323,7 @@ export default function Vagas({vagas, formularios}) {
                                     {modalVaga.local}
                                 </div>
                             </div>
-                            <button onClick={() => setModalVaga(null)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                            <button onClick={() => setModalVaga(null)} className="ds-btn-icon">
                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -393,7 +393,7 @@ export default function Vagas({vagas, formularios}) {
                         </div>
 
                         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end rounded-b-2xl">
-                            <button onClick={() => setModalVaga(null)} className="text-sm font-medium text-gray-600 hover:text-gray-800 px-5 py-2.5 rounded-xl hover:bg-gray-200 transition-colors cursor-pointer">
+                            <button onClick={() => setModalVaga(null)} className="ds-btn ds-btn-ghost">
                                 Fechar
                             </button>
                         </div>
@@ -402,8 +402,8 @@ export default function Vagas({vagas, formularios}) {
             )}
 
             {(vagaEditando || novaVaga) && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={closeModalEdit}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="ds-modal-overlay" onClick={closeModalEdit}>
+                    <div className="ds-modal-panel max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
 
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
                             <div>
@@ -413,7 +413,7 @@ export default function Vagas({vagas, formularios}) {
                             <button
                                 type="button"
                                 onClick={closeModalEdit}
-                                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                                className="ds-btn-icon"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -432,7 +432,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.titulo}
                                             onChange={e => setData('titulo', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: Desenvolvedor Full Stack"
                                             required
                                         />
@@ -445,7 +445,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.local}
                                             onChange={e => setData('local', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: São Paulo - SP"
                                             required
                                         />
@@ -458,7 +458,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.horario}
                                             onChange={e => setData('horario', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: 08:00 - 17:00"
                                             required
                                         />
@@ -471,7 +471,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.escala}
                                             onChange={e => setData('escala', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: 5x2"
                                             required
                                         />
@@ -484,7 +484,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.status_efetivacao}
                                             onChange={e => setData('status_efetivacao', e.target.value)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: CLT, PJ, Temporário"
                                             required
                                         />
@@ -511,7 +511,7 @@ export default function Vagas({vagas, formularios}) {
                                                       setData('formulario_id', selectedId);
                                                   }
                                               }}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             required
                                         >
                                             <option value="" disabled>Selecione um formulário</option>
@@ -535,7 +535,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.descricao}
                                             onChange={e => setData('descricao', e.target.value)}
                                             rows={3}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition resize-none"
+                                            className="ds-input resize-none"
                                             placeholder="Descreva as responsabilidades da vaga..."
                                             required
                                         />
@@ -547,7 +547,7 @@ export default function Vagas({vagas, formularios}) {
                                             value={data.requisitos}
                                             onChange={e => setData('requisitos', e.target.value)}
                                             rows={3}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition resize-none"
+                                            className="ds-input resize-none"
                                             placeholder="Liste os requisitos necessários..."
                                             required
                                         />
@@ -565,7 +565,7 @@ export default function Vagas({vagas, formularios}) {
                                             type="text"
                                             value={data.salario}
                                             onChange={e => handleMoneyChange('salario', e)}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                            className="ds-input"
                                             placeholder="Ex: R$ 5.000,00"
                                             required
                                         />
@@ -673,7 +673,7 @@ export default function Vagas({vagas, formularios}) {
                             <button
                                 type="button"
                                 onClick={closeModalEdit}
-                                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors cursor-pointer"
+                                className="ds-btn ds-btn-ghost"
                             >
                                 Cancelar
                             </button>
@@ -681,7 +681,7 @@ export default function Vagas({vagas, formularios}) {
                                 type="submit"
                                 form="form-editar-vaga"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0C4773] hover:bg-[#007EAE] disabled:opacity-50 transition-colors cursor-pointer shadow-md"
+                                className="ds-btn ds-btn-primary"
                             >
                                 {processing ? (
                                     <>

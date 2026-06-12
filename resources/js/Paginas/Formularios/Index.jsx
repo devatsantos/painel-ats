@@ -93,12 +93,12 @@ export default function Formularios({ formulariosCadastrados = [] }) {
         <>
             <Head title="Formulários" />
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-4 pt-16 sm:p-6 md:p-8 lg:p-10 max-w-full overflow-hidden">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 md:mb-8 gap-4">
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Formulários</h1>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Formulários</h1>
                             <p className="text-gray-500 mt-1">Crie e gerencie formulários customizados para os processos seletivos.</p>
                         </div>
                         <button

@@ -85,6 +85,7 @@ class RecepcaoController extends Controller
                 'total_mes'       => $totalMes,
             ],
             'entrevistas_presenciais' => $entrevistasPresenciais,
+            'horario_servidor'        => Carbon::now()->toIso8601String(),
         ]);
     }
 

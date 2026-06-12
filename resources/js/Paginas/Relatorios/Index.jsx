@@ -16,7 +16,7 @@ function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-bl
         <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
             <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
             <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
-            <p className="relative z-10 text-3xl font-extrabold text-gray-900 tracking-tight">
+            <p className="relative z-10 text-2xl font-black text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
             </p>
             {sub && <p className="relative z-10 text-xs text-gray-400 mt-0.5">{sub}</p>}
@@ -47,10 +47,18 @@ export default function Relatorios({
                     <div className="max-w-7xl mx-auto space-y-6">
 
                         {/* Header */}
-                        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <header className="flex flex-col gap-4">
                             <div>
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Visão geral</p>
-                                <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Relatórios</h1>
+                                <h1 className="text-2xl font-black text-gray-900 tracking-tight">Relatórios</h1>
+                            </div>
+                            <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
+                                <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-900 shadow-sm cursor-default transition-all">
+                                    Visão Geral
+                                </span>
+                                <a href="/relatorios/recrutadores" className="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-white/50 transition-all">
+                                    Recrutadores
+                                </a>
                             </div>
                         </header>
 

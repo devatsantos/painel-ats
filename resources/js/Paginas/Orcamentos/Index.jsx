@@ -14,16 +14,38 @@ export default function Orcamentos({ orcamentos }) {
         }).format(d);
     };
 
+    const renderStatusBadge = (status) => {
+        if (status === 'enviado') {
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Enviado
+                </span>
+            );
+        }
+        if (status === 'falhou') {
+            return (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
+                    Falhou
+                </span>
+            );
+        }
+        return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
+                Pendente
+            </span>
+        );
+    };
+
     return (
         <>
             <Head title="Orçamentos" />
             <Sidebar />
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-4 pt-16 sm:p-6 sm:pt-16 md:p-8 lg:p-10 max-w-full overflow-hidden">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 md:mb-8 gap-4">
                         <div className="mt-2 sm:mt-0">
-                            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Orçamentos</h1>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Orçamentos</h1>
                             <p className="text-gray-500 mt-1">Gerencie e visualize as solicitações de orçamento recebidas.</p>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-gray-500">
@@ -41,7 +63,10 @@ export default function Orcamentos({ orcamentos }) {
                             <div key={orcamento.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-3">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h3 className="font-semibold text-gray-800">{orcamento.empresa}</h3>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold text-gray-800">{orcamento.empresa}</h3>
+                                            {renderStatusBadge(orcamento.status)}
+                                        </div>
                                         <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -86,6 +111,7 @@ export default function Orcamentos({ orcamentos }) {
                                         <th className="px-4 py-4 font-semibold whitespace-nowrap">Iniciativa</th>
                                         <th className="px-4 py-4 font-semibold hidden xl:table-cell whitespace-nowrap">Serviços</th>
                                         <th className="px-4 py-4 font-semibold hidden lg:table-cell whitespace-nowrap">Local</th>
+                                        <th className="px-4 py-4 font-semibold text-center whitespace-nowrap">Status</th>
                                         <th className="px-4 py-4 font-semibold text-center whitespace-nowrap">Data</th>
                                         <th className="px-4 py-4 font-semibold text-right whitespace-nowrap">Ação</th>
                                     </tr>
@@ -118,6 +144,9 @@ export default function Orcamentos({ orcamentos }) {
                                             <td className="px-4 py-4 text-gray-500 hidden lg:table-cell whitespace-nowrap">
                                                 {orcamento.cidade} - {orcamento.estado}
                                             </td>
+                                            <td className="px-4 py-4 text-center whitespace-nowrap">
+                                                {renderStatusBadge(orcamento.status)}
+                                            </td>
                                             <td className="px-4 py-4 text-center text-gray-500 whitespace-nowrap text-xs">
                                                 <span className="block xl:inline">{formatDate(orcamento.created_at).split(',')[0]}</span>
                                                 <span className="hidden xl:inline">, {formatDate(orcamento.created_at).split(',')[1]}</span>
@@ -134,7 +163,7 @@ export default function Orcamentos({ orcamentos }) {
                                     ))}
                                     {orcamentos.data.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                                            <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                                                 <svg className="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
@@ -173,7 +202,10 @@ export default function Orcamentos({ orcamentos }) {
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                                 <div className="space-y-1">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase">Empresa / Iniciativa</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase">Empresa / Iniciativa</p>
+                                        {renderStatusBadge(modalOrcamento.status)}
+                                    </div>
                                     <p className="text-sm font-medium text-gray-800">{modalOrcamento.empresa}</p>
                                     <p className="text-sm text-gray-600">{modalOrcamento.iniciativa}</p>
                                 </div>

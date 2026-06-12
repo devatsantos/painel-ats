@@ -62,10 +62,10 @@ export default function Dashboard({
             <main className="flex-1 p-6 md:pl-[280px] transition-all duration-300">
                 <div className="max-w-7xl mx-auto space-y-6">
 
-                    {/* ── Header Premium ── */}
-                    <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    {/* ─── Header Premium ─── */}
+                    <header className="ds-card-static p-6 relative overflow-hidden group flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                         {/* Linha superior de destaque em gradiente */}
-                        <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-[#0C4773] to-[#007EAE]" />
+                        <div className="absolute top-0 left-0 h-[3px] w-full bg-gradient-to-r from-[#0C4773] via-[#007EAE] to-[#00a8d6] rounded-t-2xl" />
                         
                         <div className="flex items-center gap-4">
                             {/* Ícone dinâmico do período do dia com fundo suave */}
@@ -108,12 +108,12 @@ export default function Dashboard({
                         </div>
 
                         {/* Botões de Ação */}
-                        <div className="flex items-center gap-2.5 shrink-0 sm:self-auto self-stretch">
-                            <a href="/vagas?modal=true" className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0C4773] to-[#007EAE] text-white text-xs font-bold hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-sm">
+                        <div className="flex items-center gap-4 shrink-0 sm:self-auto self-stretch mt-6 sm:mt-0">
+                            <a href="/vagas?modal=true" className="ds-btn ds-btn-primary text-xs">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                                 Nova Vaga
                             </a>
-                            <a href="/agenda?modal=true" className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-sm">
+                            <a href="/agenda?modal=true" className="ds-btn ds-btn-secondary text-xs">
                                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 Bloquear Agenda
                             </a>
@@ -124,7 +124,7 @@ export default function Dashboard({
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto">
 
                         {/* ─── KPI: Entrevistas no mês (1 col) ─── */}
-                        <div className="bento-card bento-delay-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between relative overflow-hidden group">
+                        <div className="bento-card bento-delay-1 ds-card p-5 flex items-center justify-between relative overflow-hidden group">
                             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                             <div className="relative z-10">
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Entrevistas no mês</p>
@@ -152,7 +152,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── KPI: Aguardando Entrevista (1 col) ─── */}
-                        <div onClick={() => setPainelAberto(true)} className="bento-card bento-delay-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer group relative overflow-hidden">
+                        <div onClick={() => setPainelAberto(true)} className="bento-card bento-delay-2 ds-card p-5 flex items-center justify-between cursor-pointer group relative overflow-hidden">
                             <div className="absolute inset-0 bg-gradient-to-br from-orange-50/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                             <div className="relative z-10">
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Aguardando entrevista</p>
@@ -170,7 +170,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── KPI: Vagas Abertas (2 cols - destaque) ─── */}
-                        <div className="bento-card bento-delay-3 sm:col-span-2 bg-gradient-to-br from-[#0C4773] to-[#007EAE] p-5 rounded-2xl shadow-sm border border-[#0C4773]/20 flex items-center justify-between relative overflow-hidden group">
+                        <div className="bento-card bento-delay-3 sm:col-span-2 ds-card-gradient p-5 flex items-center justify-between relative overflow-hidden group">
                             <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full" />
                             <div className="absolute right-16 -top-6 w-20 h-20 bg-white/5 rounded-full" />
                             <div className="relative z-10">
@@ -188,7 +188,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── Próximas Entrevistas (2 cols, tall) ─── */}
-                        <div className="bento-card bento-delay-4 sm:col-span-2 lg:row-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                        <div className="bento-card bento-delay-4 sm:col-span-2 lg:row-span-2 ds-card-static overflow-hidden flex flex-col">
                             <div className="flex items-center justify-between px-6 pt-6 pb-4">
                                 <div>
                                     <h2 className="text-base font-bold text-gray-900">Próximas Entrevistas</h2>
@@ -205,7 +205,7 @@ export default function Dashboard({
                                         return (
                                             <div key={i} className={`flex items-center gap-4 p-4 rounded-xl border border-gray-100 border-l-4 ${accentBorder} bg-gray-50/50 hover:bg-gray-50 transition-colors`}>
                                                 {/* Avatar */}
-                                                <div className="w-10 h-10 rounded-full bg-[#0C4773]/10 flex items-center justify-center shrink-0 text-[#0C4773] font-bold text-sm">
+                                                <div className="ds-avatar ds-avatar-md rounded-full bg-[#0C4773]/10 text-[#0C4773]">
                                                     {e.candidato?.charAt(0)?.toUpperCase() ?? '?'}
                                                 </div>
 
@@ -226,7 +226,7 @@ export default function Dashboard({
                                                     <p className="text-xs font-bold text-gray-800">{e.data_hora}</p>
                                                     <p className="text-xs text-gray-400">{e.data_relativa}</p>
                                                     {e.tipo && (
-                                                        <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${TIPO_COLOR[e.tipo] ?? 'bg-gray-100 text-gray-600'}`}>
+                                                        <span className={`ds-badge ${TIPO_COLOR[e.tipo] ?? 'bg-gray-100 text-gray-600'}`}>
                                                             {TIPO_LABEL[e.tipo] ?? e.tipo}
                                                         </span>
                                                     )}
@@ -247,7 +247,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── Vagas em Destaque (2 cols, tall) ─── */}
-                        <div className="bento-card bento-delay-5 sm:col-span-2 lg:row-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
+                        <div className="bento-card bento-delay-5 sm:col-span-2 lg:row-span-2 ds-card-static p-6 flex flex-col">
                             <div className="flex items-center justify-between mb-5">
                                 <h2 className="text-base font-bold text-gray-900 border-l-4 border-violet-500 pl-3">Vagas em Destaque</h2>
                                 <a href="/vagas" className="text-xs font-semibold text-[#0C4773] hover:underline">Ver todas</a>
@@ -295,7 +295,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── Resumo do Recrutamento (1 col em lg, 2 em sm) ─── */}
-                        <div className="bento-card bento-delay-5 sm:col-span-2 lg:col-span-1 lg:row-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <div className="bento-card bento-delay-5 sm:col-span-2 lg:col-span-1 lg:row-span-2 ds-card-static p-6 flex flex-col">
                             <h2 className="text-base font-bold text-gray-900 border-l-4 border-[#0C4773] pl-3 mb-5">Resumo do Recrutamento</h2>
 
                             {(() => {
@@ -386,7 +386,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── Atividades Recentes (3 cols em lg) ─── */}
-                        <div className="bento-card bento-delay-6 sm:col-span-2 lg:col-span-3 lg:row-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <div className="bento-card bento-delay-6 sm:col-span-2 lg:col-span-3 lg:row-span-2 ds-card-static p-6 flex flex-col">
                             <div className="flex justify-between items-center mb-5">
                                 <h2 className="text-base font-bold text-gray-900 border-l-4 border-blue-500 pl-3">Atividades Recentes</h2>
                             </div>
@@ -501,12 +501,12 @@ export default function Dashboard({
 
         {/* Painel - Aguardando Entrevista Premium */}
         {painelAberto && (
-            <div className="fixed inset-0 z-50 flex justify-end">
-                {/* Overlay com desfoque e fade-in suave */}
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm overlay-fade-in" onClick={() => setPainelAberto(false)} />
+            <div className="ds-panel-overlay">
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setPainelAberto(false)} />
                 
                 {/* Painel lateral com slide-in e borda sutil */}
-                <div className="relative bg-[#F6F7F9] w-full max-w-md h-full shadow-2xl flex flex-col panel-slide-in border-l border-gray-200/50 z-10">
+                <div className="relative bg-[#F6F7F9] w-full max-w-md h-full shadow-2xl flex flex-col ds-panel-slide border-l border-gray-200/50 z-10">
                     {/* Linha gradiente decorativa no topo */}
                     <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-[#0C4773] to-[#007EAE]" />
                     
@@ -521,7 +521,7 @@ export default function Dashboard({
                                 candidato{aguardandoEntrevista.length !== 1 ? 's' : ''} aguardando agendamento
                             </p>
                         </div>
-                        <button onClick={() => setPainelAberto(false)} className="p-2 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors border border-transparent hover:border-gray-100 shadow-sm bg-white">
+                        <button onClick={() => setPainelAberto(false)} className="ds-btn-icon border border-gray-100 shadow-sm bg-white">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -541,7 +541,7 @@ export default function Dashboard({
                                 <p className="text-xs text-gray-400 mt-1 max-w-[200px] mx-auto">Candidatos aprovados na triagem que ainda não agendaram aparecerão aqui.</p>
                             </div>
                         ) : aguardandoEntrevista.map((item, index) => (
-                            <div key={index} className="bg-white rounded-2xl p-5 border border-gray-200/70 shadow-sm hover:shadow-md hover:border-orange-200/60 transition-all duration-300 relative group/card flex flex-col">
+                            <div key={index} className="ds-card p-5 relative group/card flex flex-col">
                                 {/* Badge de Ordem no Topo-Direito */}
                                 <span className="absolute top-4 right-4 text-xs font-black bg-orange-50/70 text-orange-500 w-6 h-6 rounded-full flex items-center justify-center border border-orange-100/30">
                                     {index + 1}

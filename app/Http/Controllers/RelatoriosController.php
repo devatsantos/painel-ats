@@ -164,4 +164,99 @@ class RelatoriosController extends Controller
             'entrevistas_tipo'      => $entrevistasTipo,
         ]);
     }
+
+    public function recrutadores()
+    {
+        $mesAtual = now()->month;
+        $anoAtual = now()->year;
+
+        // Query principal: métricas por recrutador (single query, sem N+1)
+        $recrutadores = DB::table('users')
+            ->leftJoin('entrevistas', 'users.id', '=', 'entrevistas.user_id')
+            ->leftJoin('candidato_vaga', 'entrevistas.candidato_vaga_id', '=', 'candidato_vaga.id')
+            ->whereIn('users.role', ['recrutador', 'coordenador', 'admin'])
+            ->select(
+                'users.id',
+                'users.nome',
+                'users.role',
+                DB::raw('COUNT(DISTINCT entrevistas.id) as total_entrevistas'),
+                DB::raw("COUNT(DISTINCT CASE WHEN MONTH(entrevistas.data_hora) = {$mesAtual} AND YEAR(entrevistas.data_hora) = {$anoAtual} THEN entrevistas.id END) as entrevistas_mes"),
+                DB::raw("COUNT(DISTINCT CASE WHEN candidato_vaga.status = 'contratado' THEN candidato_vaga.id END) as contratacoes"),
+                DB::raw("COUNT(DISTINCT CASE WHEN candidato_vaga.status = 'contratado' AND MONTH(candidato_vaga.updated_at) = {$mesAtual} AND YEAR(candidato_vaga.updated_at) = {$anoAtual} THEN candidato_vaga.id END) as contratacoes_mes"),
+                DB::raw("COUNT(DISTINCT CASE WHEN candidato_vaga.status = 'reprovado' THEN candidato_vaga.id END) as reprovados"),
+                DB::raw("COUNT(DISTINCT CASE WHEN candidato_vaga.status = 'nao_compareceu' THEN candidato_vaga.id END) as nao_compareceu"),
+                DB::raw("COUNT(DISTINCT CASE WHEN entrevistas.tipo = 'Online' THEN entrevistas.id END) as entrevistas_online"),
+                DB::raw("COUNT(DISTINCT CASE WHEN entrevistas.tipo = 'Presencial' THEN entrevistas.id END) as entrevistas_presencial"),
+                DB::raw("AVG(CASE WHEN candidato_vaga.status = 'contratado' THEN DATEDIFF(candidato_vaga.updated_at, candidato_vaga.created_at) END) as tempo_medio_dias")
+            )
+            ->groupBy('users.id', 'users.nome', 'users.role')
+            ->orderBy('contratacoes', 'desc')
+            ->get()
+            ->map(fn($r) => [
+                'id'                    => $r->id,
+                'nome'                  => $r->nome,
+                'role'                  => $r->role,
+                'total_entrevistas'     => (int) $r->total_entrevistas,
+                'entrevistas_mes'       => (int) $r->entrevistas_mes,
+                'contratacoes'          => (int) $r->contratacoes,
+                'contratacoes_mes'      => (int) $r->contratacoes_mes,
+                'reprovados'            => (int) $r->reprovados,
+                'nao_compareceu'        => (int) $r->nao_compareceu,
+                'entrevistas_online'    => (int) $r->entrevistas_online,
+                'entrevistas_presencial'=> (int) $r->entrevistas_presencial,
+                'tempo_medio_dias'      => $r->tempo_medio_dias !== null ? round($r->tempo_medio_dias) : null,
+                'taxa_conversao'        => $r->total_entrevistas > 0
+                    ? round(($r->contratacoes / $r->total_entrevistas) * 100, 1)
+                    : 0,
+            ])
+            ->toArray();
+
+        // Entrevistas por mês para cada recrutador (últimos 6 meses)
+        $entrevistasPorMesRecrutador = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $nomeMes = ucfirst(rtrim($date->translatedFormat('M'), '.'));
+
+            $porRecrutador = DB::table('entrevistas')
+                ->join('users', 'entrevistas.user_id', '=', 'users.id')
+                ->whereIn('users.role', ['recrutador', 'coordenador', 'admin'])
+                ->whereMonth('entrevistas.data_hora', $date->month)
+                ->whereYear('entrevistas.data_hora', $date->year)
+                ->select('users.id as user_id', DB::raw('COUNT(entrevistas.id) as total'))
+                ->groupBy('users.id')
+                ->pluck('total', 'user_id')
+                ->toArray();
+
+            $entrevistasPorMesRecrutador[] = [
+                'mes'    => $nomeMes,
+                'dados'  => $porRecrutador,
+            ];
+        }
+
+        // KPIs de resumo
+        $totalRecrutadores = count($recrutadores);
+        $totalEntrevistasMes = array_sum(array_column($recrutadores, 'entrevistas_mes'));
+        $maiorContratacaoMes = $totalRecrutadores > 0 ? max(array_column($recrutadores, 'contratacoes_mes')) : 0;
+        $mediaConversao = $totalRecrutadores > 0
+            ? round(array_sum(array_column($recrutadores, 'taxa_conversao')) / $totalRecrutadores, 1)
+            : 0;
+
+        // Nome do destaque do mês
+        $destaqueIndex = $totalRecrutadores > 0
+            ? array_search($maiorContratacaoMes, array_column($recrutadores, 'contratacoes_mes'))
+            : false;
+        $destaqueNome = $destaqueIndex !== false ? $recrutadores[$destaqueIndex]['nome'] : 'Nenhum';
+
+        return Inertia::render('Relatorios/Recrutadores', [
+            'recrutadores'                => $recrutadores,
+            'entrevistas_por_mes_recrutador' => $entrevistasPorMesRecrutador,
+            'resumo' => [
+                'total_recrutadores'     => $totalRecrutadores,
+                'total_entrevistas_mes'  => $totalEntrevistasMes,
+                'maior_contratacao_mes'  => $maiorContratacaoMes,
+                'destaque_nome'          => $destaqueNome,
+                'media_conversao'        => $mediaConversao,
+            ],
+        ]);
+    }
 }

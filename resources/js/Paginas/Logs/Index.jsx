@@ -73,7 +73,7 @@ export default function Logs({ logs, fileSize, filters }) {
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800 font-heading">Logs de Erro</h1>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Logs de Erro</h1>
                             <p className="text-gray-500 mt-1 text-sm">Monitoramento e depuração das exceções ocorridas no sistema.</p>
                         </div>
                         <div className="flex items-center gap-3">

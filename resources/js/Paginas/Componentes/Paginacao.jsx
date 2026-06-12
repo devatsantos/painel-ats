@@ -30,14 +30,14 @@ export default function Paginacao({ paginacao }) {
 
     return (
         <div className="flex items-center justify-between mt-6 px-1">
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-gray-400 font-medium">
                 {from}–{to} de {total} registro{total !== 1 ? 's' : ''}
             </p>
             <div className="flex items-center gap-1">
                 <button
                     onClick={() => irPara(current_page - 1)}
                     disabled={current_page === 1}
-                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="ds-btn-icon disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -49,9 +49,9 @@ export default function Paginacao({ paginacao }) {
                         : <button
                             key={p}
                             onClick={() => irPara(p)}
-                            className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 p === current_page
-                                    ? 'bg-[#0C4773] text-white'
+                                    ? 'bg-[#0C4773] text-white shadow-sm'
                                     : 'text-gray-600 hover:bg-gray-100'
                             }`}
                           >
@@ -61,7 +61,7 @@ export default function Paginacao({ paginacao }) {
                 <button
                     onClick={() => irPara(current_page + 1)}
                     disabled={current_page === last_page}
-                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="ds-btn-icon disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

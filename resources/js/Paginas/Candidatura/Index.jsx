@@ -507,7 +507,7 @@ export default function Candidatura({ vagas, candidato_id }) {
                 <div className="max-w-6xl mx-auto">
 
                     <div className="mb-10 text-center">
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Vagas Disponíveis</h1>
+                        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Vagas Disponíveis</h1>
                         <p className="text-gray-600 mt-2 text-lg">Confira nossas oportunidades abertas e candidate-se.</p>
                     </div>
 

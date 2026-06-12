@@ -37,13 +37,13 @@ export default function Index({ ouvidorias }) {
             <Head title="Ouvidoria - Admin" />
             <Sidebar />
             
-            <div className="flex min-h-screen bg-gray-100 md:ml-64">
+            <div className="flex min-h-screen bg-gray-50 md:ml-64">
                 <main className="flex-1 p-6 lg:p-10">
 
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Ouvidoria</h1>
+                            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Ouvidoria</h1>
                             <p className="text-gray-500 mt-1">Gerencie e analise os relatos enviados pelos usuários e candidatos.</p>
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-500 shadow-sm self-start">
@@ -165,7 +165,7 @@ export default function Index({ ouvidorias }) {
                                     </table>
                                 </div>
                             </div>
-                            <Paginacao links={ouvidorias.links} />
+                            <Paginacao paginacao={ouvidorias} />
                         </div>
                     )}
                 </main>
@@ -174,7 +174,7 @@ export default function Index({ ouvidorias }) {
             {/* Modal de Detalhes do Relato */}
             {selectedOuvidoria && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedOuvidoria(null)}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="ds-modal-panel max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
                         
                         {/* Header Modal */}
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
@@ -182,7 +182,7 @@ export default function Index({ ouvidorias }) {
                                 <h2 className="text-lg font-bold text-gray-900">Relato da Ouvidoria</h2>
                                 <p className="text-xs text-gray-400 mt-0.5">Enviado em {formatarData(selectedOuvidoria.created_at)}</p>
                             </div>
-                            <button onClick={() => setSelectedOuvidoria(null)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <button onClick={() => setSelectedOuvidoria(null)} className="ds-btn-icon">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
