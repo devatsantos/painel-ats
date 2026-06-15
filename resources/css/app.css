@@ -571,3 +571,12 @@
 .ds-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* ── Hidden scrollbar (functional scroll, no visible bar) ── */
+.ds-scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.ds-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

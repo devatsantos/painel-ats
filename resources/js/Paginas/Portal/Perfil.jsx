@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { consultarCep } from '../../utils/cep';
 import FlashMessages from '../Componentes/FlashMessages';
 import axios from 'axios';
 
@@ -34,15 +35,16 @@ export default function PortalPerfil({ candidato }) {
             .replace(/(-\d{3})\d+?$/, '$1');
     };
 
+    const viacepUrl = usePage().props.appConfig?.viacep_url;
+
     useEffect(() => {
         const cepLimpo = data.cep.replace(/\D/g, '');
         if (cepLimpo.length === 8) {
             setBuscandoCep(true);
-            axios.get(`https://viacep.com.br/ws/${cepLimpo}/json/`)
-                .then(response => {
-                    if (!response.data.erro) {
-                        const { logradouro } = response.data;
-                        setData(prev => ({ ...prev, logradouro: logradouro || '', cep: data.cep }));
+            consultarCep(cepLimpo, viacepUrl)
+                .then(result => {
+                    if (result) {
+                        setData(prev => ({ ...prev, logradouro: result.logradouro || '', cep: data.cep }));
                     }
                 })
                 .finally(() => setBuscandoCep(false));

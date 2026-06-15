@@ -135,4 +135,153 @@ class LogsController extends Controller
             return '0 bytes';
         }
     }
+
+    /**
+     * Verifica o status da conexão com a Evolution API (WhatsApp).
+     */
+    public function whatsappStatus()
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $apiUrl   = rtrim(config('services.evolution.url', ''), '/');
+        $apiKey   = config('services.evolution.key');
+        $instance = config('services.evolution.instance');
+
+        if (!$apiUrl || !$apiKey || !$instance) {
+            return response()->json([
+                'connected' => false,
+                'state'     => 'not_configured',
+                'message'   => 'Variáveis de ambiente da Evolution API não configuradas.',
+            ]);
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'apikey' => $apiKey,
+            ])->timeout(10)->get("{$apiUrl}/instance/connectionState/{$instance}");
+
+            $data  = $response->json();
+            $state = $data['instance']['state'] ?? ($data['state'] ?? 'unknown');
+
+            return response()->json([
+                'connected' => $state === 'open',
+                'state'     => $state,
+                'instance'  => $instance,
+                'message'   => $state === 'open'
+                    ? 'WhatsApp conectado e funcionando.'
+                    : "Estado da conexão: {$state}",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'connected' => false,
+                'state'     => 'error',
+                'message'   => 'Erro ao conectar com a Evolution API: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Envia uma mensagem de teste via WhatsApp.
+     */
+    public function whatsappTestar(Request $request)
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $request->validate([
+            'numero'   => 'required|string|min:10',
+            'mensagem' => 'required|string|max:1000',
+        ]);
+
+        try {
+            $service  = new \App\Services\WhatsAppService();
+            $response = $service->enviarMensagem($request->numero, $request->mensagem);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Mensagem de teste enviada com sucesso!',
+                'response' => $response,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar mensagem: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Verifica o status da conexão com o Portal AT&Santos.
+     */
+    public function portalStatus()
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $service = new \App\Services\PortalAtSantosService();
+
+        if (!$service->isConfigured()) {
+            return response()->json([
+                'connected' => false,
+                'state'     => 'not_configured',
+                'message'   => 'Variáveis PORTAL_ATSANTOS_URL e PORTAL_ATSANTOS_API_KEY não configuradas no .env.',
+            ]);
+        }
+
+        $baseUrl = rtrim(config('services.portal_atsantos.url', ''), '/');
+        $apiKey  = config('services.portal_atsantos.api_key', '');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'x-api-key' => $apiKey,
+            ])->timeout(10)->get("{$baseUrl}/api/health");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return response()->json([
+                    'connected' => true,
+                    'state'     => 'online',
+                    'url'       => $baseUrl,
+                    'message'   => $data['message'] ?? 'Portal conectado e funcionando.',
+                ]);
+            }
+
+            return response()->json([
+                'connected' => false,
+                'state'     => 'error',
+                'url'       => $baseUrl,
+                'message'   => "Portal respondeu com status {$response->status()}.",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'connected' => false,
+                'state'     => 'offline',
+                'url'       => $baseUrl,
+                'message'   => 'Não foi possível conectar ao Portal: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Envia um colaborador de teste para o Portal AT&Santos.
+     */
+    public function portalTestar(Request $request)
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $request->validate([
+            'nome'  => 'required|string|max:255',
+            'cpf'   => 'required|string|min:11',
+            'email' => 'nullable|email|max:255',
+            'telefone' => 'nullable|string|max:20',
+        ]);
+
+        $service = new \App\Services\PortalAtSantosService();
+        $result  = $service->syncColaborador([
+            'name'  => $request->nome,
+            'cpf'   => $request->cpf,
+            'phone' => $request->telefone,
+            'email' => $request->email,
+        ]);
+
+        return response()->json($result, $result['success'] ?? false ? 200 : 500);
+    }
 }

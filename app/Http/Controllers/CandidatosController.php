@@ -20,6 +20,7 @@ use App\Jobs\EnviarWhatsAppJob;
 use App\Services\AgendaService;
 use App\Services\VideoConferenciaService;
 use App\Services\WhatsAppService;
+use App\Models\MensagemWhatsApp;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -35,7 +36,7 @@ class CandidatosController extends Controller
     ];
 
     public function candidatura() {
-        $vagas = Vagas::where('ativo', true)->orderBy('created_at', 'desc')->get();
+        $vagas = Vagas::where('ativo', true)->where('interna', false)->orderBy('created_at', 'desc')->get();
         return Inertia::render('Candidatura/Index', ['vagas' => $vagas]);
     }
 
@@ -93,7 +94,7 @@ class CandidatosController extends Controller
 
                 // Aprovado no quiz mas ainda não agendou
                 if ($candidatoVaga->status === 'selecionado') {
-                    if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(7))) {
+                    if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(config('candidatura.selecao_expira_dias')))) {
                         // Reseta a candidatura
                         RespostaCandidato::where('candidato_id', $candidato->id)
                             ->where('vaga_id', $request->vaga_id)
@@ -165,7 +166,7 @@ class CandidatosController extends Controller
 
         $candidato->update([
             'whatsapp_codigo'          => $codigo,
-            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+            'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos')),
         ]);
 
         $vaga = Vagas::find($request->vaga_id);
@@ -174,7 +175,11 @@ class CandidatosController extends Controller
         $whatsapp = new WhatsAppService();
         $whatsapp->enviarMensagem(
             $candidato->telefone,
-            "Olá, {$candidato->nome}! 👋\n\nSeu código de verificação para continuar a candidatura à vaga *{$nomeVaga}* é:\n\n*{$codigo}*\n\nEste código expira em *15 minutos*. Não compartilhe com ninguém."
+            MensagemWhatsApp::renderizar('otp_candidatura', [
+                'nome'   => $candidato->nome,
+                'vaga'   => $nomeVaga,
+                'codigo' => $codigo,
+            ])
         );
 
         $tel = $candidato->telefone;
@@ -261,12 +266,15 @@ class CandidatosController extends Controller
 
         $candidato->update([
             'whatsapp_codigo'           => $codigo,
-            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+            'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos')),
         ]);
 
         try {
             Mail::raw(
-                "Olá, {$candidato->nome}! 👋\n\nSeu código de acesso ao processo seletivo é:\n\n{$codigo}\n\nEste código expira em 15 minutos. Não compartilhe com ninguém.",
+                MensagemWhatsApp::renderizar('otp_email', [
+                    'nome'   => $candidato->nome,
+                    'codigo' => $codigo,
+                ]),
                 function ($message) use ($candidato) {
                     $message->to($candidato->email)
                         ->subject("Código de Acesso - Processo Seletivo");
@@ -311,7 +319,7 @@ class CandidatosController extends Controller
         $token = Str::random(64);
         $candidato->update([
             'candidato_token'          => hash('sha256', $token),
-            'candidato_token_expira_em' => now()->addDays(14),
+            'candidato_token_expira_em' => now()->addDays(config('candidatura.token_expira_dias')),
         ]);
 
         return response()->json(['token' => $token]);
@@ -540,7 +548,7 @@ class CandidatosController extends Controller
                     'formulario_id' => $vaga->formulario_id
                 ],
                 [
-                    'reprovado_ate' => now()->addDays(30)
+                    'reprovado_ate' => now()->addDays(config('candidatura.quarentena_reprovacao_dias'))
                 ]
             );
             return response()->json([
@@ -610,7 +618,7 @@ class CandidatosController extends Controller
                 try {
                     $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
                     $meet     = new VideoConferenciaService();
-                    $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(30));
+                    $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(config('candidatura.entrevista_duracao_minutos')));
                 } catch (\Throwable $e) {
                     // Falha no Meet não impede o agendamento
                     Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
@@ -633,17 +641,14 @@ class CandidatosController extends Controller
             $dataFormatada = $dataHoraBR->format('d/m/Y');
             $horaFormatada = $dataHoraBR->format('H:i');
 
-            $mensagem = "Olá {$candidato->nome}! 🎉\n\n"
-                . "Sua entrevista para a vaga *{$vaga->titulo}* foi confirmada!\n\n"
-                . "📅 Data: {$dataFormatada}\n"
-                . "⏰ Horário: {$horaFormatada}\n"
-                . "📍 Tipo: {$request->tipo}\n";
-
-            if ($linkMeet) {
-                $mensagem .= "💻 Link Meet: {$linkMeet}\n";
-            }
-
-            $mensagem .= "\nQualquer dúvida, entre em contato conosco. Boa sorte!";
+            $mensagem = MensagemWhatsApp::renderizar('entrevista_agendada', [
+                'nome'      => $candidato->nome,
+                'vaga'      => $vaga->titulo,
+                'data'      => $dataFormatada,
+                'horario'   => $horaFormatada,
+                'tipo'      => $request->tipo,
+                'link_meet' => $linkMeet ? "💻 Link Meet: {$linkMeet}\n" : '',
+            ]);
 
             if ($candidato->telefone) {
                 EnviarWhatsAppJob::dispatch($candidato->telefone, $mensagem);

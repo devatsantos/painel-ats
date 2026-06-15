@@ -17,22 +17,22 @@ use App\Services\VideoConferenciaService;
 class TalentosController extends Controller
 {
     public function index(Request $request) {
-        $totalRegioes = Candidatos::where('banco_de_talentos', true)->distinct('regiao')->count('regiao');
-        
-        $regioes = Candidatos::where('banco_de_talentos', true)
-            ->whereNotNull('regiao')
-            ->where('regiao', '!=', '')
-            ->distinct()
-            ->orderBy('regiao')
-            ->pluck('regiao');
+        $banco = $request->input('banco', 'true');
 
-        $query = Candidatos::where('banco_de_talentos', true);
+        $query = Candidatos::with(['vagas']);
+
+        if ($banco === 'true') {
+            $query->where('banco_de_talentos', true);
+        }
 
         if ($request->filled('busca')) {
             $busca = $request->input('busca');
             $query->where(function($q) use ($busca) {
                 $q->where('nome', 'like', "%{$busca}%")
-                  ->orWhere('nivel_escolaridade', 'like', "%{$busca}%");
+                  ->orWhere('nivel_escolaridade', 'like', "%{$busca}%")
+                  ->orWhere('telefone', 'like', "%{$busca}%")
+                  ->orWhere('email', 'like', "%{$busca}%")
+                  ->orWhere('cpf', 'like', "%{$busca}%");
             });
         }
 
@@ -40,15 +40,47 @@ class TalentosController extends Controller
             $query->where('regiao', $request->input('regiao'));
         }
 
-        $talentos = $query->paginate(20)->withQueryString();
-        $vagas = Vagas::where('ativo', true)->orderBy('titulo')->get(['id', 'titulo']);
+        if ($request->filled('escolaridade')) {
+            $query->where('nivel_escolaridade', $request->input('escolaridade'));
+        }
+
+        if ($request->filled('vaga_id')) {
+            $query->whereHas('vagas', function ($q) use ($request) {
+                $q->where('vagas.id', $request->input('vaga_id'));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            $query->whereHas('vagas', function ($q) use ($status) {
+                $q->where('candidato_vaga.status', $status);
+            });
+        }
+
+        $talentos = $query->orderBy('created_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
+
+        $regioes = Candidatos::whereNotNull('regiao')
+            ->where('regiao', '!=', '')
+            ->distinct()
+            ->orderBy('regiao')
+            ->pluck('regiao');
+
+        $vagas = Vagas::orderBy('titulo')->get(['id', 'titulo']);
+
+        $totalCandidatos = Candidatos::count();
+        $totalBancoTalentos = Candidatos::where('banco_de_talentos', true)->count();
+        $totalComEntrevista = Candidatos::whereHas('vagas')->count();
         
-        return Inertia::render('Talentos/Index', [
-            'talentos'     => $talentos,
-            'vagas'        => $vagas,
-            'totalRegioes' => $totalRegioes,
-            'regioes'      => $regioes,
-            'filtros'      => $request->only(['busca', 'regiao']),
+        return Inertia::render('Candidatos/Index', [
+            'talentos'         => $talentos,
+            'vagas'            => $vagas,
+            'totalCandidatos'  => $totalCandidatos,
+            'totalBancoTalentos' => $totalBancoTalentos,
+            'totalComEntrevista' => $totalComEntrevista,
+            'regioes'          => $regioes,
+            'filtros'          => $request->only(['busca', 'regiao', 'escolaridade', 'vaga_id', 'status', 'banco']),
         ]);
     }
 
@@ -84,7 +116,7 @@ class TalentosController extends Controller
             'banco_de_talentos'  => true,
         ]);
 
-        return redirect()->route('Talentos');
+        return redirect()->route('Candidatos');
     }
 
     public function update(Request $request, Candidatos $candidato) {
@@ -111,24 +143,100 @@ class TalentosController extends Controller
         unset($validated['curriculo']);
         $candidato->update($validated);
 
-        return redirect()->route('Talentos')->with('success', 'Talento atualizado com sucesso.');
+        return redirect()->route('Candidatos')->with('success', 'Candidato atualizado com sucesso.');
     }
 
     public function delete(Candidatos $candidato) {
         if ($candidato->vagas()->exists()) {
             $candidato->update(['banco_de_talentos' => false]);
+            $msg = 'Candidato removido do banco de talentos (mantido no histórico por possuir vagas vinculadas).';
         } else {
             if ($candidato->path_curriculo) {
                 Storage::disk('public')->delete($candidato->path_curriculo);
             }
             $candidato->delete();
+            $msg = 'Candidato excluído permanentemente.';
         }
-        return redirect()->route('Talentos')->with('success', 'Talento removido do banco.');
+        return redirect()->route('Candidatos')->with('success', $msg);
     }
 
     public function adicionarAoBanco(Candidatos $candidato) {
-        $candidato->update(['banco_de_talentos' => true]);
-        return back()->with('success', 'Candidato adicionado ao banco de talentos.');
+        $candidato->update(['banco_de_talentos' => !$candidato->banco_de_talentos]);
+        $msg = $candidato->banco_de_talentos ? 'Candidato adicionado ao banco de talentos.' : 'Candidato removido do banco de talentos.';
+        return back()->with('success', $msg);
+    }
+
+    public function exportar(Request $request)
+    {
+        $banco = $request->input('banco', 'true');
+        $query = Candidatos::query();
+
+        if ($banco === 'true') {
+            $query->where('banco_de_talentos', true);
+        }
+
+        if ($request->filled('busca')) {
+            $busca = $request->input('busca');
+            $query->where(function($q) use ($busca) {
+                $q->where('nome', 'like', "%{$busca}%")
+                  ->orWhere('nivel_escolaridade', 'like', "%{$busca}%")
+                  ->orWhere('telefone', 'like', "%{$busca}%")
+                  ->orWhere('email', 'like', "%{$busca}%")
+                  ->orWhere('cpf', 'like', "%{$busca}%");
+            });
+        }
+
+        if ($request->filled('regiao')) {
+            $query->where('regiao', $request->input('regiao'));
+        }
+
+        if ($request->filled('escolaridade')) {
+            $query->where('nivel_escolaridade', $request->input('escolaridade'));
+        }
+
+        if ($request->filled('vaga_id')) {
+            $query->whereHas('vagas', function ($q) use ($request) {
+                $q->where('vagas.id', $request->input('vaga_id'));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            $query->whereHas('vagas', function ($q) use ($status) {
+                $q->where('candidato_vaga.status', $status);
+            });
+        }
+
+        $talentos = $query->orderBy('nome')->get();
+
+        $filename = 'banco_talentos_' . now()->format('Y-m-d_H-i') . '.csv';
+
+        return response()->streamDownload(function () use ($talentos) {
+            $handle = fopen('php://output', 'w');
+            // BOM for Excel UTF-8 compatibility
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($handle, ['Nome', 'CPF', 'E-mail', 'Telefone', 'Escolaridade', 'CEP', 'Logradouro', 'Região', 'Data Nascimento', 'Cadastrado em'], ';');
+
+            foreach ($talentos as $t) {
+                fputcsv($handle, [
+                    $t->nome,
+                    $t->cpf,
+                    $t->email,
+                    $t->telefone,
+                    $t->nivel_escolaridade,
+                    $t->cep,
+                    $t->logradouro,
+                    $t->regiao,
+                    $t->data_nascimento?->format('d/m/Y') ?? '',
+                    $t->created_at?->format('d/m/Y H:i') ?? '',
+                ], ';');
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function slotsDisponiveis(Request $request)
@@ -174,7 +282,7 @@ class TalentosController extends Controller
                 $vaga     = Vagas::find($validated['vaga_id']);
                 $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
                 $meet     = new VideoConferenciaService();
-                $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(30));
+                $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(config('candidatura.entrevista_duracao_minutos')));
             } catch (\Throwable $e) {
                 Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
             }
@@ -192,6 +300,6 @@ class TalentosController extends Controller
             'user_id'           => $vaga->user_id,
         ]);
 
-        return redirect()->route('Talentos')->with('success', 'Entrevista agendada com sucesso.');
+        return redirect()->route('Candidatos')->with('success', 'Entrevista agendada com sucesso.');
     }
 }

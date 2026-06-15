@@ -52,6 +52,11 @@ class HandleInertiaRequests extends Middleware
                     'nome' => $request->user('candidato')->nome,
                 ] : null,
             ],
+            'appConfig' => [
+                'viacep_url' => config('services.viacep.url'),
+                'logo_url'   => asset('images/logo.png'),
+                'logo_white_url' => asset('images/logo-white.png'),
+            ],
         ];
     }
 }

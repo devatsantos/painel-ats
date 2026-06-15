@@ -36,6 +36,15 @@ class RecepcaoController extends Controller
             });
         }
 
+        // Filtro por status (presentes / saiu)
+        if ($status = $request->input('status')) {
+            if ($status === 'presente') {
+                $query->whereNull('horario_saida');
+            } elseif ($status === 'saiu') {
+                $query->whereNotNull('horario_saida');
+            }
+        }
+
         $registros = $query->paginate(20)->withQueryString();
 
         // KPIs do dia atual
@@ -75,8 +84,9 @@ class RecepcaoController extends Controller
         return Inertia::render('Recepcao/Index', [
             'registros'               => $registros,
             'filtros'                 => [
-                'data'  => $dataFiltro,
-                'busca' => $busca ?? '',
+                'data'   => $dataFiltro,
+                'busca'  => $busca ?? '',
+                'status' => $status ?? '',
             ],
             'metricas'                => [
                 'total_hoje'      => $totalHoje,
@@ -154,5 +164,88 @@ class RecepcaoController extends Controller
         $recepcao->delete();
 
         return redirect()->route('Recepcao')->with('success', 'Registro excluído com sucesso.');
+    }
+
+    /**
+     * Autocomplete de visitantes com base no histórico.
+     */
+    public function autocomplete(Request $request)
+    {
+        $termo = $request->input('q', '');
+        if (strlen($termo) < 2) {
+            return response()->json([]);
+        }
+
+        $visitantes = Recepcao::where('nome', 'like', "%{$termo}%")
+            ->select('nome', 'contato', 'posto_cargo_empresa', 'departamento_responsavel')
+            ->orderBy('created_at', 'desc')
+            ->groupBy('nome', 'contato', 'posto_cargo_empresa', 'departamento_responsavel')
+            ->limit(5)
+            ->get();
+
+        return response()->json($visitantes);
+    }
+
+    /**
+     * Exporta registros do dia filtrado para CSV.
+     */
+    public function exportar(Request $request)
+    {
+        $dataFiltro = $request->input('data', Carbon::today()->toDateString());
+
+        $registros = Recepcao::whereDate('horario_entrada', $dataFiltro)
+            ->orderBy('horario_entrada', 'asc')
+            ->get();
+
+        $filename = 'recepcao_' . $dataFiltro . '.csv';
+
+        return response()->streamDownload(function () use ($registros) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($handle, ['Nome', 'Assunto', 'Cargo/Empresa', 'Departamento', 'Contato', 'Entrada', 'Saída', 'Indicação', 'Retorno'], ';');
+
+            foreach ($registros as $r) {
+                fputcsv($handle, [
+                    $r->nome,
+                    $r->assunto,
+                    $r->posto_cargo_empresa,
+                    $r->departamento_responsavel,
+                    $r->contato,
+                    $r->horario_entrada ? Carbon::parse($r->horario_entrada)->format('d/m/Y H:i') : '',
+                    $r->horario_saida ? Carbon::parse($r->horario_saida)->format('d/m/Y H:i') : '',
+                    $r->indicacao,
+                    $r->retorno,
+                ], ';');
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Marca que o candidato chegou para a entrevista presencial.
+     */
+    public function marcarChegada(Request $request, Entrevista $entrevista)
+    {
+        // Cria registro de visitante automático
+        $candidato = $entrevista->candidatoVaga?->candidato;
+        $vaga = $entrevista->candidatoVaga?->vaga;
+
+        if ($candidato) {
+            Recepcao::create([
+                'nome'                     => $candidato->nome,
+                'assunto'                  => 'Entrevista - ' . ($vaga->titulo ?? 'Vaga'),
+                'departamento_responsavel' => 'RH',
+                'contato'                  => $candidato->telefone,
+                'horario_entrada'          => Carbon::now(),
+                'indicacao'                => 'Entrevista agendada',
+                'user_id'                  => auth()->id(),
+            ]);
+        }
+
+        return redirect()->route('Recepcao')->with('success', 'Chegada do candidato registrada.');
     }
 }

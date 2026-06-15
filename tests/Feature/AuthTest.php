@@ -19,7 +19,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
         
         $response->assertInertia(fn (Assert $page) => $page
-            ->component('Login', false)
+            ->component('Login/Index', false)
         );
     }
 

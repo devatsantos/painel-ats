@@ -4,6 +4,8 @@ import Sidebar from '../Componentes/Index';
 import Paginacao from '../Componentes/Paginacao.jsx';
 
 export default function Vagas({vagas, formularios, recrutadores}) {
+    const { props } = usePage();
+    const canManageVagas = ['admin', 'coordenador'].includes(props.auth?.user?.role);
     const [modalVaga, setModalVaga] = useState(null);
     const [vagaEditando, setVagaEditando] = useState(null);
     const [novaVaga, setNovaVaga] = useState(false);
@@ -29,6 +31,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
         ativo: false,
         pcd: false,
         permite_online: false,
+        interna: false,
         user_id: '',
         formulario_id: '',
     });
@@ -50,6 +53,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             ativo: vaga.ativo ? true : false,
             pcd: vaga.pcd ? true : false,
             permite_online: vaga.permite_online ? true : false,
+            interna: vaga.interna ? true : false,
             user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id || '',
         });
@@ -70,6 +74,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             ativo: !vaga.ativo,
             pcd: vaga.pcd ? true : false,
             permite_online: vaga.permite_online ? true : false,
+            interna: vaga.interna ? true : false,
             user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id,
         }, {
@@ -150,12 +155,14 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Vagas</h1>
                             <p className="text-sm text-gray-400 mt-1">Gerencie as vagas disponíveis na empresa.</p>
                         </div>
-                        <button onClick={handleCreate} className="ds-btn ds-btn-primary">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Nova Vaga
-                        </button>
+                        {canManageVagas && (
+                            <button onClick={handleCreate} className="ds-btn ds-btn-primary">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Nova Vaga
+                            </button>
+                        )}
                     </div>
 
                     <div className="mb-8 relative w-full">
@@ -166,7 +173,8 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                         </div>
                         <input
                             type="text"
-                            className="ds-input pl-14 py-3.5 sm:text-base text-sm"
+                            className="ds-input py-3.5 sm:text-base text-sm"
+                            style={{ paddingLeft: '3.5rem' }}
                             placeholder="Pesquisar vagas por título ou local..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -210,17 +218,22 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
                                             <button
-                                                onClick={() => handleToggleAtivo(vaga)}
-                                                className={`group inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                                                onClick={() => canManageVagas && handleToggleAtivo(vaga)}
+                                                className={`group inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                                                    canManageVagas ? 'cursor-pointer' : 'cursor-default'
+                                                } ${
                                                     vaga.ativo
                                                         ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
                                                         : 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
                                                 }`}
-                                                title={vaga.ativo ? 'Desativar vaga' : 'Ativar vaga'}
+                                                title={canManageVagas ? (vaga.ativo ? 'Desativar vaga' : 'Ativar vaga') : undefined}
+                                                disabled={!canManageVagas}
                                             >
-                                                <div className={`relative w-8 h-4 rounded-full transition-colors duration-200 ${vaga.ativo ? 'bg-green-600' : 'bg-red-400'}`}>
-                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 ${vaga.ativo ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
-                                                </div>
+                                                {canManageVagas && (
+                                                    <div className={`relative w-8 h-4 rounded-full transition-colors duration-200 ${vaga.ativo ? 'bg-green-600' : 'bg-red-400'}`}>
+                                                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 ${vaga.ativo ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+                                                    </div>
+                                                )}
                                                 <span>
                                                     {vaga.ativo ? 'Ativa' : 'Inativa'}
                                                 </span>
@@ -233,6 +246,11 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                             {vaga.permite_online ? (
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
                                                     💻 Online
+                                                </span>
+                                            ) : null}
+                                            {vaga.interna ? (
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                                    🔒 Vaga Interna
                                                 </span>
                                             ) : null}
                                         </div>
@@ -299,16 +317,18 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                     </div>
                                 </div>
 
-                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
-                                    <button 
-                                        onClick={() => handleEdit(vaga)}
-                                        className="ds-btn ds-btn-ghost text-sm px-4 py-2">
-                                        Editar
-                                    </button>
-                                    <button className="ds-btn ds-btn-ghost text-red-500 hover:text-red-700 hover:bg-red-50 text-sm px-4 py-2" onClick={() => handleDelete(vaga)}>
-                                        Excluir
-                                    </button>
-                                </div>
+                                {canManageVagas && (
+                                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+                                        <button 
+                                            onClick={() => handleEdit(vaga)}
+                                            className="ds-btn ds-btn-ghost text-sm px-4 py-2">
+                                            Editar
+                                        </button>
+                                        <button className="ds-btn ds-btn-ghost text-red-500 hover:text-red-700 hover:bg-red-50 text-sm px-4 py-2" onClick={() => handleDelete(vaga)}>
+                                            Excluir
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))
                     ) : (
@@ -357,6 +377,11 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                 {modalVaga.pcd ? (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                         PCD
+                                    </span>
+                                ) : null}
+                                {modalVaga.interna ? (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                        🔒 Vaga Interna
                                     </span>
                                 ) : null}
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
@@ -708,6 +733,14 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                     </div>
                                     <input type="checkbox" checked={data.permite_online} onChange={e => setData('permite_online', e.target.checked)} className="sr-only" />
                                     <span className="text-sm font-medium text-gray-700">Permite Entrevista Online</span>
+                                </label>
+
+                                <label className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition">
+                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${data.interna ? 'bg-amber-600' : 'bg-gray-300'}`}>
+                                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${data.interna ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                                    </div>
+                                    <input type="checkbox" checked={data.interna} onChange={e => setData('interna', e.target.checked)} className="sr-only" />
+                                    <span className="text-sm font-medium text-gray-700">Vaga Interna</span>
                                 </label>
                             </div>
 

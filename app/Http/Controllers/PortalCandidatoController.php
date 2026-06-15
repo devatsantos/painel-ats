@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Services\WhatsAppService;
+use App\Models\MensagemWhatsApp;
 use Illuminate\Support\Facades\Mail;
 
 class PortalCandidatoController extends Controller
@@ -107,13 +108,16 @@ class PortalCandidatoController extends Controller
 
         $candidato->update([
             'whatsapp_codigo'           => $codigo,
-            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+            'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos')),
         ]);
 
         $whatsapp = new WhatsAppService();
         $whatsapp->enviarMensagem(
             $candidato->telefone,
-            "Olá, {$candidato->nome}! 👋\n\nSeu código de acesso ao Portal do Candidato é:\n\n*{$codigo}*\n\nEste código expira em *15 minutos*. Não compartilhe com ninguém."
+            MensagemWhatsApp::renderizar('otp_portal', [
+                'nome'   => $candidato->nome,
+                'codigo' => $codigo,
+            ])
         );
 
         $tel = $candidato->telefone;
@@ -182,12 +186,15 @@ class PortalCandidatoController extends Controller
 
         $candidato->update([
             'whatsapp_codigo'           => $codigo,
-            'whatsapp_codigo_expira_em' => now()->addMinutes(15),
+            'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos')),
         ]);
 
         try {
             Mail::raw(
-                "Olá, {$candidato->nome}! 👋\n\nSeu código de acesso ao Portal do Candidato é:\n\n{$codigo}\n\nEste código expira em 15 minutos. Não compartilhe com ninguém.",
+                MensagemWhatsApp::renderizar('otp_email', [
+                    'nome'   => $candidato->nome,
+                    'codigo' => $codigo,
+                ]),
                 function ($message) use ($candidato) {
                     $message->to($candidato->email)
                         ->subject("Código de Acesso - Portal do Candidato");
@@ -236,7 +243,7 @@ class PortalCandidatoController extends Controller
         $token = Str::random(64);
         $candidato->update([
             'candidato_token'           => hash('sha256', $token),
-            'candidato_token_expira_em' => now()->addDays(14),
+            'candidato_token_expira_em' => now()->addDays(config('candidatura.token_expira_dias')),
         ]);
 
         return response()->json(['token' => $token]);
@@ -252,7 +259,7 @@ class PortalCandidatoController extends Controller
         // Limpa candidaturas "selecionado" que expiraram (mais de 7 dias)
         $expiradas = CandidatoVaga::where('candidato_id', $candidato->id)
             ->where('status', 'selecionado')
-            ->where('updated_at', '<', now()->subDays(7))
+            ->where('updated_at', '<', now()->subDays(config('candidatura.selecao_expira_dias')))
             ->get();
 
         foreach ($expiradas as $ev) {
@@ -328,7 +335,7 @@ class PortalCandidatoController extends Controller
             ->with(['vaga', 'entrevista.user:id,nome'])
             ->firstOrFail();
 
-        if ($candidatoVaga->status === 'selecionado' && $candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(7))) {
+        if ($candidatoVaga->status === 'selecionado' && $candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(config('candidatura.selecao_expira_dias')))) {
             \App\Models\RespostaCandidato::where('candidato_id', $candidato->id)
                 ->where('vaga_id', $vagaId)
                 ->delete();

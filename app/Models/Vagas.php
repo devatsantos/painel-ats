@@ -23,6 +23,7 @@ class Vagas extends Model
         'ativo',
         'pcd',
         'permite_online',
+        'interna',
         'user_id',
         'formulario_id'
     ];

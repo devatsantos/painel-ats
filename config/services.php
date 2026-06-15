@@ -44,6 +44,24 @@ return [
     'feriados_api' => [
         'key' => env('FERIADOS_API_KEY'),
         'uf'  => env('FERIADOS_API_UF', 'SP'),
+        'url' => env('FERIADOS_API_URL', 'https://feriadosapi.com/api/v1'),
+    ],
+
+    'brasilapi' => [
+        'url' => env('BRASILAPI_URL', 'https://brasilapi.com.br/api'),
+    ],
+
+    'jitsi' => [
+        'url' => env('JITSI_URL', 'https://meet.jit.si'),
+    ],
+
+    'viacep' => [
+        'url' => env('VIACEP_URL', 'https://viacep.com.br/ws'),
+    ],
+
+    'portal_atsantos' => [
+        'url'     => env('PORTAL_ATSANTOS_URL'),
+        'api_key' => env('PORTAL_ATSANTOS_API_KEY'),
     ],
 
 ];

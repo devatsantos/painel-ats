@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/entrevistas', [App\Http\Controllers\EntrevistasController::class, 'index'])->name('Entrevistas');
     Route::put('/entrevistas/{entrevista}/status', [App\Http\Controllers\EntrevistasController::class, 'atualizarStatus'])->name('Entrevistas.status');
     Route::put('/entrevistas/{entrevista}/pegar', [App\Http\Controllers\EntrevistasController::class, 'pegarEntrevista'])->name('Entrevistas.pegar');
+    Route::put('/entrevistas/{entrevista}/desatribuir', [App\Http\Controllers\EntrevistasController::class, 'desatribuirEntrevista'])->name('Entrevistas.desatribuir');
     Route::put('/entrevistas/{entrevista}/adiar', [App\Http\Controllers\EntrevistasController::class, 'adiar'])->name('Entrevistas.adiar');
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('Dashboard');
     Route::get('/vagas', [App\Http\Controllers\VagasController::class, 'index'])->name('Vagas');
@@ -80,13 +81,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/usuarios', [App\Http\Controllers\UsuariosController::class, 'index'])->name('Usuarios');
     Route::put('/usuarios/{usuario}', [App\Http\Controllers\UsuariosController::class, 'update'])->name('Usuarios.update');
     Route::delete('/usuarios/{usuario}', [App\Http\Controllers\UsuariosController::class, 'delete'])->name('Usuarios.delete');
-    Route::get('talentos', [App\Http\Controllers\TalentosController::class, 'index'])->name('Talentos');
-    Route::get('talentos/slots', [App\Http\Controllers\TalentosController::class, 'slotsDisponiveis'])->name('Talentos.slots');
-    Route::post('talentos', [App\Http\Controllers\TalentosController::class, 'store'])->name('Talentos.store');
-    Route::put('talentos/{candidato}', [App\Http\Controllers\TalentosController::class, 'update'])->name('Talentos.update');
-    Route::delete('talentos/{candidato}', [App\Http\Controllers\TalentosController::class, 'delete'])->name('Talentos.delete');
-    Route::put('candidatos/{candidato}/banco-de-talentos', [App\Http\Controllers\TalentosController::class, 'adicionarAoBanco'])->name('Talentos.adicionar');
-    Route::post('talentos/{candidato}/agendar', [App\Http\Controllers\TalentosController::class, 'agendarEntrevista'])->name('Talentos.agendar');
+    Route::get('/candidatos', [App\Http\Controllers\TalentosController::class, 'index'])->name('Candidatos');
+    Route::get('/candidatos/slots', [App\Http\Controllers\TalentosController::class, 'slotsDisponiveis'])->name('Candidatos.slots');
+    Route::get('/candidatos/exportar', [App\Http\Controllers\TalentosController::class, 'exportar'])->name('Candidatos.exportar');
+    Route::post('/candidatos', [App\Http\Controllers\TalentosController::class, 'store'])->name('Candidatos.store');
+    Route::put('/candidatos/{candidato}', [App\Http\Controllers\TalentosController::class, 'update'])->name('Candidatos.update');
+    Route::delete('/candidatos/{candidato}', [App\Http\Controllers\TalentosController::class, 'delete'])->name('Candidatos.delete');
+    Route::put('/candidatos/{candidato}/banco-de-talentos', [App\Http\Controllers\TalentosController::class, 'adicionarAoBanco'])->name('Candidatos.adicionar');
+    Route::post('/candidatos/{candidato}/agendar', [App\Http\Controllers\TalentosController::class, 'agendarEntrevista'])->name('Candidatos.agendar');
+    Route::redirect('/talentos', '/candidatos', 301);
+    Route::redirect('/base-de-dados', '/candidatos', 301);
     Route::post('/usuarios', [App\Http\Controllers\UsuariosController::class, 'store'])->name('Usuarios.store');
     Route::get('/orcamentos', [App\Http\Controllers\OrcamentosController::class, 'index'])->name('Orcamentos');
     Route::get('/formularios', [App\Http\Controllers\FormulariosController::class, 'index'])->name('Formularios');
@@ -101,7 +105,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
     Route::get('/relatorios/recrutadores', [App\Http\Controllers\RelatoriosController::class, 'recrutadores'])->name('Relatorios.recrutadores');
-    Route::get('/base-de-dados', [App\Http\Controllers\BaseDeDadosController::class, 'index'])->name('BaseDeDados');
 
     // Recepção — Mini-sistema de controle de visitantes
     Route::get('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'index'])->name('Recepcao');
@@ -117,5 +120,19 @@ Route::middleware('auth')->group(function () {
     // Logs de Erro
     Route::get('/logs', [App\Http\Controllers\LogsController::class, 'index'])->name('Logs');
     Route::delete('/logs', [App\Http\Controllers\LogsController::class, 'clear'])->name('Logs.clear');
+    Route::get('/logs/whatsapp-status', [App\Http\Controllers\LogsController::class, 'whatsappStatus'])->name('Logs.whatsapp.status');
+    Route::post('/logs/whatsapp-testar', [App\Http\Controllers\LogsController::class, 'whatsappTestar'])->name('Logs.whatsapp.testar');
+    Route::get('/logs/portal-status', [App\Http\Controllers\LogsController::class, 'portalStatus'])->name('Logs.portal.status');
+    Route::post('/logs/portal-testar', [App\Http\Controllers\LogsController::class, 'portalTestar'])->name('Logs.portal.testar');
+
+    // Mensagens WhatsApp — Templates personalizáveis
+    Route::get('/configuracoes/mensagens-whatsapp', [App\Http\Controllers\MensagensWhatsAppController::class, 'index'])->name('MensagensWhatsApp');
+    Route::put('/configuracoes/mensagens-whatsapp/{mensagem}', [App\Http\Controllers\MensagensWhatsAppController::class, 'update'])->name('MensagensWhatsApp.update');
+    Route::post('/configuracoes/mensagens-whatsapp/{mensagem}/resetar', [App\Http\Controllers\MensagensWhatsAppController::class, 'resetar'])->name('MensagensWhatsApp.resetar');
+    Route::post('/configuracoes/mensagens-whatsapp/preview', [App\Http\Controllers\MensagensWhatsAppController::class, 'preview'])->name('MensagensWhatsApp.preview');
+
+    // Configurações Gerais — Prazos e durações
+    Route::get('/configuracoes/gerais', [App\Http\Controllers\ConfiguracaoController::class, 'index'])->name('Configuracoes.gerais');
+    Route::put('/configuracoes/gerais', [App\Http\Controllers\ConfiguracaoController::class, 'update'])->name('Configuracoes.gerais.update');
     }
 );

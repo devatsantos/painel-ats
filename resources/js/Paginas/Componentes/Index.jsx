@@ -4,20 +4,22 @@ import { Link, usePage } from '@inertiajs/react';
 export default function Sidebar() {
     const { url, props } = usePage();
     const isAdmin = props.auth?.user?.role === 'admin';
+    const logoWhiteUrl = props.appConfig?.logo_white_url;
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const isDashboard = url.startsWith('/dashboard');
     const isEntrevistas = url.startsWith('/entrevistas');
     const isUsuarios = url.startsWith('/usuarios');
     const isVagas = url.startsWith('/vagas');
-    const isTalentos = url.startsWith('/talentos');
+    const isCandidatos = url.startsWith('/candidatos') || url.startsWith('/talentos') || url.startsWith('/base-de-dados');
     const isOrcamentos = url.startsWith('/orcamentos');
     const isFormularios = url.startsWith('/formularios');
     const isAgenda = url.startsWith('/agenda');
     const isRelatorios = url.startsWith('/relatorios');
     const isOuvidoria = url.startsWith('/ouvidoria');
-    const isBaseDeDados = url.startsWith('/base-de-dados');
     const isLogs = url.startsWith('/logs');
+    const isConfiguracoesGerais = url === '/configuracoes/gerais';
+    const isConfiguracoesWhatsapp = url === '/configuracoes/mensagens-whatsapp';
     const navItems = [
         {
             label: 'Dashboard',
@@ -54,19 +56,11 @@ export default function Sidebar() {
             
         },
         {
-            label: 'Banco de Talentos',
-            href: '/talentos',
-            active: isTalentos,
+            label: 'Candidatos',
+            href: '/candidatos',
+            active: isCandidatos,
             icon: (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            )
-        },
-        {
-            label: 'Base de Dados',
-            href: '/base-de-dados',
-            active: isBaseDeDados,
-            icon: (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
             )
         },
         {
@@ -119,6 +113,27 @@ export default function Sidebar() {
             icon: (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             )
+        },
+        {
+            label: 'Configurações Gerais',
+            href: '/configuracoes/gerais',
+            active: isConfiguracoesGerais,
+            adminOnly: true,
+            icon: (
+                <>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </>
+            )
+        },
+        {
+            label: 'Mensagens WhatsApp',
+            href: '/configuracoes/mensagens-whatsapp',
+            active: isConfiguracoesWhatsapp,
+            adminOnly: true,
+            icon: (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            )
         }
     ];
 
@@ -128,7 +143,7 @@ export default function Sidebar() {
             <div className="flex flex-col justify-center px-6 h-20 border-b border-white/10">
                 <div className="flex items-center gap-3">
                     <img 
-                        src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS%2Bletreiro-branco.png" 
+                        src={logoWhiteUrl} 
                         alt="AT & Santos Logo" 
                         className="h-8 w-auto object-contain"
                     />
@@ -139,7 +154,7 @@ export default function Sidebar() {
                 </div>
             </div>
 
-            <nav className="flex-1 px-3 py-6 overflow-y-auto">
+            <nav className="flex-1 px-3 py-6 overflow-y-auto ds-scrollbar-hidden">
                 <p className="text-[10px] uppercase tracking-[0.15em] text-blue-200/50 font-bold mb-3 px-3">Navegação</p>
                 <ul className="flex flex-col gap-1">
                     {navItems.filter(item => !item.adminOnly || isAdmin).map((item) => (

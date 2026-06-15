@@ -13,6 +13,6 @@ class VideoConferenciaService
     {
         $slug = 'PainelRH-' . bin2hex(random_bytes(8));
 
-        return 'https://meet.jit.si/' . $slug;
+        return rtrim(config('services.jitsi.url', 'https://meet.jit.si'), '/') . '/' . $slug;
     }
 }

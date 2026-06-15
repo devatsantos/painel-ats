@@ -29,6 +29,18 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Carrega configurações gerais do banco de dados e sobrescreve o config
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('configuracoes')) {
+                $configs = \App\Models\Configuracao::pluck('valor', 'chave')->all();
+                foreach ($configs as $chave => $valor) {
+                    config([$chave => $valor]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Silencioso para evitar quebrar comandos de console (como migrations) antes de configurar o banco
+        }
+
         // 1 envio a cada 5 minutos por CPF + IP
         RateLimiter::for('enviar-codigo-whatsapp', function (Request $request) {
             $key = ($request->input('cpf') ?? 'anonimo') . '|' . $request->ip();

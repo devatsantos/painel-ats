@@ -32,13 +32,97 @@ function getIniciais(nome) {
     return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
 
-export default function Entrevistas({ candidatos }) {
+export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
     const [modalCandidato, setModalCandidato] = useState(null);
     const [modalResultado, setModalResultado] = useState(null);
     const [entrevistasPegas, setEntrevistasPegas] = useState(new Set());
     const [modalAdiar, setModalAdiar] = useState(null);
     const [justificativa, setJustificativa] = useState('');
     const [adiando, setAdiando] = useState(false);
+
+    const [search, setSearch] = useState(filters.search || '');
+    const [status, setStatus] = useState(filters.status || '');
+    const [vagaId, setVagaId] = useState(filters.vaga_id || '');
+    const [tab, setTab] = useState(filters.tab || 'hoje');
+
+    React.useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (search !== (filters.search || '')) {
+                router.get('/entrevistas', {
+                    tab,
+                    search,
+                    status,
+                    vaga_id: vagaId,
+                }, {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true
+                });
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [search]);
+
+    const changeTab = (newTab) => {
+        setTab(newTab);
+        router.get('/entrevistas', {
+            tab: newTab,
+            search,
+            status,
+            vaga_id: vagaId,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const changeStatus = (newStatus) => {
+        setStatus(newStatus);
+        router.get('/entrevistas', {
+            tab,
+            search,
+            status: newStatus,
+            vaga_id: vagaId,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const changeVaga = (newVagaId) => {
+        setVagaId(newVagaId);
+        router.get('/entrevistas', {
+            tab,
+            search,
+            status,
+            vaga_id: newVagaId,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearch('');
+        setStatus('');
+        setVagaId('');
+        router.get('/entrevistas', {
+            tab,
+            search: '',
+            status: '',
+            vaga_id: '',
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    function desatribuirEntrevista(entrevistaId) {
+        if (confirm('Tem certeza que deseja remover o entrevistador desta entrevista?')) {
+            router.put(`/entrevistas/${entrevistaId}/desatribuir`);
+        }
+    }
 
     const { data, setData, put, processing, errors, reset } = useForm({
         status: '',
@@ -117,6 +201,95 @@ export default function Entrevistas({ candidatos }) {
                         </div>
                     </div>
 
+                    {/* Abas */}
+                    <div className="flex border-b border-gray-200 mb-6 gap-6">
+                        <button
+                            onClick={() => changeTab('hoje')}
+                            className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+                                tab === 'hoje'
+                                    ? 'border-[#0C4773] text-[#0C4773]'
+                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            Hoje e Pendentes
+                        </button>
+                        <button
+                            onClick={() => changeTab('proximas')}
+                            className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+                                tab === 'proximas'
+                                    ? 'border-[#0C4773] text-[#0C4773]'
+                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            Próximas
+                        </button>
+                        <button
+                            onClick={() => changeTab('concluidas')}
+                            className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+                                tab === 'concluidas'
+                                    ? 'border-[#0C4773] text-[#0C4773]'
+                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            Histórico / Concluídas
+                        </button>
+                    </div>
+
+                    {/* Painel de Busca e Filtros */}
+                    <div className="bg-white p-5 rounded-2xl border border-gray-200/50 shadow-xs mb-8 flex flex-col md:flex-row items-center gap-4">
+                        <div className="relative flex-1 w-full">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg className="w-5 h-5 text-gray-450" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Buscar por nome ou CPF..."
+                                className="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm transition focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 bg-gray-50/50 text-gray-800 placeholder-gray-400"
+                            />
+                        </div>
+
+                        <div className="w-full md:w-64">
+                            <select
+                                value={vagaId}
+                                onChange={e => changeVaga(e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 bg-gray-50/50 text-gray-800"
+                            >
+                                <option value="">Todas as Vagas</option>
+                                {vagas.map(vaga => (
+                                    <option key={vaga.id} value={vaga.id}>{vaga.titulo}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {tab === 'concluidas' && (
+                            <div className="w-full md:w-56">
+                                <select
+                                    value={status}
+                                    onChange={e => changeStatus(e.target.value)}
+                                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 bg-gray-50/50 text-gray-800"
+                                >
+                                    <option value="">Todos os Resultados</option>
+                                    {OPCOES_RESULTADO.map(op => (
+                                        <option key={op.value} value={op.value}>{op.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {(search || status || vagaId) && (
+                            <button
+                                onClick={clearFilters}
+                                className="ds-btn ds-btn-ghost text-sm text-red-500 hover:text-red-700 hover:bg-red-50 py-2.5 px-4 cursor-pointer shrink-0"
+                            >
+                                Limpar Filtros
+                            </button>
+                        )}
+                    </div>
+
                     {candidatos.total === 0 && (
                         <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                             <svg className="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,17 +341,18 @@ export default function Entrevistas({ candidatos }) {
                                         <div className="flex flex-col gap-1.5">
                                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tipo</p>
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${candidato.tipo_entrevista === 'Online' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                    {candidato.tipo_entrevista || 'Presencial'}
-                                                </span>
-                                                {candidato.tipo_entrevista === 'Online' && candidato.link_meet && (
+                                                {candidato.tipo_entrevista === 'Online' && candidato.link_meet ? (
                                                     <a href={candidato.link_meet} target="_blank" rel="noopener noreferrer"
-                                                       className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline">
+                                                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-xs transition-all duration-200">
                                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                         </svg>
-                                                        Meet
+                                                        Entrar no Meet
                                                     </a>
+                                                ) : (
+                                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${candidato.tipo_entrevista === 'Online' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                        {candidato.tipo_entrevista || 'Presencial'}
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
@@ -199,16 +373,27 @@ export default function Entrevistas({ candidatos }) {
                                         <div className="flex flex-col gap-1.5">
                                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Entrevistador</p>
                                             {(candidato.entrevistador_nome || entrevistasPegas.has(candidato.entrevista_id)) ? (
-                                                <div className="flex items-center gap-2">
-                                                    <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                    </svg>
-                                                    <span className="text-sm font-semibold text-gray-700 truncate">{candidato.entrevistador_nome}</span>
+                                                <div className="flex items-center justify-between w-full group/entrevistador">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                        </svg>
+                                                        <span className="text-sm font-semibold text-gray-700 truncate" title={candidato.entrevistador_nome}>
+                                                            {candidato.entrevistador_nome}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => desatribuirEntrevista(candidato.entrevista_id)}
+                                                        className="text-xs text-red-500 hover:text-red-700 font-medium hover:underline opacity-0 group-hover/entrevistador:opacity-100 transition-opacity ml-2 shrink-0 cursor-pointer"
+                                                        title="Remover entrevistador"
+                                                    >
+                                                        Liberar
+                                                    </button>
                                                 </div>
                                             ) : (
                                                 <button
                                                     onClick={() => pegarEntrevista(candidato.entrevista_id)}
-                                                    className="ds-btn text-xs text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 self-start"
+                                                    className="ds-btn text-xs text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 self-start cursor-pointer"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
@@ -218,6 +403,13 @@ export default function Entrevistas({ candidatos }) {
                                             )}
                                         </div>
                                     </div>
+
+                                    {candidato.observacao && (
+                                        <div className="mx-6 mb-4 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Observação registrada</p>
+                                            <p className="text-xs text-gray-600 mt-1 italic">"{candidato.observacao}"</p>
+                                        </div>
+                                    )}
 
                                     {/* Rodapé */}
                                     <div className="mt-auto px-6 py-3.5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between gap-2">

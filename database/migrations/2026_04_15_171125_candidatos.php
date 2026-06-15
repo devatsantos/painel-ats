@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nome');
             $table->string('cpf')->unique();
             $table->string('nivel_escolaridade')->nullable();
+            $table->string('formacao')->nullable();
             $table->string('email')->nullable();
             $table->string('telefone');
             $table->string('path_curriculo')->nullable();

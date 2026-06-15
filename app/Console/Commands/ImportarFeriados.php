@@ -28,7 +28,7 @@ class ImportarFeriados extends Command
 
             $this->info("Importando feriados de {$ano}...");
 
-            $response = Http::timeout(10)->get("https://brasilapi.com.br/api/feriados/v1/{$ano}");
+            $response = Http::timeout(10)->get(config('services.brasilapi.url') . "/feriados/v1/{$ano}");
 
             if ($response->failed()) {
                 $this->error("Falha ao buscar feriados de {$ano}: HTTP {$response->status()}");

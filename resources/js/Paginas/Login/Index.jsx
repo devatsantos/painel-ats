@@ -8,7 +8,7 @@ export default function Login() {
         password: ''
     });
 
-    const { errors: pageErrors } = usePage().props;
+    const { errors: pageErrors, appConfig } = usePage().props;
     const erroMsg = formErrors.cpf || formErrors.password || pageErrors?.cpf || pageErrors?.password;
 
     const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +32,7 @@ export default function Login() {
 
                 <div className="text-center mb-10 pt-2">
                     <img 
-                        src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS.png" 
+                        src={appConfig?.logo_url} 
                         alt="AT & Santos Logo" 
                         className="h-16 mx-auto mb-6 object-contain"
                     />

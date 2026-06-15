@@ -27,7 +27,11 @@
   - `Paginacao.jsx` — controles de paginação Inertia
   - `FlashMessages.jsx` — banner success/error (lê `flash` do usePage internamente)
   - `WhatsAppLink.jsx` — botão wa.me com SVG; aceita prop `telefone` (string bruta)
+- Utilitários JS: `resources/js/utils/`
+  - `cep.js` — helper `consultarCep(cep)` centralizado; lê URL base de `appConfig.viacep_url` (Inertia shared)
 - `getIniciais(nome)` — função local nos módulos que precisam de avatar; usar `nome.trim().split(/\s+/)` (não `split(' ')`)
+- Logos: armazenados localmente em `public/images/logo.png` e `public/images/logo-white.png` — nunca usar URLs externas (Vercel Blob, etc.)
+- Console Commands: `app/Console/Commands/ImportarFeriados.php` — importa feriados da BrasilAPI
 - Lógica de negócio nunca em `routes/web.php`
 
 ## 3. Autenticação e Guards
@@ -45,6 +49,8 @@ Dois guards separados — nunca misturar:
   - ⚠️ Nunca chamar `login()` em `verificarCpf()` antes do OTP: permite bypass do 2FA por CPF alheio
 - Rate limiting de login: 5 tentativas/60s por CPF+IP — nunca remover
 - Controle de acesso interno por `role` (campo `string` na tabela `users`): `admin` | `recrutador` | `coordenador` | `recepcao`
+- Permissão de Vagas: Apenas roles `admin` e `coordenador` podem criar, editar, excluir ou alterar o status ativo de vagas (`VagasController::store/update/delete`).
+- Vagas Internas: Vagas marcadas como `interna` (booleano) são privadas e ocultadas do portal de candidatura pública (`CandidatosController::candidatura()`). São identificáveis no painel administrativo pelo badge "🔒 Vaga Interna".
 - Guard de admin: `abort_unless(auth()->user()->role === 'admin', 403)` — nunca usar `is_admin`
 - `role` compartilhado via `HandleInertiaRequests` como `auth.user.role`
 
@@ -105,12 +111,18 @@ Sequência obrigatória — candidato não pode pular etapas:
 
 ## 8. Inertia — Dados Compartilhados
 - Dados globais: editar `HandleInertiaRequests::share()` — nunca props manuais por controller
-- Compartilhado atualmente: `flash.error`, `flash.success`, `auth.user` (`id`, `nome`, `role`)
+- Compartilhado atualmente:
+  - `flash.error`, `flash.success`
+  - `auth.user` (`id`, `nome`, `role`) — guard `web`
+  - `auth.candidato` (`id`, `nome`) — guard `candidato`
+  - `appConfig.viacep_url` — URL base do ViaCEP (via `config('services.viacep.url')`)
+  - `appConfig.logo_url` — URL local do logo colorido (`asset('images/logo.png')`)
+  - `appConfig.logo_white_url` — URL local do logo branco (`asset('images/logo-white.png')`)
 - Flash: `redirect()->with('success'/'error', '...')`
 
 ## 9. Uploads
 - Disco: `Storage::disk('public')` — nunca salvar direto em `public/`
-- Paths: `curriculos/` (candidatos e talentos) | `orcamentos/` (orçamentos)
+- Paths: `curriculos/` (candidatos) | `orcamentos/` (orçamentos)
 - Extensões: `pdf`, `doc`, `docx` | Tamanho: 10MB currículos, 2MB demais
 - Ao deletar registro: deletar arquivo do storage junto
 
@@ -120,18 +132,22 @@ Sequência obrigatória — candidato não pode pular etapas:
 |---|---|---|---|
 | Auth | `AuthController` | `User` | `/login` |
 | Dashboard | `DashboardController` | `Entrevista`, `Vagas`, `CandidatoVaga` | `/dashboard` |
-| Vagas | `VagasController` | `Vagas`, `Formulario` | `/vagas` |
+| Vagas | `VagasController` | `Vagas`, `Formulario` | `/vagas` — CRUD restrito a `admin`/`coordenador` |
 | Formulários | `FormulariosController` | `Formulario`, `Pergunta`, `Alternativa` | `/formularios` |
 | Candidatura | `CandidatosController` | `Candidatos`, `CandidatoVaga`, `RespostaCandidato`, `Reprovado` | `/candidatura` |
-| Entrevistas | `EntrevistasController` | `Entrevista`, `CandidatoVaga`, `User` | `/entrevistas` |
+| Entrevistas | `EntrevistasController` | `Entrevista`, `CandidatoVaga`, `User`, `MensagemWhatsApp` | `/entrevistas` |
 | Usuários | `UsuariosController` | `User` | `/usuarios` |
-| Talentos | `TalentosController` | `Candidatos`, `CandidatoVaga`, `Entrevista`, `Vagas` | `/talentos` |
+| Candidatos | `TalentosController` | `Candidatos`, `CandidatoVaga`, `Entrevista`, `Vagas` | `/candidatos` |
 | Orçamentos | `OrcamentosController` | `Orcamento` | `/orcamentos` |
-| Agenda | `AgendaController` | `BloqueioAgenda` | `/agenda` |
+| Agenda | `AgendaController` | `BloqueioAgenda`, `ConfiguracaoAgenda` | `/agenda` |
 | Reprovados | `ReprovadosController` | `Reprovado`, `Formulario` | `/reprovados` ⚠️ pendente |
 | Relatórios | `RelatoriosController` | — (dados estáticos por ora) | `/relatorios` |
 | Portal Candidato | `PortalCandidatoController` | `Candidatos`, `CandidatoVaga`, `Entrevista`, `Vagas` | `/portal` |
 | Recepção | `RecepcaoController` | `Recepcao`, `User` | `/recepcao` — página exclusiva para role `recepcao` |
+| Ouvidoria | `OuvidoriaController` | `Ouvidoria` | `/ouvidoria` (admin) · `/ouvidoria/nova` (pública) |
+| Logs | `LogsController` | — | `/logs` — admin; status WhatsApp e Portal |
+| Mensagens WhatsApp | `MensagensWhatsAppController` | `MensagemWhatsApp` | `/configuracoes/mensagens-whatsapp` — admin |
+| Configurações Gerais | `ConfiguracaoController` | `Configuracao` | `/configuracoes/gerais` — admin |
 
 ## 11. Pendentes
 - `ReprovadosController`: listagem de reprovados com filtro por formulário/data + página JSX
@@ -146,21 +162,27 @@ Sequência obrigatória — candidato não pode pular etapas:
 ```
 DB_CONNECTION / DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 EVOLUTION_API_URL / EVOLUTION_API_KEY / EVOLUTION_INSTANCE
+FERIADOS_API_KEY / FERIADOS_API_UF / FERIADOS_API_URL
+JITSI_URL / VIACEP_URL / BRASILAPI_URL
+PORTAL_ATSANTOS_URL / PORTAL_ATSANTOS_API_KEY
+MAIL_MAILER / MAIL_HOST / MAIL_PORT / MAIL_USERNAME / MAIL_PASSWORD / MAIL_ENCRYPTION / MAIL_FROM_ADDRESS / MAIL_FROM_NAME
 FILESYSTEM_DISK=public
 APP_ENV=production (prod) | APP_DEBUG=false (prod)
 ```
+- URLs de APIs externas centralizadas em `config/services.php` (nunca hardcoded nos controllers/services)
+- Services mapeados: `evolution`, `feriados_api`, `brasilapi`, `jitsi`, `viacep`, `portal_atsantos`
 
 ## 14. Segurança (OWASP Top 10)
 - **A01 Broken Access Control:** verificar propriedade do recurso além do `findOrFail`; guards não se cruzam; `Auth::guard('candidato')->login()` só após OTP validado ou branch `ja_aprovado`
 - **A02 Crypto:** senhas via `Hash::make()` (bcrypt) exclusivamente; CPF mascarado (`***.456.789-**`); OTP 6 dígitos com `random_int()` (criptograficamente seguro); não logar dados sensíveis; HTTPS para Evolution API
 - **A03 Injection:** Eloquent ORM sempre; proibido `dangerouslySetInnerHTML`; `$fillable` obrigatório
-- **A04 Insecure Design:** fluxo do candidato sem pulo de etapas; threshold e bloqueio imutáveis via request; OTP expira em 15 min e é invalidado após uso
+- **A04 Insecure Design:** fluxo do candidato sem pulo de etapas; threshold e bloqueio imutáveis via request; OTP expira conforme `config('candidatura.otp_expira_minutos')` e é invalidado após uso
 - **A05 Misconfiguration:** `APP_DEBUG=false` em produção; `.env` no gitignore; `storage/` não acessível publicamente
 - **A06 Outdated Components:** `composer audit` + `npm audit` regulares
 - **A07 Auth Failures:** rate limiting 5/60s no login + rate limiting no envio/verificação de OTP (seção 7); `session()->regenerate()` no login; `session()->invalidate()` no logout
 - **A08 Integrity:** proibido `eval()`, `exec()`, `shell_exec()`; uploads validados por extensão **e** MIME type
 - **A09 Logging:** erros externos via `Log::error()`; sem stack trace para o usuário final em produção
-- **A10 SSRF:** URL da Evolution API só via `.env`; nunca fetch para URL fornecida pelo usuário
+- **A10 SSRF:** URLs de APIs externas (Evolution, Jitsi, ViaCEP, BrasilAPI, FeriadosAPI) só via `config/services.php` + `.env`; nunca fetch para URL fornecida pelo usuário
 
 ### LGPD
 - Ao deletar candidato: remover respostas, vínculos, arquivos no storage
@@ -168,10 +190,31 @@ APP_ENV=production (prod) | APP_DEBUG=false (prod)
 - Retenção: candidatos não aprovados há +1 ano elegíveis para exclusão
 
 ## 15. Proibido
-- `->get()` / `->all()` sem paginação em tabelas que crescem (candidatos, entrevistas, talentos, orçamentos)
+- `->get()` / `->all()` sem paginação em tabelas que crescem (candidatos, entrevistas, orçamentos)
 - Lógica síncrona e blocante no request (uploads pesados, chamadas externas) — usar Jobs
 - `dd()`, `dump()`, `var_dump()` em produção
 - SQL bruto sem binding | `User::first()` como entrevistador
 - Segundo controller para o mesmo módulo | Migrations sem `down()`
 - Commits com `.env` ou credenciais
 - corromper arquivos e mudar encoding, APENAS UTF-8
+
+## 16. Configurações Dinâmicas (Prazos e Durações)
+- Os prazos e durações (OTP, token, seleção, quarentena, entrevista) são armazenados no banco de dados (tabela `configuracoes`).
+- Carregados dinamicamente em `AppServiceProvider::boot` sobrescrevendo as chaves `config('candidatura.*')`.
+- Tela para edição: `/configuracoes/gerais` (restrito para `admin`).
+- Controllers e Services continuam lendo via `config('candidatura.otp_expira_minutos')`, etc. — sem acoplamento ao banco.
+
+## 17. Mensagens WhatsApp e E-mail
+- Templates de mensagens personalizáveis armazenados na tabela `mensagens_whatsapp` (model `MensagemWhatsApp`).
+- Tela para edição: `/configuracoes/mensagens-whatsapp` (restrito para `admin`).
+- Leitura nos controllers via `MensagemWhatsApp::where('chave', '...')` — nunca hardcoded.
+- Variáveis dinâmicas nos templates: `{nome}`, `{vaga}`, `{codigo}`, `{data}`, `{horario}`, etc.
+- Chaves existentes: `otp_candidatura`, `otp_portal`, `entrevista_agendada`, `entrevista_adiada`, `otp_email`.
+
+## 18. Services
+| Service | Responsabilidade |
+|---|---|
+| `WhatsAppService` | Envio de mensagens via Evolution API |
+| `AgendaService` | Cálculo de slots e importação de feriados (FeriadosAPI) |
+| `VideoConferenciaService` | Geração de URLs de sala Jitsi Meet |
+| `PortalAtSantosService` | Integração com Portal AT Santos externo |

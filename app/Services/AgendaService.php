@@ -189,7 +189,7 @@ class AgendaService
         try {
             $response = Http::timeout(5)
                 ->withToken($apiKey)
-                ->get("https://feriadosapi.com/api/v1/feriados/estado/{$uf}", ['ano' => $ano]);
+                ->get(config('services.feriados_api.url') . "/feriados/estado/{$uf}", ['ano' => $ano]);
 
             if ($response->failed()) {
                 Log::warning("AgendaService: FeriadosAPI retornou {$response->status()} ao buscar feriados de {$uf}/{$ano}.");

@@ -33,6 +33,7 @@ function FlashMessage() {
 export default function Recepcao({ registros, filtros, metricas, entrevistas_presenciais = [], horario_servidor }) {
     const { props } = usePage();
     const nomeUsuario = props.auth?.user?.nome ?? 'Recepcionista';
+    const logoWhiteUrl = props.appConfig?.logo_white_url;
 
     // Calcula a diferença entre o relógio do servidor e o relógio local do cliente
     const serverTime = new Date(horario_servidor);
@@ -127,7 +128,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <img 
-                                src="https://1884w9942rbuynxx.public.blob.vercel-storage.com/Novo%20site%20AT%20%26%20Santos/LogoTipo-ATSANTOS%2Bletreiro-branco.png" 
+                                src={logoWhiteUrl} 
                                 alt="AT & Santos Logo" 
                                 className="h-7 w-auto object-contain"
                             />

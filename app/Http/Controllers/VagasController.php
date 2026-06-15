@@ -43,12 +43,15 @@ class VagasController extends Controller
             'ativo'             => 'boolean',
             'pcd'               => 'boolean',
             'permite_online'    => 'boolean',
+            'interna'           => 'boolean',
             'user_id'           => 'nullable|exists:users,id',
             'formulario_id'     => 'required|exists:formularios,id',
         ];
     }
 
     public function store(Request $request) {
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Apenas administradores e coordenadores podem criar vagas.');
+
         $validated = $request->validate($this->rules());
 
         Vagas::create($validated);
@@ -56,10 +59,14 @@ class VagasController extends Controller
         return redirect()->route('Vagas');
     }
     public function delete(Vagas $vaga) {
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Apenas administradores e coordenadores podem excluir vagas.');
+
         $vaga->delete();
         return redirect()->route('Vagas')->with('success', 'Vaga deletada com sucesso.');
     }
     public function update(Request $request, Vagas $vaga) {
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Apenas administradores e coordenadores podem editar vagas.');
+
         $validated = $request->validate($this->rules());
 
         $vaga->update($validated);
