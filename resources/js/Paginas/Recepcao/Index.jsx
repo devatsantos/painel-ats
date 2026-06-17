@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm, router, usePage, Link } from '@inertiajs/react';
+import axios from 'axios';
 
 function getIniciais(nome) {
     if (!nome) return '?';
@@ -48,6 +49,57 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
         const horas = String(dataServidor.getHours()).padStart(2, '0');
         const minutos = String(dataServidor.getMinutes()).padStart(2, '0');
         return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+    };
+
+    const [horaAtual, setHoraAtual] = useState('');
+    const [sugestoes, setSugestoes] = useState([]);
+    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+    const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+    useEffect(() => {
+        const updateClock = () => {
+            const nowServer = new Date(Date.now() + serverOffset);
+            const horas = String(nowServer.getHours()).padStart(2, '0');
+            const minutos = String(nowServer.getMinutes()).padStart(2, '0');
+            const segundos = String(nowServer.getSeconds()).padStart(2, '0');
+            setHoraAtual(`${horas}:${minutos}:${segundos}`);
+        };
+        updateClock();
+        const interval = setInterval(updateClock, 1000);
+        return () => clearInterval(interval);
+    }, [serverOffset]);
+
+    const handleNomeChange = (val) => {
+        setData('nome', val);
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+
+        if (val.trim().length >= 2) {
+            setDebounceTimeout(
+                setTimeout(async () => {
+                    try {
+                        const res = await axios.get(`/recepcao/autocomplete?q=${encodeURIComponent(val)}`);
+                        setSugestoes(res.data || []);
+                        setMostrarSugestoes(true);
+                    } catch (err) {
+                        setSugestoes([]);
+                    }
+                }, 300)
+            );
+        } else {
+            setSugestoes([]);
+            setMostrarSugestoes(false);
+        }
+    };
+
+    const selecionarSugestao = (sug) => {
+        setData(prev => ({
+            ...prev,
+            nome: sug.nome,
+            contato: sug.contato || prev.contato,
+            posto_cargo_empresa: sug.posto_cargo_empresa || prev.posto_cargo_empresa,
+            departamento_responsavel: sug.departamento_responsavel || prev.departamento_responsavel,
+        }));
+        setMostrarSugestoes(false);
     };
 
     const [modalAberto, setModalAberto] = useState(false);
@@ -138,6 +190,12 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
+                            {horaAtual && (
+                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 font-mono text-xs text-blue-100 tracking-wider">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                    {horaAtual}
+                                </div>
+                            )}
                             <div className="text-right hidden sm:block">
                                 <p className="text-xs font-semibold text-white/90">{nomeUsuario}</p>
                                 <p className="text-[10px] text-blue-200/50 uppercase tracking-wider">Recepção</p>
@@ -193,295 +251,330 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                         />
                     </div>
 
-                    {/* ── Entrevistas Presenciais do Dia ── */}
-                    <div className="ds-card-static overflow-hidden">
-                        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-                                    <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                    {/* ── Split Layout Dashboard ── */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        
+                        {/* Coluna da Esquerda (Visitantes) */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Barra de Ações */}
+                            <div className="ds-card-static p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+                                    {/* Busca */}
+                                    <div className="relative flex-1 min-w-[200px]">
+                                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            defaultValue={filtros.busca}
+                                            placeholder="Buscar por nome, assunto ou depto..."
+                                            onKeyDown={(e) => e.key === 'Enter' && handleFiltro('busca', e.target.value)}
+                                            onBlur={(e) => e.target.value !== filtros.busca && handleFiltro('busca', e.target.value)}
+                                            className="ds-input pl-9"
+                                        />
+                                    </div>
+                                    {/* Data */}
+                                    <div className="w-full sm:w-44">
+                                        <input
+                                            type="date"
+                                            value={filtros.data}
+                                            onChange={(e) => handleFiltro('data', e.target.value)}
+                                            className="ds-input cursor-pointer"
+                                        />
+                                    </div>
+                                    {/* Status */}
+                                    <div className="w-full sm:w-48">
+                                        <select
+                                            value={filtros.status || ''}
+                                            onChange={(e) => handleFiltro('status', e.target.value)}
+                                            className="ds-input cursor-pointer"
+                                        >
+                                            <option value="">Todos os Visitantes</option>
+                                            <option value="presente">Apenas Presentes</option>
+                                            <option value="saiu">Já Saíram</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className="text-sm font-bold text-gray-700">Entrevistas Presenciais</h2>
-                                    <p className="text-xs text-gray-400">
-                                        {entrevistas_presenciais.length > 0
-                                            ? `${entrevistas_presenciais.length} entrevista${entrevistas_presenciais.length !== 1 ? 's' : ''} agendada${entrevistas_presenciais.length !== 1 ? 's' : ''}`
-                                            : 'Nenhuma entrevista presencial nesta data'}
-                                    </p>
+                                {/* Ações */}
+                                <div className="flex items-center gap-3 shrink-0">
+                                    <button
+                                        onClick={() => window.open(`/recepcao/exportar?data=${filtros.data}`, '_blank')}
+                                        className="ds-btn ds-btn-secondary flex-1 sm:flex-none cursor-pointer flex items-center justify-center gap-1.5"
+                                        title="Exportar registros do dia para CSV"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Exportar CSV
+                                    </button>
+                                    <button
+                                        onClick={abrirNovoRegistro}
+                                        className="ds-btn ds-btn-primary flex-1 sm:flex-none cursor-pointer flex items-center justify-center gap-1.5"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Novo Visitante
+                                    </button>
                                 </div>
                             </div>
-                            <span className="ds-badge bg-orange-50 text-orange-600 border border-orange-100/50">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Presencial
-                            </span>
-                        </div>
 
-                        {entrevistas_presenciais.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="ds-table">
-                                    <thead>
-                                        <tr>
-                                            <th className="text-center">Horário</th>
-                                            <th>Candidato</th>
-                                            <th className="hidden md:table-cell">Telefone</th>
-                                            <th>Vaga</th>
-                                            <th className="hidden lg:table-cell">Recrutador</th>
-                                            <th className="text-center">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {entrevistas_presenciais.map((ent) => {
-                                            const statusConfig = {
-                                                marcada:        { label: 'Agendada',        cls: 'bg-blue-100 text-blue-700' },
-                                                selecionado:    { label: 'Selecionado',      cls: 'bg-orange-100 text-orange-700' },
-                                                contratado:     { label: 'Contratado',       cls: 'bg-emerald-100 text-emerald-700' },
-                                                reprovado:      { label: 'Reprovado',        cls: 'bg-red-100 text-red-600' },
-                                                recusou_vaga:   { label: 'Recusou Vaga',     cls: 'bg-yellow-100 text-yellow-700' },
-                                                sem_vaga:       { label: 'Sem Vaga',         cls: 'bg-gray-100 text-gray-600' },
-                                                nao_compareceu: { label: 'Não Compareceu',   cls: 'bg-pink-100 text-pink-700' },
-                                            };
-                                            const st = statusConfig[ent.status] ?? { label: ent.status, cls: 'bg-gray-100 text-gray-600' };
-
-                                            return (
-                                                <tr key={ent.id} className="hover:bg-orange-50/30">
-                                                    <td className="text-center">
-                                                        <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-lg">
-                                                            <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            {new Date(ent.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div className="flex items-center gap-2.5">
-                                                            <div className="ds-avatar ds-avatar-sm bg-orange-500 text-white">
-                                                                {getIniciais(ent.candidato_nome)}
+                            {/* Tabela de Visitantes */}
+                            <div className="ds-card-static overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="ds-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Visitante</th>
+                                                <th>Assunto</th>
+                                                <th className="hidden md:table-cell">Departamento</th>
+                                                <th className="text-center">Horário</th>
+                                                <th className="text-center">Status</th>
+                                                <th className="text-right">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {registros.data.length > 0 ? (
+                                                registros.data.map((reg) => (
+                                                    <tr key={reg.id}>
+                                                        {/* Visitante */}
+                                                        <td>
+                                                            <div className="flex items-center gap-2.5">
+                                                                <div className="ds-avatar ds-avatar-sm bg-[#0C4773] text-white">
+                                                                    {getIniciais(reg.nome)}
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="font-semibold text-gray-800 truncate text-sm">{reg.nome}</p>
+                                                                    <p className="text-[11px] text-gray-400 truncate">
+                                                                        {[reg.posto_cargo_empresa, reg.contato].filter(Boolean).join(' · ') || '—'}
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                            <span className="font-medium text-gray-800">{ent.candidato_nome}</span>
+                                                        </td>
+                                                        {/* Assunto */}
+                                                        <td className="max-w-[180px]">
+                                                            <p className="text-gray-700 truncate text-xs" title={reg.assunto}>{reg.assunto}</p>
+                                                            {reg.indicacao && (
+                                                                <p className="text-[10px] text-gray-400 truncate mt-0.5" title={reg.indicacao}>Indicação: {reg.indicacao}</p>
+                                                            )}
+                                                        </td>
+                                                        {/* Departamento */}
+                                                        <td className="hidden md:table-cell">
+                                                            <span className="ds-badge bg-blue-50 text-blue-700 border border-blue-100/30">
+                                                                {reg.departamento_responsavel}
+                                                            </span>
+                                                            {reg.retorno && (
+                                                                <p className="text-[10px] text-gray-400 truncate mt-1 max-w-[140px]" title={reg.retorno}>↩ {reg.retorno}</p>
+                                                            )}
+                                                        </td>
+                                                        {/* Horário */}
+                                                        <td className="text-center">
+                                                            <div className="inline-flex items-center gap-1 font-mono text-xs text-gray-650 bg-gray-50 px-2 py-1 rounded-lg">
+                                                                <span className="font-bold text-gray-700">
+                                                                    {reg.horario_entrada ? new Date(reg.horario_entrada).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                                                                </span>
+                                                                <span className="text-gray-300">→</span>
+                                                                <span className={reg.horario_saida ? 'text-gray-500 font-bold' : 'text-gray-300'}>
+                                                                    {reg.horario_saida ? new Date(reg.horario_saida).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        {/* Status */}
+                                                        <td className="text-center">
+                                                            {reg.horario_saida ? (
+                                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200/50">
+                                                                    Saiu
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+                                                                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
+                                                                    Presente
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                        {/* Ações */}
+                                                        <td className="text-right">
+                                                            <div className="flex items-center justify-end gap-1">
+                                                                {!reg.horario_saida && (
+                                                                    <button
+                                                                        onClick={() => handleSaida(reg.id)}
+                                                                        className="ds-btn-icon ds-btn-icon-success"
+                                                                        title="Registrar saída"
+                                                                    >
+                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                                        </svg>
+                                                                    </button>
+                                                                )}
+                                                                <button
+                                                                    onClick={() => abrirEdicao(reg)}
+                                                                    className="ds-btn-icon"
+                                                                    title="Editar"
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setConfirmDelete(reg.id)}
+                                                                    className="ds-btn-icon ds-btn-icon-danger"
+                                                                    title="Excluir"
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={6}>
+                                                        <div className="ds-empty">
+                                                            <div className="ds-empty-icon">
+                                                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                </svg>
+                                                            </div>
+                                                            <p className="ds-empty-title">Nenhum visitante registrado nesta data.</p>
+                                                            <p className="ds-empty-desc">Clique em "Novo Visitante" para começar.</p>
                                                         </div>
-                                                    </td>
-                                                    <td className="text-gray-500 text-xs hidden md:table-cell">{ent.candidato_telefone || '—'}</td>
-                                                    <td>
-                                                        <span className="text-gray-700 text-xs font-medium">{ent.vaga_titulo}</span>
-                                                    </td>
-                                                    <td className="text-gray-500 text-xs hidden lg:table-cell">{ent.entrevistador}</td>
-                                                    <td className="text-center">
-                                                        <span className={`ds-badge ${st.cls}`}>
-                                                            {st.label}
-                                                        </span>
                                                     </td>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <div className="ds-empty">
-                                <div className="ds-empty-icon">
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <p className="ds-empty-title">Nenhuma entrevista presencial nesta data.</p>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* ── Barra de Ações ── */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1">
-                            <div className="relative flex-1 max-w-sm">
-                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <input
-                                    type="text"
-                                    defaultValue={filtros.busca}
-                                    placeholder="Buscar por nome, assunto ou depto..."
-                                    onKeyDown={(e) => e.key === 'Enter' && handleFiltro('busca', e.target.value)}
-                                    onBlur={(e) => e.target.value !== filtros.busca && handleFiltro('busca', e.target.value)}
-                                    className="ds-input pl-9"
-                                />
+                                {/* Paginação */}
+                                {registros.last_page > 1 && (
+                                    <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                                        <p className="text-xs text-gray-400">
+                                            Mostrando {registros.from}–{registros.to} de {registros.total}
+                                        </p>
+                                        <div className="flex gap-1">
+                                            {registros.links.map((link, i) => (
+                                                <button
+                                                    key={i}
+                                                    disabled={!link.url}
+                                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                                                        link.active
+                                                            ? 'bg-[#0C4773] text-white shadow-sm'
+                                                            : link.url
+                                                                ? 'text-gray-600 hover:bg-gray-200'
+                                                                : 'text-gray-300 cursor-not-allowed'
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="px-5 py-2.5 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
+                                    {registros.total} registro{registros.total !== 1 ? 's' : ''} encontrado{registros.total !== 1 ? 's' : ''}
+                                </div>
                             </div>
-                            <input
-                                type="date"
-                                value={filtros.data}
-                                onChange={(e) => handleFiltro('data', e.target.value)}
-                                className="ds-input w-auto"
-                            />
                         </div>
-                        <button
-                            onClick={abrirNovoRegistro}
-                            className="ds-btn ds-btn-primary"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Novo Visitante
-                        </button>
-                    </div>
 
-                    {/* ── Tabela de Registros ── */}
-                    <div className="ds-card-static overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="ds-table">
-                                <thead>
-                                    <tr>
-                                        <th>Visitante</th>
-                                        <th>Assunto</th>
-                                        <th className="hidden md:table-cell">Departamento</th>
-                                        <th className="text-center">Horário</th>
-                                        <th className="text-center">Status</th>
-                                        <th className="text-right">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {registros.data.length > 0 ? (
-                                        registros.data.map((reg) => (
-                                            <tr key={reg.id}>
-                                                {/* Visitante: nome + contato + cargo */}
-                                                <td>
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="ds-avatar ds-avatar-sm bg-[#0C4773] text-white">
-                                                            {getIniciais(reg.nome)}
+                        {/* Coluna da Direita (Entrevistas Presenciais) */}
+                        <div className="lg:sticky lg:top-24 space-y-6">
+                            <div className="ds-card-static overflow-hidden">
+                                <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center border border-orange-100/50">
+                                            <svg className="w-4.5 h-4.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-sm font-bold text-gray-700">Entrevistas Presenciais</h2>
+                                            <p className="text-[10px] text-gray-400">Agendamentos de hoje</p>
+                                        </div>
+                                    </div>
+                                    <span className="inline-flex items-center justify-center bg-orange-100 text-orange-800 text-xs font-extrabold px-2.5 py-0.5 rounded-full">
+                                        {entrevistas_presenciais.length}
+                                    </span>
+                                </div>
+
+                                <div className="p-4 space-y-3 max-h-[520px] overflow-y-auto ds-scrollbar">
+                                    {entrevistas_presenciais.length > 0 ? (
+                                        entrevistas_presenciais.map((ent) => {
+                                            const statusConfig = {
+                                                marcada:        { label: 'Agendada',        cls: 'bg-blue-50 text-blue-700 border-blue-100', accent: 'bg-blue-500' },
+                                                selecionado:    { label: 'Selecionado',      cls: 'bg-orange-50 text-orange-700 border-orange-100', accent: 'bg-orange-500' },
+                                                contratado:     { label: 'Contratado',       cls: 'bg-emerald-50 text-emerald-700 border-emerald-100', accent: 'bg-emerald-500' },
+                                                reprovado:      { label: 'Reprovado',        cls: 'bg-red-50 text-red-700 border-red-100', accent: 'bg-red-500' },
+                                                recusou_vaga:   { label: 'Recusou Vaga',     cls: 'bg-yellow-50 text-yellow-700 border-yellow-100', accent: 'bg-yellow-500' },
+                                                sem_vaga:       { label: 'Sem Vaga',         cls: 'bg-gray-50 text-gray-700 border-gray-100', accent: 'bg-gray-400' },
+                                                nao_compareceu: { label: 'Não Compareceu',   cls: 'bg-pink-50 text-pink-700 border-pink-100', accent: 'bg-pink-500' },
+                                            };
+                                            const st = statusConfig[ent.status] ?? { label: ent.status, cls: 'bg-gray-50 text-gray-600 border-gray-100', accent: 'bg-gray-400' };
+
+                                            return (
+                                                <div key={ent.id} className="relative group bg-white border border-gray-100 hover:border-gray-200/80 pl-5 pr-3.5 py-3.5 rounded-xl shadow-xs transition duration-200 flex items-center justify-between gap-3 overflow-hidden">
+                                                    {/* Faixa lateral indicadora de status */}
+                                                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${st.accent}`} />
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200/60 rounded-xl px-2 py-1 shrink-0 min-w-[52px] text-center font-mono">
+                                                            <span className="text-[8px] text-gray-400 font-bold uppercase leading-none tracking-wider">Hora</span>
+                                                            <span className="text-[11px] font-black text-gray-750 mt-0.5">
+                                                                {new Date(ent.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="font-medium text-gray-800 truncate">{reg.nome}</p>
-                                                            <p className="text-[11px] text-gray-400 truncate">
-                                                                {[reg.posto_cargo_empresa, reg.contato].filter(Boolean).join(' · ') || '—'}
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                <span className="font-bold text-gray-900 text-xs truncate max-w-[110px]" title={ent.candidato_nome}>{ent.candidato_nome}</span>
+                                                                <span className={`inline-flex items-center text-[8px] px-1.5 py-0.5 rounded-full font-bold border shrink-0 ${st.cls}`}>
+                                                                    {st.label}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-500 mt-0.5 truncate max-w-[130px]" title={ent.vaga_titulo}>
+                                                                {ent.vaga_titulo}
+                                                            </p>
+                                                            <p className="text-[9px] text-gray-400 mt-0.5">
+                                                                {ent.candidato_telefone}
                                                             </p>
                                                         </div>
                                                     </div>
-                                                </td>
-                                                {/* Assunto + indicação */}
-                                                <td className="max-w-[200px]">
-                                                    <p className="text-gray-700 truncate" title={reg.assunto}>{reg.assunto}</p>
-                                                    {reg.indicacao && (
-                                                        <p className="text-[11px] text-gray-400 truncate mt-0.5" title={reg.indicacao}>Indicação: {reg.indicacao}</p>
-                                                    )}
-                                                </td>
-                                                {/* Departamento + retorno */}
-                                                <td className="hidden md:table-cell">
-                                                    <span className="ds-badge bg-blue-50 text-blue-700">
-                                                        {reg.departamento_responsavel}
-                                                    </span>
-                                                    {reg.retorno && (
-                                                        <p className="text-[11px] text-gray-400 truncate mt-1 max-w-[160px]" title={reg.retorno}>↩ {reg.retorno}</p>
-                                                    )}
-                                                </td>
-                                                {/* Horário: entrada → saída */}
-                                                <td className="text-center">
-                                                    <div className="inline-flex items-center gap-1.5 font-mono text-xs">
-                                                        <span className="font-bold text-gray-700">
-                                                            {reg.horario_entrada ? new Date(reg.horario_entrada).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
-                                                        </span>
-                                                        <span className="text-gray-300">→</span>
-                                                        <span className={reg.horario_saida ? 'text-gray-500' : 'text-gray-300'}>
-                                                            {reg.horario_saida ? new Date(reg.horario_saida).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                {/* Status */}
-                                                <td className="text-center">
-                                                    {reg.horario_saida ? (
-                                                        <span className="ds-badge bg-gray-100 text-gray-500">
-                                                            Saiu
-                                                        </span>
-                                                    ) : (
-                                                        <span className="ds-badge bg-emerald-100 text-emerald-700">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                            Presente
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                {/* Ações */}
-                                                <td className="text-right">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        {!reg.horario_saida && (
-                                                            <button
-                                                                onClick={() => handleSaida(reg.id)}
-                                                                className="ds-btn-icon ds-btn-icon-success"
-                                                                title="Registrar saída"
-                                                            >
-                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-                                                        <button
-                                                            onClick={() => abrirEdicao(reg)}
-                                                            className="ds-btn-icon"
-                                                            title="Editar"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                            </svg>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setConfirmDelete(reg.id)}
-                                                            className="ds-btn-icon ds-btn-icon-danger"
-                                                            title="Excluir"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={6}>
-                                                <div className="ds-empty">
-                                                    <div className="ds-empty-icon">
-                                                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        </svg>
-                                                    </div>
-                                                    <p className="ds-empty-title">Nenhum visitante registrado nesta data.</p>
-                                                    <p className="ds-empty-desc">Clique em "Novo Visitante" para começar.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
 
-                        {/* Paginação */}
-                        {registros.last_page > 1 && (
-                            <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                                <p className="text-xs text-gray-400">
-                                    Mostrando {registros.from}–{registros.to} de {registros.total}
-                                </p>
-                                <div className="flex gap-1">
-                                    {registros.links.map((link, i) => (
-                                        <button
-                                            key={i}
-                                            disabled={!link.url}
-                                            onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                                                link.active
-                                                    ? 'bg-[#0C4773] text-white shadow-sm'
-                                                    : link.url
-                                                        ? 'text-gray-600 hover:bg-gray-200'
-                                                        : 'text-gray-300 cursor-not-allowed'
-                                            }`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ))}
+                                                    <div className="shrink-0">
+                                                        {['marcada', 'selecionado'].includes(ent.status) ? (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm(`Registrar que ${ent.candidato_nome} chegou para a entrevista?`)) {
+                                                                        router.post(`/recepcao/entrevistas/${ent.id}/chegada`, {}, {
+                                                                            preserveScroll: true
+                                                                        });
+                                                                    }
+                                                                }}
+                                                                className="ds-btn ds-btn-primary py-1.5 px-2.5 text-[10px] flex items-center gap-1 cursor-pointer transition shadow-xs"
+                                                            >
+                                                                Chegou
+                                                            </button>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100/50 px-2 py-1.5 rounded-lg">
+                                                                ✓ Chegou
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="ds-empty py-12">
+                                            <div className="ds-empty-icon mb-2">
+                                                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <p className="ds-empty-title text-xs">Sem entrevistas agendadas.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        )}
-
-                        <div className="px-5 py-2.5 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
-                            {registros.total} registro{registros.total !== 1 ? 's' : ''} encontrado{registros.total !== 1 ? 's' : ''}
                         </div>
                     </div>
                 </main>
@@ -512,14 +605,35 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Nome <span className="text-red-400">*</span></label>
-                                    <input
-                                        type="text"
-                                        value={data.nome}
-                                        onChange={e => setData('nome', e.target.value)}
-                                        className={`ds-input ${errors.nome ? 'ds-input-error' : ''}`}
-                                        placeholder="Nome do visitante"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.nome}
+                                            onChange={e => handleNomeChange(e.target.value)}
+                                            onFocus={() => sugestoes.length > 0 && setMostrarSugestoes(true)}
+                                            onBlur={() => setTimeout(() => setMostrarSugestoes(false), 200)}
+                                            className={`ds-input ${errors.nome ? 'ds-input-error' : ''}`}
+                                            placeholder="Nome do visitante"
+                                            autoComplete="off"
+                                            required
+                                        />
+                                        {mostrarSugestoes && sugestoes.length > 0 && (
+                                            <ul className="absolute z-[120] left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto divide-y divide-gray-100">
+                                                {sugestoes.map((sug, idx) => (
+                                                    <li 
+                                                        key={idx}
+                                                        onMouseDown={() => selecionarSugestao(sug)}
+                                                        className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 flex flex-col gap-0.5 text-left"
+                                                    >
+                                                        <span className="font-semibold text-gray-800">{sug.nome}</span>
+                                                        <span className="text-xs text-gray-400">
+                                                            {[sug.posto_cargo_empresa, sug.departamento_responsavel, sug.contato].filter(Boolean).join(' · ')}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
                                     {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome}</p>}
                                 </div>
                                 <div>

@@ -44,6 +44,9 @@ class VagasController extends Controller
             'pcd'               => 'boolean',
             'permite_online'    => 'boolean',
             'interna'           => 'boolean',
+            'area'              => 'nullable|string|max:100',
+            'sla_dias'          => 'nullable|integer|min:1',
+            'quantidade_vagas'  => 'nullable|integer|min:1',
             'user_id'           => 'nullable|exists:users,id',
             'formulario_id'     => 'required|exists:formularios,id',
         ];

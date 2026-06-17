@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import axios from 'axios';
 
+const formatBRL = (val) => {
+    if (!val) return '—';
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (isNaN(num)) return val;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+};
+
+const hasBenefit = (val) => {
+    if (!val) return false;
+    if (val === '0' || val === '0.00' || val === 0) return false;
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (!isNaN(num) && num === 0) return false;
+    return true;
+};
+
 const STATUS_CONFIG = {
     marcada:        { label: 'Inscrito',         color: 'bg-blue-100 text-blue-700',      step: 1 },
     selecionado:    { label: 'Aprovado no quiz', color: 'bg-orange-100 text-orange-700',  step: 2 },
@@ -207,11 +222,11 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Salário</p>
-                                    <p className="text-sm font-semibold text-gray-800">{vaga.salario || '—'}</p>
+                                    <p className="text-sm font-semibold text-gray-800">{formatBRL(vaga.salario)}</p>
                                 </div>
                             </div>
 
-                            {(vaga.va || vaga.vr || vaga.vt) && (
+                            {(hasBenefit(vaga.va) || hasBenefit(vaga.vr) || hasBenefit(vaga.vt)) && (
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-gray-50 rounded-lg">
                                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,9 +236,9 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                     <div>
                                         <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Benefícios</p>
                                         <div className="flex flex-wrap gap-1.5 mt-0.5">
-                                            {vaga.va && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VA: {vaga.va}</span>}
-                                            {vaga.vr && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VR: {vaga.vr}</span>}
-                                            {vaga.vt && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VT: {vaga.vt}</span>}
+                                            {hasBenefit(vaga.va) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VA: {formatBRL(vaga.va)}</span>}
+                                            {hasBenefit(vaga.vr) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VR: {formatBRL(vaga.vr)}</span>}
+                                            {hasBenefit(vaga.vt) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-medium">VT: {formatBRL(vaga.vt)}</span>}
                                         </div>
                                     </div>
                                 </div>

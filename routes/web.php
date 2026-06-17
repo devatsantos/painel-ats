@@ -104,10 +104,16 @@ Route::middleware('auth')->group(function () {
     Route::put('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'update'])->name('Agenda.update');
     Route::delete('/agenda/{bloqueio}', [App\Http\Controllers\AgendaController::class, 'delete'])->name('Agenda.delete');
     Route::get('/relatorios', [App\Http\Controllers\RelatoriosController::class, 'index'])->name('Relatorios');
-    Route::get('/relatorios/recrutadores', [App\Http\Controllers\RelatoriosController::class, 'recrutadores'])->name('Relatorios.recrutadores');
+    Route::get('/relatorios/funil', [App\Http\Controllers\RelatoriosController::class, 'funil'])->name('Relatorios.funil');
+    Route::get('/relatorios/time-to-hire', [App\Http\Controllers\RelatoriosController::class, 'timeToHire'])->name('Relatorios.timeToHire');
+    Route::get('/relatorios/volume', [App\Http\Controllers\RelatoriosController::class, 'volume'])->name('Relatorios.volume');
+    Route::get('/relatorios/performance', [App\Http\Controllers\RelatoriosController::class, 'performance'])->name('Relatorios.performance');
 
     // Recepção — Mini-sistema de controle de visitantes
     Route::get('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'index'])->name('Recepcao');
+    Route::get('/recepcao/autocomplete', [App\Http\Controllers\RecepcaoController::class, 'autocomplete'])->name('Recepcao.autocomplete');
+    Route::get('/recepcao/exportar', [App\Http\Controllers\RecepcaoController::class, 'exportar'])->name('Recepcao.exportar');
+    Route::post('/recepcao/entrevistas/{entrevista}/chegada', [App\Http\Controllers\RecepcaoController::class, 'marcarChegada'])->name('Recepcao.chegada');
     Route::post('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'store'])->name('Recepcao.store');
     Route::put('/recepcao/{recepcao}', [App\Http\Controllers\RecepcaoController::class, 'update'])->name('Recepcao.update');
     Route::put('/recepcao/{recepcao}/saida', [App\Http\Controllers\RecepcaoController::class, 'registrarSaida'])->name('Recepcao.saida');

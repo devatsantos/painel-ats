@@ -32,7 +32,7 @@ class CandidatosController extends Controller
      */
     private const CAMPOS_PUBLICOS = [
         'nome', 'cpf', 'email', 'telefone', 'cep',
-        'logradouro', 'regiao', 'nivel_escolaridade', 'data_nascimento',
+        'logradouro', 'regiao', 'como_conheceu', 'especialidade', 'nivel_escolaridade', 'data_nascimento',
     ];
 
     public function candidatura() {
@@ -397,6 +397,8 @@ class CandidatosController extends Controller
             'logradouro' => 'required|string|max:255',
             'nivel_escolaridade' => 'required|string|max:255',
             'regiao' => 'required|string|max:255',
+            'como_conheceu' => 'nullable|string|max:255',
+            'especialidade' => 'nullable|string|max:255',
             'data_nascimento' => 'nullable|date',
             'vaga_id' => 'required|exists:vagas,id',
         ]);

@@ -12,6 +12,7 @@ class Vagas extends Model
         'titulo',
         'horario',
         'local',
+        'area',
         'descricao',
         'requisitos',
         'salario',
@@ -24,6 +25,8 @@ class Vagas extends Model
         'pcd',
         'permite_online',
         'interna',
+        'sla_dias',
+        'quantidade_vagas',
         'user_id',
         'formulario_id'
     ];
@@ -36,5 +39,10 @@ class Vagas extends Model
     public function recrutador()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function candidatosVaga()
+    {
+        return $this->hasMany(CandidatoVaga::class, 'vaga_id');
     }
 }

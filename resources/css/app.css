@@ -80,9 +80,9 @@
   gap: 0.5rem;
   font-weight: 600;
   font-size: 0.875rem;
-  line-height: 1;
+  line-height: 1.25rem;
   border-radius: 0.75rem;
-  padding: 0.875rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   outline: none;

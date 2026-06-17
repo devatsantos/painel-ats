@@ -7,6 +7,16 @@ import axios from 'axios';
 export default function PortalPerfil({ candidato }) {
     const [buscandoCep, setBuscandoCep] = useState(false);
 
+    const [comoConheceu, setComoConheceu] = useState(() => {
+        const value = candidato.como_conheceu || '';
+        const standard = ["Instagram", "Facebook", "LinkedIn", "Google", "Indicação", "Cartazes / Panfletos"];
+        if (!value) return { source: '', other: '' };
+        if (standard.includes(value)) {
+            return { source: value, other: '' };
+        }
+        return { source: 'Outros', other: value };
+    });
+
     const { data, setData, put, processing, errors } = useForm({
         nome: candidato.nome || '',
         email: candidato.email || '',
@@ -16,6 +26,8 @@ export default function PortalPerfil({ candidato }) {
         regiao: candidato.regiao || '',
         nivel_escolaridade: candidato.nivel_escolaridade || '',
         data_nascimento: candidato.data_nascimento || '',
+        como_conheceu: candidato.como_conheceu || '',
+        especialidade: candidato.especialidade || '',
     });
 
     const maskPhone = (value) => {
@@ -50,6 +62,19 @@ export default function PortalPerfil({ candidato }) {
                 .finally(() => setBuscandoCep(false));
         }
     }, [data.cep]);
+
+    const handleSourceChange = (e) => {
+        const val = e.target.value;
+        const otherVal = val === 'Outros' ? comoConheceu.other : '';
+        setComoConheceu(prev => ({ ...prev, source: val, other: otherVal }));
+        setData('como_conheceu', val === 'Outros' ? otherVal : val);
+    };
+
+    const handleOtherChange = (e) => {
+        const val = e.target.value;
+        setComoConheceu(prev => ({ ...prev, other: val }));
+        setData('como_conheceu', val);
+    };
 
     function submitPerfil(e) {
         e.preventDefault();
@@ -162,6 +187,17 @@ export default function PortalPerfil({ candidato }) {
                                     />
                                     {errors.data_nascimento && <p className="text-red-500 text-xs mt-1">{errors.data_nascimento}</p>}
                                 </div>
+                                <div className="md:col-span-3">
+                                    <label className={labelClasses}>Especialidade (Opcional)</label>
+                                    <input
+                                        type="text"
+                                        value={data.especialidade}
+                                        onChange={e => setData('especialidade', e.target.value)}
+                                        className={inputClasses}
+                                        placeholder="Ex: Eletricista, Encanador"
+                                    />
+                                    {errors.especialidade && <p className="text-red-500 text-xs mt-1">{errors.especialidade}</p>}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -188,7 +224,7 @@ export default function PortalPerfil({ candidato }) {
                                     <input value={data.logradouro} onChange={e => setData('logradouro', e.target.value)} className={inputClasses} />
                                     {errors.logradouro && <p className="text-red-500 text-xs mt-1">{errors.logradouro}</p>}
                                 </div>
-                                <div className="md:col-span-6">
+                                <div className="md:col-span-3">
                                     <label className={labelClasses}>Região</label>
                                     <select value={data.regiao} onChange={e => setData('regiao', e.target.value)} className={inputClasses}>
                                         <option value="">Selecione uma região</option>
@@ -201,6 +237,27 @@ export default function PortalPerfil({ candidato }) {
                                     </select>
                                     {errors.regiao && <p className="text-red-500 text-xs mt-1">{errors.regiao}</p>}
                                 </div>
+                                <div className="md:col-span-3">
+                                    <label className={labelClasses}>Como nos conheceu?</label>
+                                    <select value={comoConheceu.source} onChange={handleSourceChange} className={inputClasses}>
+                                        <option value="">Selecione</option>
+                                        <option value="Instagram">Instagram</option>
+                                        <option value="Facebook">Facebook</option>
+                                        <option value="LinkedIn">LinkedIn</option>
+                                        <option value="Google">Google</option>
+                                        <option value="Indicação">Indicação</option>
+                                        <option value="Cartazes / Panfletos">Cartazes / Panfletos</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                    {errors.como_conheceu && <p className="text-red-500 text-xs mt-1">{errors.como_conheceu}</p>}
+                                </div>
+                                {comoConheceu.source === 'Outros' && (
+                                    <div className="md:col-span-6">
+                                        <label className={labelClasses}>Especifique o canal</label>
+                                        <input value={comoConheceu.other} onChange={handleOtherChange} className={inputClasses} placeholder="Qual canal?" />
+                                        {errors.como_conheceu && <p className="text-red-500 text-xs mt-1">{errors.como_conheceu}</p>}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

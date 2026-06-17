@@ -3,6 +3,21 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { consultarCep } from '../../utils/cep';
 import axios from 'axios';
 
+const formatBRL = (val) => {
+    if (!val) return '—';
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (isNaN(num)) return val;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+};
+
+const hasBenefit = (val) => {
+    if (!val) return false;
+    if (val === '0' || val === '0.00' || val === 0) return false;
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (!isNaN(num) && num === 0) return false;
+    return true;
+};
+
 export default function Candidatura({ vagas, candidato_id }) {
     const [etapa, setEtapa] = useState('vagas');
     const [vagaSelecionada, setVagaSelecionada] = useState(null);
@@ -556,18 +571,18 @@ export default function Candidatura({ vagas, candidato_id }) {
                                         <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        {vaga.salario}
+                                        {formatBRL(vaga.salario)}
                                     </div>
 
                                     {vaga.descricao && (
                                         <p className="text-sm text-gray-500 line-clamp-3 mt-2">{vaga.descricao}</p>
                                     )}
 
-                                    {(vaga.va || vaga.vr || vaga.vt) && (
+                                    {(hasBenefit(vaga.va) || hasBenefit(vaga.vr) || hasBenefit(vaga.vt)) && (
                                         <div className="flex flex-wrap gap-2 mt-2">
-                                            {vaga.va && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VA: {vaga.va}</span>}
-                                            {vaga.vr && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VR: {vaga.vr}</span>}
-                                            {vaga.vt && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VT: {vaga.vt}</span>}
+                                            {hasBenefit(vaga.va) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VA: {formatBRL(vaga.va)}</span>}
+                                            {hasBenefit(vaga.vr) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VR: {formatBRL(vaga.vr)}</span>}
+                                            {hasBenefit(vaga.vt) && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium">VT: {formatBRL(vaga.vt)}</span>}
                                         </div>
                                     )}
                                 </div>

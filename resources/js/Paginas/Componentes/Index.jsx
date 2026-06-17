@@ -106,7 +106,7 @@ export default function Sidebar() {
             )
         },
         {
-            label: 'Logs de Erro',
+            label: 'Monitoramento',
             href: '/logs',
             active: isLogs,
             adminOnly: true,

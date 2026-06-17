@@ -34,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
             if (\Illuminate\Support\Facades\Schema::hasTable('configuracoes')) {
                 $configs = \App\Models\Configuracao::pluck('valor', 'chave')->all();
                 foreach ($configs as $chave => $valor) {
+                    if (is_numeric($valor)) {
+                        $valor = (strpos($valor, '.') !== false) ? (float)$valor : (int)$valor;
+                    }
                     config([$chave => $valor]);
                 }
             }

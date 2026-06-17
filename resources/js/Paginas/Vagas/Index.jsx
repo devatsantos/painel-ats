@@ -3,6 +3,21 @@ import { Link, usePage, useForm, router } from '@inertiajs/react';
 import Sidebar from '../Componentes/Index';
 import Paginacao from '../Componentes/Paginacao.jsx';
 
+const formatBRL = (val) => {
+    if (!val) return '—';
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (isNaN(num)) return val;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+};
+
+const hasBenefit = (val) => {
+    if (!val) return false;
+    if (val === '0' || val === '0.00' || val === 0) return false;
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (!isNaN(num) && num === 0) return false;
+    return true;
+};
+
 export default function Vagas({vagas, formularios, recrutadores}) {
     const { props } = usePage();
     const canManageVagas = ['admin', 'coordenador'].includes(props.auth?.user?.role);
@@ -20,6 +35,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
         titulo: '',
         horario: '',
         local: '',
+        area: '',
         descricao: '',
         requisitos: '',
         salario: '',
@@ -32,6 +48,8 @@ export default function Vagas({vagas, formularios, recrutadores}) {
         pcd: false,
         permite_online: false,
         interna: false,
+        sla_dias: '',
+        quantidade_vagas: 1,
         user_id: '',
         formulario_id: '',
     });
@@ -42,6 +60,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             titulo: vaga.titulo || '',
             horario: vaga.horario || '',
             local: vaga.local || '',
+            area: vaga.area || '',
             descricao: vaga.descricao || '',
             requisitos: vaga.requisitos || '',
             salario: vaga.salario || '',
@@ -54,6 +73,8 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             pcd: vaga.pcd ? true : false,
             permite_online: vaga.permite_online ? true : false,
             interna: vaga.interna ? true : false,
+            sla_dias: vaga.sla_dias || '',
+            quantidade_vagas: vaga.quantidade_vagas || 1,
             user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id || '',
         });
@@ -63,6 +84,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             titulo: vaga.titulo,
             horario: vaga.horario,
             local: vaga.local,
+            area: vaga.area || '',
             descricao: vaga.descricao,
             requisitos: vaga.requisitos,
             salario: vaga.salario,
@@ -75,6 +97,8 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             pcd: vaga.pcd ? true : false,
             permite_online: vaga.permite_online ? true : false,
             interna: vaga.interna ? true : false,
+            sla_dias: vaga.sla_dias || '',
+            quantidade_vagas: vaga.quantidade_vagas || 1,
             user_id: vaga.user_id || '',
             formulario_id: vaga.formulario_id,
         }, {
@@ -297,24 +321,32 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                             <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                             </svg>
-                                            {vaga.salario}
+                                            {formatBRL(vaga.salario)}
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Benefícios</span>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                                🍽️ VA: {vaga.va}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                                🥗 VR: {vaga.vr}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                                🚌 VT: {vaga.vt}
-                                            </span>
+                                    {(hasBenefit(vaga.va) || hasBenefit(vaga.vr) || hasBenefit(vaga.vt)) && (
+                                        <div>
+                                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Benefícios</span>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {hasBenefit(vaga.va) && (
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                        🍽️ VA: {formatBRL(vaga.va)}
+                                                    </span>
+                                                )}
+                                                {hasBenefit(vaga.vr) && (
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                        🥗 VR: {formatBRL(vaga.vr)}
+                                                    </span>
+                                                )}
+                                                {hasBenefit(vaga.vt) && (
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                        🚌 VT: {formatBRL(vaga.vt)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {canManageVagas && (
@@ -416,24 +448,32 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                     <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    {modalVaga.salario}
+                                    {formatBRL(modalVaga.salario)}
                                 </div>
                             </div>
 
-                            <div>
-                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Benefícios</span>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                        🍽️ VA: {modalVaga.va}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                        🥗 VR: {modalVaga.vr}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
-                                        🚌 VT: {modalVaga.vt}
-                                    </span>
+                            {(hasBenefit(modalVaga.va) || hasBenefit(modalVaga.vr) || hasBenefit(modalVaga.vt)) && (
+                                <div>
+                                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Benefícios</span>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {hasBenefit(modalVaga.va) && (
+                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                🍽️ VA: {formatBRL(modalVaga.va)}
+                                            </span>
+                                        )}
+                                        {hasBenefit(modalVaga.vr) && (
+                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                🥗 VR: {formatBRL(modalVaga.vr)}
+                                            </span>
+                                        )}
+                                        {hasBenefit(modalVaga.vt) && (
+                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600">
+                                                🚌 VT: {formatBRL(modalVaga.vt)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end rounded-b-2xl">
@@ -583,6 +623,45 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                             ))}
                                         </select>
                                         {errors.user_id && <p className="text-red-500 text-xs mt-1">{errors.user_id}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Área / Setor</label>
+                                        <input
+                                            type="text"
+                                            value={data.area}
+                                            onChange={e => setData('area', e.target.value)}
+                                            className="ds-input"
+                                            placeholder="Ex: TI, Comercial, RH"
+                                        />
+                                        {errors.area && <p className="text-red-500 text-xs mt-1">{errors.area}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">SLA (dias)</label>
+                                        <input
+                                            type="number"
+                                            value={data.sla_dias}
+                                            onChange={e => setData('sla_dias', e.target.value)}
+                                            className="ds-input"
+                                            placeholder="Ex: 30"
+                                            min="1"
+                                        />
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Prazo máximo em dias para preencher a vaga</p>
+                                        {errors.sla_dias && <p className="text-red-500 text-xs mt-1">{errors.sla_dias}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Qtd. Posições</label>
+                                        <input
+                                            type="number"
+                                            value={data.quantidade_vagas}
+                                            onChange={e => setData('quantidade_vagas', parseInt(e.target.value) || 1)}
+                                            className="ds-input"
+                                            min="1"
+                                        />
+                                        <p className="text-[10px] text-gray-400 mt-0.5">Número de posições abertas para esta vaga</p>
+                                        {errors.quantidade_vagas && <p className="text-red-500 text-xs mt-1">{errors.quantidade_vagas}</p>}
                                     </div>
                                 </div>
                             </div>

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CandidatoSeeder::class,
             TalentoSeeder::class,
             BloqueioAgendaSeeder::class,
+            RelatoriosSeeder::class,
         ]);
     }
 }

@@ -24,7 +24,8 @@ class PortalCandidatoController extends Controller
      */
     private const CAMPOS_EDITAVEIS = [
         'nome', 'email', 'telefone', 'cep',
-        'logradouro', 'regiao', 'nivel_escolaridade', 'data_nascimento',
+        'logradouro', 'regiao', 'nivel_escolaridade', 'data_nascimento', 'como_conheceu',
+        'especialidade',
     ];
 
     /**
@@ -396,6 +397,8 @@ class PortalCandidatoController extends Controller
                 'regiao'             => $candidato->regiao,
                 'nivel_escolaridade' => $candidato->nivel_escolaridade,
                 'data_nascimento'    => $candidato->data_nascimento?->format('Y-m-d'),
+                'como_conheceu'      => $candidato->como_conheceu,
+                'especialidade'      => $candidato->especialidade,
             ],
         ]);
     }
@@ -417,6 +420,8 @@ class PortalCandidatoController extends Controller
             'regiao'             => 'required|string|max:255',
             'nivel_escolaridade' => 'required|string|max:255',
             'data_nascimento'    => 'nullable|date',
+            'como_conheceu'      => 'nullable|string|max:255',
+            'especialidade'      => 'nullable|string|max:255',
             'path_curriculo'     => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
         ]);
 

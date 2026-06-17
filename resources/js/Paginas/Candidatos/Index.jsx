@@ -199,6 +199,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
         logradouro: '',
         regiao: '',
         data_nascimento: '',
+        especialidade: '',
         curriculo: null,
         _method: 'post',
     });
@@ -245,6 +246,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
             logradouro: talento.logradouro || '',
             regiao: talento.regiao,
             data_nascimento: talento.data_nascimento ? talento.data_nascimento.split('T')[0] : '',
+            especialidade: talento.especialidade || '',
             curriculo: null,
             _method: 'put',
         });
@@ -284,6 +286,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
             logradouro: '',
             regiao: '',
             data_nascimento: '',
+            especialidade: '',
             curriculo: null,
             _method: 'post',
         });
@@ -508,6 +511,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                                 </div>
                                                 <p className="text-xs text-[#0C4773] font-semibold mt-0.5">
                                                     {ESCOLARIDADE_LABELS[candidato.nivel_escolaridade] || candidato.nivel_escolaridade}
+                                                    {candidato.especialidade && ` · ${candidato.especialidade}`}
                                                 </p>
                                             </div>
                                         </div>
@@ -847,6 +851,17 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
                                             />
                                             {errors.data_nascimento && <span className="text-red-500 text-xs mt-1 block">{errors.data_nascimento}</span>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Especialidade (Opcional)</label>
+                                            <input
+                                                type="text"
+                                                value={data.especialidade}
+                                                onChange={e => setData('especialidade', e.target.value)}
+                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition"
+                                                placeholder="Ex: Desenvolvedor React, Eletricista"
+                                            />
+                                            {errors.especialidade && <span className="text-red-500 text-xs mt-1 block">{errors.especialidade}</span>}
                                         </div>
                                     </div>
                                 </div>

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
 class Candidatos extends Authenticatable
 {
-    use SoftDeletes;
+    use SoftDeletes, HasApiTokens;
 
     protected $table = 'candidatos';
 
@@ -22,6 +23,8 @@ class Candidatos extends Authenticatable
         'cep',
         'logradouro',
         'regiao',
+        'como_conheceu',
+        'especialidade',
         'banco_de_talentos',
         'whatsapp_codigo',
         'whatsapp_codigo_expira_em',

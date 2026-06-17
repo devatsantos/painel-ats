@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import Sidebar from '../Componentes/Index.jsx';
+import RelatoriosTabs from './RelatoriosTabs.jsx';
 
 const STATUS_CONFIG = {
     contratado:     { bar: 'bg-emerald-400', badge: 'bg-emerald-100 text-emerald-700' },
@@ -47,20 +48,7 @@ export default function Relatorios({
                     <div className="max-w-7xl mx-auto space-y-6">
 
                         {/* Header */}
-                        <header className="flex flex-col gap-4">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Visão geral</p>
-                                <h1 className="text-2xl font-black text-gray-900 tracking-tight">Relatórios</h1>
-                            </div>
-                            <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
-                                <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-900 shadow-sm cursor-default transition-all">
-                                    Visão Geral
-                                </span>
-                                <a href="/relatorios/recrutadores" className="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-white/50 transition-all">
-                                    Recrutadores
-                                </a>
-                            </div>
-                        </header>
+                        <RelatoriosTabs subtitulo="Visão geral" />
 
                         {/* ── Bento Grid ── */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto">
