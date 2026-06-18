@@ -57,6 +57,13 @@ class VagasController extends Controller
 
         $validated = $request->validate($this->rules());
 
+        // Converte strings vazias em null para campos opcionais
+        foreach (['va', 'vr', 'vt', 'area', 'sla_dias', 'quantidade_vagas', 'user_id', 'formulario_id'] as $field) {
+            if (isset($validated[$field]) && $validated[$field] === '') {
+                $validated[$field] = null;
+            }
+        }
+
         Vagas::create($validated);
 
         return redirect()->route('Vagas');
@@ -71,6 +78,13 @@ class VagasController extends Controller
         abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Apenas administradores e coordenadores podem editar vagas.');
 
         $validated = $request->validate($this->rules());
+
+        // Converte strings vazias em null para campos opcionais
+        foreach (['va', 'vr', 'vt', 'area', 'sla_dias', 'quantidade_vagas', 'user_id', 'formulario_id'] as $field) {
+            if (isset($validated[$field]) && $validated[$field] === '') {
+                $validated[$field] = null;
+            }
+        }
 
         $vaga->update($validated);
 

@@ -48,7 +48,7 @@ class PortalAtSantosService
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
             ])
-            ->timeout(15)
+            ->timeout(5)   // Falha rápido — não bloquear a requisição principal
             ->post("{$this->baseUrl}/api/integration/collaborator", [
                 'name'  => $data['name'],
                 'cpf'   => $data['cpf'],

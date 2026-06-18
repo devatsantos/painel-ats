@@ -158,7 +158,7 @@ class LogsController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'apikey' => $apiKey,
-            ])->timeout(10)->get("{$apiUrl}/instance/connectionState/{$instance}");
+            ])->timeout(5)->get("{$apiUrl}/instance/connectionState/{$instance}");
 
             $data  = $response->json();
             $state = $data['instance']['state'] ?? ($data['state'] ?? 'unknown');
@@ -232,7 +232,7 @@ class LogsController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'x-api-key' => $apiKey,
-            ])->timeout(10)->get("{$baseUrl}/api/health");
+            ])->timeout(5)->get("{$baseUrl}/api/health");
 
             if ($response->successful()) {
                 $data = $response->json();

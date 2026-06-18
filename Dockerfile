@@ -33,5 +33,12 @@ COPY --chown=www-data:www-data --from=frontend /app/public/build /var/www/html/p
 # Volta para o usuário seguro do servidor web (www-data)
 USER www-data
 
-# Instala as dependências do Laravel
+# Instala as dependências do Laravel (sem dev)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Otimizações de produção: cache de config, rotas, views e eventos
+# Elimina o overhead de parsear PHP a cada requisição
+RUN php artisan config:cache \
+ && php artisan route:cache \
+ && php artisan view:cache \
+ && php artisan event:cache
