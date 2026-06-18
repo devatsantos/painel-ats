@@ -19,8 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://siteatsantos.duckdns.org'],
-
+    'allowed_origins' => ['https://siteatsantos.duckdns.org', 'http://localhost:3000'],
 
     'allowed_origins_patterns' => [],
 
