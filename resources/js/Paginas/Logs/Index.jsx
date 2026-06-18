@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import Sidebar from '../Componentes/Index';
 
 export default function Logs({ logs, fileSize, filters }) {
+    const { props } = usePage();
+    const getCsrfToken = () =>
+        document.querySelector('meta[name="csrf-token"]')?.content
+        ?? props._token
+        ?? '';
+
     const [activeTab, setActiveTab] = useState('logs');
     const [busca, setBusca] = useState(filters.search || '');
     const [level, setLevel] = useState(filters.level || '');
@@ -81,14 +87,13 @@ export default function Logs({ logs, fileSize, filters }) {
         setPortalEnviando(true);
         setPortalResultado(null);
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
             const response = await fetch('/logs/portal-testar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ nome: portalNome, cpf: portalCpf.replace(/\D/g, ''), email: portalEmail || null, telefone: portalTelefone || null }),
             });
@@ -107,14 +112,13 @@ export default function Logs({ logs, fileSize, filters }) {
         setWhatsappResultado(null);
 
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
             const response = await fetch('/logs/whatsapp-testar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({
                     numero: whatsappNumero,

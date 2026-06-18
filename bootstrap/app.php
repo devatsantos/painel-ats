@@ -25,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return '/login';
         });
+        $middleware->validateCsrfTokens(except: [
+            'logs/whatsapp-testar',
+            'logs/portal-testar',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
