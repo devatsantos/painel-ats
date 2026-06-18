@@ -48,7 +48,7 @@ class VagasController extends Controller
             'sla_dias'          => 'nullable|integer|min:1',
             'quantidade_vagas'  => 'nullable|integer|min:1',
             'user_id'           => 'nullable|exists:users,id',
-            'formulario_id'     => 'required|exists:formularios,id',
+            'formulario_id'     => 'nullable|exists:formularios,id',
         ];
     }
 

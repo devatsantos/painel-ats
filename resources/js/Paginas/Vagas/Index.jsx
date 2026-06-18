@@ -576,7 +576,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                     </div>
                                     
                                     <div>
-                                          <label className="block text-sm font-medium text-gray-700 mb-1">Formulário <span className="text-red-400">*</span></label>
+                                          <label className="block text-sm font-medium text-gray-700 mb-1">Formulário</label>
                                           <select
                                               value={data.formulario_id}
                                               onChange={e => {
@@ -596,9 +596,8 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                                   }
                                               }}
                                             className="ds-input"
-                                            required
                                         >
-                                            <option value="" disabled>Selecione um formulário</option>
+                                            <option value="">Nenhum (sem formulário)</option>
                                             {formularios && formularios.map((form) => (
                                                 <option key={form.id} value={form.id}>
                                                     {form.titulo_formulario || form.titulo || form.nome}
