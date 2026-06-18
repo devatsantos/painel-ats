@@ -780,10 +780,10 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                         <input
                                             type="text"
                                             value={data.vt === 'Não tem' ? '' : data.vt}
-                                            onChange={e => handleMoneyChange('vt', e)}
+                                            onChange={e => setData('vt', e.target.value)}
                                             disabled={data.vt === 'Não tem'}
                                             className={`w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 ${data.vt === 'Não tem' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
-                                            placeholder={data.vt === 'Não tem' ? 'Não possui VT' : "R$ 0,00"}
+                                            placeholder={data.vt === 'Não tem' ? 'Não possui VT' : "Ex: R$ 200,00 ou Passagem"}
                                         />
                                     </div>
                                 </div>
