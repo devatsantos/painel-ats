@@ -889,11 +889,17 @@ export default function Candidatura({ vagas, candidato_id }) {
                                             <label className={labelClasses}>Nível de Escolaridade</label>
                                             <select value={data.nivel_escolaridade} onChange={e => setData('nivel_escolaridade', e.target.value)} className={inputClasses}>
                                                 <option value="">Selecione</option>
-                                                <option value="fundamental">Fundamental</option>
-                                                <option value="medio">Ensino Médio</option>
-                                                <option value="tecnico">Técnico</option>
-                                                <option value="graduacao">Graduação</option>
-                                                <option value="posgraduacao">Pós-graduação</option>
+                                                <option value="fundamental_incompleto">Ensino Fundamental Incompleto</option>
+                                                <option value="fundamental_completo">Ensino Fundamental Completo</option>
+                                                <option value="medio_incompleto">Ensino Médio Incompleto</option>
+                                                <option value="medio_completo">Ensino Médio Completo</option>
+                                                <option value="tecnico">Ensino Técnico</option>
+                                                <option value="superior_incompleto">Ensino Superior Incompleto</option>
+                                                <option value="graduacao">Ensino Superior Completo (Graduação)</option>
+                                                <option value="posgraduacao">Pós-Graduação / Especialização</option>
+                                                <option value="mba">MBA</option>
+                                                <option value="mestrado">Mestrado</option>
+                                                <option value="doutorado">Doutorado</option>
                                             </select>
                                             {errors.nivel_escolaridade && <p className="text-red-500 text-xs mt-1">{errors.nivel_escolaridade}</p>}
                                         </div>

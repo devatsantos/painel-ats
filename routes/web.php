@@ -130,6 +130,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logs/whatsapp-testar', [App\Http\Controllers\LogsController::class, 'whatsappTestar'])->name('Logs.whatsapp.testar');
     Route::get('/logs/portal-status', [App\Http\Controllers\LogsController::class, 'portalStatus'])->name('Logs.portal.status');
     Route::post('/logs/portal-testar', [App\Http\Controllers\LogsController::class, 'portalTestar'])->name('Logs.portal.testar');
+    Route::get('/logs/email-status', [App\Http\Controllers\LogsController::class, 'emailStatus'])->name('Logs.email.status');
+    Route::post('/logs/email-testar', [App\Http\Controllers\LogsController::class, 'emailTestar'])->name('Logs.email.testar');
 
     // Mensagens WhatsApp — Templates personalizáveis
     Route::get('/configuracoes/mensagens-whatsapp', [App\Http\Controllers\MensagensWhatsAppController::class, 'index'])->name('MensagensWhatsApp');

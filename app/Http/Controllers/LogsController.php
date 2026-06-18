@@ -284,4 +284,61 @@ class LogsController extends Controller
 
         return response()->json($result, $result['success'] ?? false ? 200 : 500);
     }
+    /**
+     * Verifica a configuração SMTP atual (sem enviar e-mail).
+     */
+    public function emailStatus()
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        return response()->json([
+            'mailer'     => config('mail.default'),
+            'host'       => config('mail.mailers.smtp.host'),
+            'port'       => config('mail.mailers.smtp.port'),
+            'encryption' => config('mail.mailers.smtp.encryption'),
+            'username'   => config('mail.mailers.smtp.username'),
+            'from'       => config('mail.from.address'),
+            'configured' => (bool) config('mail.mailers.smtp.host'),
+        ]);
+    }
+
+    /**
+     * Envia um e-mail de teste para verificar o SMTP em produção.
+     */
+    public function emailTestar(Request $request)
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        $destino = $request->input('email');
+        $agora   = now()->format('d/m/Y H:i:s');
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                "Este é um e-mail de teste enviado pelo Painel RH AT&Santos em {$agora}.\n\nSe você recebeu este e-mail, a configuração SMTP está funcionando corretamente.",
+                function ($message) use ($destino, $agora) {
+                    $message->to($destino)
+                            ->subject("[TESTE SMTP] Painel RH - {$agora}");
+                }
+            );
+
+            \Illuminate\Support\Facades\Log::info("E-mail de teste enviado para {$destino} por " . auth()->user()->name);
+
+            return response()->json([
+                'success' => true,
+                'message' => "E-mail de teste enviado para {$destino}. Verifique a caixa de entrada (e spam).",
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Falha no e-mail de teste: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro SMTP: ' . $e->getMessage(),
+                'class'   => get_class($e),
+            ], 500);
+        }
+    }
 }

@@ -18,11 +18,17 @@ const STATUS_LABELS = {
 };
 
 const ESCOLARIDADE_LABELS = {
-    fundamental: 'Ensino Fundamental',
-    medio: 'Ensino Médio',
-    tecnico: 'Curso Técnico',
-    graduacao: 'Graduação',
-    posgraduacao: 'Pós-graduação',
+    fundamental_incompleto: 'Ensino Fundamental Incompleto',
+    fundamental_completo:   'Ensino Fundamental Completo',
+    medio_incompleto:       'Ensino Médio Incompleto',
+    medio_completo:         'Ensino Médio Completo',
+    tecnico:                'Ensino Técnico',
+    superior_incompleto:    'Ensino Superior Incompleto',
+    graduacao:              'Ensino Superior Completo (Graduação)',
+    posgraduacao:           'Pós-Graduação / Especialização',
+    mba:                    'MBA',
+    mestrado:               'Mestrado',
+    doutorado:              'Doutorado',
 };
 
 export default function CandidatosIndex({ talentos, vagas, totalCandidatos, totalBancoTalentos, totalComEntrevista, regioes = [], filtros = {} }) {

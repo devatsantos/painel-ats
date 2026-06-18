@@ -33,6 +33,13 @@ export default function Logs({ logs, fileSize, filters }) {
     const [portalEnviando, setPortalEnviando] = useState(false);
     const [portalResultado, setPortalResultado] = useState(null);
 
+    // Email state
+    const [emailStatus, setEmailStatus] = useState(null);
+    const [emailLoading, setEmailLoading] = useState(false);
+    const [emailDestino, setEmailDestino] = useState('');
+    const [emailEnviando, setEmailEnviando] = useState(false);
+    const [emailResultado, setEmailResultado] = useState(null);
+
     // Sync state with props when filters change
     useEffect(() => {
         setBusca(filters.search || '');
@@ -43,6 +50,7 @@ export default function Logs({ logs, fileSize, filters }) {
     useEffect(() => {
         if (activeTab === 'whatsapp') fetchWhatsappStatus();
         if (activeTab === 'portal') fetchPortalStatus();
+        if (activeTab === 'email') fetchEmailStatus();
     }, [activeTab]);
 
     const fetchWhatsappStatus = async () => {
@@ -79,6 +87,45 @@ export default function Logs({ logs, fileSize, filters }) {
             setPortalStatus({ connected: false, state: 'error', message: 'Não foi possível verificar o status.' });
         } finally {
             setPortalLoading(false);
+        }
+    };
+
+    const fetchEmailStatus = async () => {
+        setEmailLoading(true);
+        try {
+            const response = await fetch('/logs/email-status', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json();
+            setEmailStatus(data);
+        } catch (err) {
+            setEmailStatus({ configured: false, error: 'Não foi possível carregar as configurações.' });
+        } finally {
+            setEmailLoading(false);
+        }
+    };
+
+    const handleEnviarTesteEmail = async (e) => {
+        e.preventDefault();
+        setEmailEnviando(true);
+        setEmailResultado(null);
+        try {
+            const response = await fetch('/logs/email-testar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+                body: JSON.stringify({ email: emailDestino }),
+            });
+            const data = await response.json();
+            setEmailResultado(data);
+        } catch (err) {
+            setEmailResultado({ success: false, message: 'Erro de conexão ao enviar.' });
+        } finally {
+            setEmailEnviando(false);
         }
     };
 
@@ -275,6 +322,22 @@ export default function Logs({ logs, fileSize, filters }) {
                             Portal
                             {portalStatus && (
                                 <span className={`w-2 h-2 rounded-full ${portalStatus.connected ? 'bg-green-400' : 'bg-red-400'}`} />
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('email')}
+                            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                                activeTab === 'email'
+                                    ? 'bg-[#0C4773] text-white shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            E-mail
+                            {emailResultado && (
+                                <span className={`w-2 h-2 rounded-full ${emailResultado.success ? 'bg-green-400' : 'bg-red-400'}`} />
                             )}
                         </button>
                     </div>
@@ -780,6 +843,134 @@ export default function Logs({ logs, fileSize, filters }) {
                                                             {JSON.stringify(portalResultado, null, 2)}
                                                         </pre>
                                                     </details>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ==================== TAB: E-MAIL ==================== */}
+                    {activeTab === 'email' && (
+                        <div className="space-y-6">
+                            {/* Config Card */}
+                            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+                                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-100">
+                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-bold text-gray-800">Configuração SMTP</h3>
+                                            <p className="text-xs text-gray-500 mt-0.5">Parâmetros atuais do servidor de e-mail</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={fetchEmailStatus}
+                                        disabled={emailLoading}
+                                        className="inline-flex items-center gap-2 text-sm font-semibold text-[#0C4773] hover:text-[#007EAE] transition cursor-pointer disabled:opacity-50"
+                                    >
+                                        <svg className={`w-4 h-4 ${emailLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Atualizar
+                                    </button>
+                                </div>
+                                <div className="px-6 py-5">
+                                    {emailLoading && !emailStatus ? (
+                                        <div className="flex items-center gap-3 text-gray-500">
+                                            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                            </svg>
+                                            <span className="text-sm">Carregando configurações...</span>
+                                        </div>
+                                    ) : emailStatus ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {[
+                                                { label: 'Driver', value: emailStatus.mailer },
+                                                { label: 'Host SMTP', value: emailStatus.host },
+                                                { label: 'Porta', value: emailStatus.port },
+                                                { label: 'Criptografia', value: emailStatus.encryption },
+                                                { label: 'Usuário', value: emailStatus.username },
+                                                { label: 'Remetente', value: emailStatus.from },
+                                            ].map(({ label, value }) => (
+                                                <div key={label} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+                                                    <p className="text-sm font-mono text-gray-800 break-all">{value || '—'}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+
+                            {/* Test Send Card */}
+                            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+                                <div className="px-6 py-5 border-b border-gray-100">
+                                    <h3 className="text-sm font-bold text-gray-800">Enviar E-mail de Teste</h3>
+                                    <p className="text-xs text-gray-500 mt-0.5">Envia um e-mail real via SMTP para confirmar a entrega em produção.</p>
+                                </div>
+                                <form onSubmit={handleEnviarTesteEmail} className="px-6 py-5 space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Endereço de e-mail destinatário <span className="text-red-400">*</span>
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={emailDestino}
+                                            onChange={(e) => setEmailDestino(e.target.value)}
+                                            placeholder="voce@exemplo.com"
+                                            className="ds-input"
+                                            required
+                                        />
+                                        <p className="text-xs text-gray-400 mt-1">O e-mail chegará com o assunto <strong>[TESTE SMTP] Painel RH</strong>.</p>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={emailEnviando || !emailDestino}
+                                        className="ds-btn ds-btn-primary"
+                                    >
+                                        {emailEnviando ? (
+                                            <>
+                                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                                Enviando...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                </svg>
+                                                Enviar E-mail de Teste
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+                                {emailResultado && (
+                                    <div className={`mx-6 mb-5 p-4 rounded-xl border ${emailResultado.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                        <div className="flex items-start gap-2">
+                                            {emailResultado.success ? (
+                                                <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            )}
+                                            <div className="flex-1">
+                                                <p className={`text-sm font-semibold ${emailResultado.success ? 'text-green-800' : 'text-red-800'}`}>
+                                                    {emailResultado.message}
+                                                </p>
+                                                {emailResultado.class && (
+                                                    <p className="text-xs text-red-600 font-mono mt-1">{emailResultado.class}</p>
                                                 )}
                                             </div>
                                         </div>
