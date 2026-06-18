@@ -4,10 +4,15 @@ import Sidebar from '../Componentes/Index';
 
 export default function Logs({ logs, fileSize, filters }) {
     const { props } = usePage();
-    const getCsrfToken = () =>
-        document.querySelector('meta[name="csrf-token"]')?.content
-        ?? props._token
-        ?? '';
+    const getCsrfToken = () => {
+        // Prefere o cookie XSRF-TOKEN (atualizado pelo Laravel a cada response, igual ao Axios/Inertia)
+        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        if (match) return decodeURIComponent(match[1]);
+        // Fallback: meta tag do blade
+        return document.querySelector('meta[name="csrf-token"]')?.content
+            ?? props._token
+            ?? '';
+    };
 
     const [activeTab, setActiveTab] = useState('logs');
     const [busca, setBusca] = useState(filters.search || '');
@@ -57,6 +62,7 @@ export default function Logs({ logs, fileSize, filters }) {
         setWhatsappLoading(true);
         try {
             const response = await fetch('/logs/whatsapp-status', {
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
@@ -79,6 +85,7 @@ export default function Logs({ logs, fileSize, filters }) {
         setPortalLoading(true);
         try {
             const response = await fetch('/logs/portal-status', {
+                credentials: 'same-origin',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             });
             const data = await response.json();
@@ -94,6 +101,7 @@ export default function Logs({ logs, fileSize, filters }) {
         setEmailLoading(true);
         try {
             const response = await fetch('/logs/email-status', {
+                credentials: 'same-origin',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             });
             const data = await response.json();
@@ -112,10 +120,10 @@ export default function Logs({ logs, fileSize, filters }) {
         try {
             const response = await fetch('/logs/email-testar', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ email: emailDestino }),
@@ -136,10 +144,10 @@ export default function Logs({ logs, fileSize, filters }) {
         try {
             const response = await fetch('/logs/portal-testar', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ nome: portalNome, cpf: portalCpf.replace(/\D/g, ''), email: portalEmail || null, telefone: portalTelefone || null }),
