@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CandidaturaApiController;
 use App\Http\Controllers\Api\PortalApiController;
 use App\Http\Controllers\Api\OrcamentoApiController;
 use App\Http\Controllers\Api\OuvidoriaApiController;
+use App\Http\Controllers\Api\RequisicaoDadosApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,9 @@ Route::post('/orcamento', [OrcamentoApiController::class, 'store']);
 
 // Rota Pública - Ouvidoria
 Route::post('/ouvidoria', [OuvidoriaApiController::class, 'store']);
+
+// Rota Pública - Requisição de Titular de Dados (LGPD)
+Route::post('/requisicao-dados', [RequisicaoDadosApiController::class, 'store']);
 
 // Rota Pública - Banco de Talentos (Trabalhe Conosco)
 Route::post('/banco-de-talentos', [CandidaturaApiController::class, 'storeBancoTalentos']);
