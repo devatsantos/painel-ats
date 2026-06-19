@@ -256,6 +256,54 @@ class PortalApiController extends Controller
     }
 
     /**
+     * Candidato desiste da entrevista agendada.
+     * Define o status como 'desistiu' e cancela a entrevista.
+     */
+    public function desistirEntrevista(Request $request)
+    {
+        $candidato = auth()->user();
+        if (!$candidato || !($candidato instanceof Candidatos)) {
+            return response()->json(['error' => 'Não autorizado.'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'vaga_id' => 'required|integer|exists:vagas,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Dados inválidos.'], 422);
+        }
+
+        $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
+            ->where('vaga_id', $request->vaga_id)
+            ->first();
+
+        if (!$candidatoVaga) {
+            return response()->json(['error' => 'Candidatura não encontrada.'], 404);
+        }
+
+        // Impede desistência se já tem um status final
+        $statusFinais = ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'];
+        if (in_array($candidatoVaga->status, $statusFinais)) {
+            return response()->json(['error' => 'Candidatura já encerrada. Não é possível desistir.'], 422);
+        }
+
+        DB::transaction(function () use ($candidatoVaga) {
+            // Cancela a entrevista agendada (se existir)
+            Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->delete();
+
+            // Define o status como desistiu
+            $candidatoVaga->update(['status' => 'desistiu']);
+        });
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Desistência registrada com sucesso.',
+            'status'   => 'desistiu',
+        ]);
+    }
+
+    /**
      * Revoga o token atual (Logout).
      */
     public function logout(Request $request)

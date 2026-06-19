@@ -57,5 +57,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/portal/perfil', [PortalApiController::class, 'atualizarPerfil']);
     Route::post('/portal/curriculo', [PortalApiController::class, 'uploadCurriculo']);
     Route::post('/portal/banco-de-talentos', [PortalApiController::class, 'toggleBancoTalentos']);
+    Route::post('/portal/desistir-entrevista', [PortalApiController::class, 'desistirEntrevista']);
     Route::post('/portal/logout', [PortalApiController::class, 'logout']);
 });
