@@ -288,7 +288,6 @@ class PortalCandidatoController extends Controller
                     'entrevista'      => $entrevista ? [
                         'data_hora'  => Carbon::parse($entrevista->data_hora)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i'),
                         'tipo'       => $entrevista->tipo,
-                        'link_meet'  => $entrevista->link_meet,
                     ] : null,
                 ];
             });
@@ -308,7 +307,6 @@ class PortalCandidatoController extends Controller
                 'vaga'      => $proximaEntrevista->candidatoVaga->vaga->titulo ?? '—',
                 'data_hora' => Carbon::parse($proximaEntrevista->data_hora)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i'),
                 'tipo'      => $proximaEntrevista->tipo,
-                'link_meet' => $proximaEntrevista->link_meet,
             ];
         }
 
@@ -353,7 +351,6 @@ class PortalCandidatoController extends Controller
                 'data_hora'     => Carbon::parse($e->data_hora)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i'),
                 'data_relativa' => Carbon::parse($e->data_hora)->diffForHumans(),
                 'tipo'          => $e->tipo,
-                'link_meet'     => $e->link_meet,
                 'entrevistador' => $e->user->nome ?? null,
                 'observacao'    => $e->observacao,
             ];

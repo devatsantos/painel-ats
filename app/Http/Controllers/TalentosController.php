@@ -12,7 +12,6 @@ use App\Models\Vagas;
 use App\Models\CandidatoVaga;
 use App\Models\Entrevista;
 use App\Services\AgendaService;
-use App\Services\VideoConferenciaService;
 
 class TalentosController extends Controller
 {
@@ -277,16 +276,6 @@ class TalentosController extends Controller
         }
 
         $linkMeet = null;
-        if ($validated['tipo'] === 'Online') {
-            try {
-                $vaga     = Vagas::find($validated['vaga_id']);
-                $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
-                $meet     = new VideoConferenciaService();
-                $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(config('candidatura.entrevista_duracao_minutos')));
-            } catch (\Throwable $e) {
-                Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
-            }
-        }
 
         $candidatoVaga->update(['status' => 'marcada']);
 
@@ -296,7 +285,6 @@ class TalentosController extends Controller
             'candidato_vaga_id' => $candidatoVaga->id,
             'data_hora'         => $dataHora,
             'tipo'              => $validated['tipo'],
-            'link_meet'         => $linkMeet,
             'user_id'           => $vaga->user_id,
         ]);
 

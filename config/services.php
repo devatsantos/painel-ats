@@ -51,17 +51,14 @@ return [
         'url' => env('BRASILAPI_URL', 'https://brasilapi.com.br/api'),
     ],
 
-    'jitsi' => [
-        'url' => env('JITSI_URL', 'https://meet.jit.si'),
-    ],
-
     'viacep' => [
         'url' => env('VIACEP_URL', 'https://viacep.com.br/ws'),
     ],
 
     'portal_atsantos' => [
-        'url'     => env('PORTAL_ATSANTOS_URL'),
-        'api_key' => env('PORTAL_ATSANTOS_API_KEY'),
+        'url'          => env('PORTAL_ATSANTOS_URL'),
+        'api_key'      => env('PORTAL_ATSANTOS_API_KEY'),
+        'sync_enabled' => env('PORTAL_SYNC_ENABLED', true),
     ],
 
 ];

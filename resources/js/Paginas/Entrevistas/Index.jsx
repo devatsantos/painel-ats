@@ -17,12 +17,12 @@ const STATUS_CONFIG = {
 };
 
 const OPCOES_RESULTADO = [
-    { value: 'contratado',     label: 'Contratado',      desc: 'Candidato aprovado e contratado' },
-    { value: 'reprovado',      label: 'Reprovado',       desc: 'Candidato não aprovado na entrevista' },
-    { value: 'desclassificado', label: 'Desclassificado',  desc: 'Candidato desclassificado antes da entrevista' },
-    { value: 'recusou_vaga',   label: 'Recusou a Vaga',  desc: 'Candidato optou por não aceitar a vaga' },
-    { value: 'sem_vaga',       label: 'Sem Vaga',        desc: 'Não há vaga disponível no momento' },
-    { value: 'nao_compareceu', label: 'Não Compareceu',  desc: 'Candidato não apareceu na entrevista' },
+    { value: 'contratado',      label: 'Contratado',      desc: 'Candidato aprovado e contratado' },
+    { value: 'reprovado',       label: 'Reprovado',       desc: 'Candidato não aprovado na entrevista' },
+    { value: 'desclassificado', label: 'Desclassificado', desc: 'Candidato desclassificado antes da entrevista' },
+    { value: 'recusou_vaga',    label: 'Recusou a Vaga',  desc: 'Candidato optou por não aceitar a vaga' },
+    { value: 'sem_vaga',        label: 'Sem Vaga',        desc: 'Não há vaga disponível no momento' },
+    { value: 'nao_compareceu',  label: 'Não Compareceu',  desc: 'Candidato não apareceu na entrevista' },
 ];
 
 function getIniciais(nome) {
@@ -341,19 +341,9 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                         <div className="flex flex-col gap-1.5">
                                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tipo</p>
                                             <div className="flex items-center gap-2">
-                                                {candidato.tipo_entrevista === 'Online' && candidato.link_meet ? (
-                                                    <a href={candidato.link_meet} target="_blank" rel="noopener noreferrer"
-                                                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-xs transition-all duration-200">
-                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                        </svg>
-                                                        Entrar no Meet
-                                                    </a>
-                                                ) : (
-                                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${candidato.tipo_entrevista === 'Online' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                        {candidato.tipo_entrevista || 'Presencial'}
-                                                    </span>
-                                                )}
+                                                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${candidato.tipo_entrevista === 'Online' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                    {candidato.tipo_entrevista || 'Presencial'}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -536,24 +526,9 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                             </svg>
                                         </div>
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <div>
-                                                <p className="text-xs text-gray-400">Tipo</p>
-                                                <p className="text-sm font-semibold text-gray-800">{modalCandidato.tipo_entrevista || 'Presencial'}</p>
-                                            </div>
-                                            {modalCandidato.tipo_entrevista === 'Online' && modalCandidato.link_meet && (
-                                                <a
-                                                    href={modalCandidato.link_meet}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded-lg"
-                                                >
-                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                    </svg>
-                                                    Abrir Meet
-                                                </a>
-                                            )}
+                                        <div>
+                                            <p className="text-xs text-gray-400">Tipo</p>
+                                            <p className="text-sm font-semibold text-gray-800">{modalCandidato.tipo_entrevista || 'Presencial'}</p>
                                         </div>
                                     </div>
                                     {modalCandidato.entrevistador_nome && (

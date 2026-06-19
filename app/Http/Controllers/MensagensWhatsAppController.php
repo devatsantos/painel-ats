@@ -66,7 +66,6 @@ class MensagensWhatsAppController extends Controller
             'data'          => '20/06/2026',
             'horario'       => '14:00',
             'tipo'          => 'Presencial',
-            'link_meet'     => '',
             'justificativa' => "\n\nMotivo informado pelo recrutador: Conflito de agenda",
             'url_portal'    => config('app.url') . '/portal',
         ];
@@ -89,7 +88,7 @@ class MensagensWhatsAppController extends Controller
         return [
             'otp_candidatura' => "Olá, {nome}! 👋\n\nSeu código de verificação para continuar a candidatura à vaga *{vaga}* é:\n\n*{codigo}*\n\nEste código expira em *15 minutos*. Não compartilhe com ninguém.",
             'otp_portal' => "Olá, {nome}! 👋\n\nSeu código de acesso ao portal do candidato é:\n\n*{codigo}*\n\nEste código expira em *15 minutos*. Não compartilhe com ninguém.",
-            'entrevista_agendada' => "Olá {nome}! 🎉\n\nSua entrevista para a vaga *{vaga}* foi confirmada!\n\n📅 Data: {data}\n⏰ Horário: {horario}\n📍 Tipo: {tipo}\n{link_meet}\nQualquer dúvida, entre em contato conosco. Boa sorte!",
+            'entrevista_agendada' => "Olá {nome}! 🎉\n\nSua entrevista para a vaga *{vaga}* foi confirmada!\n\n📅 Data: {data}\n⏰ Horário: {horario}\n📍 Tipo: {tipo}\n\nQualquer dúvida, entre em contato conosco. Boa sorte!",
             'entrevista_adiada' => "Olá, {nome}! 🗓️\n\nSeu agendamento de entrevista para a vaga *{vaga}* precisou ser adiado/reagendado.{justificativa}\n\nPor favor, acesse o portal do candidato para selecionar uma nova data e horário:\n🔗 {url_portal}",
             'otp_email' => "Olá, {nome}! 👋\n\nSeu código de acesso ao processo seletivo é:\n\n{codigo}\n\nEste código expira em 15 minutos. Não compartilhe com ninguém.",
         ];

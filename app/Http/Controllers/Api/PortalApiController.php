@@ -8,6 +8,7 @@ use App\Models\CandidatoVaga;
 use App\Models\Entrevista;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -61,7 +62,6 @@ class PortalApiController extends Controller
                     'entrevista' => $entrevista ? [
                         'data_hora' => Carbon::parse($entrevista->data_hora)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i'),
                         'tipo' => $entrevista->tipo,
-                        'link_meet' => $entrevista->link_meet,
                     ] : null,
                 ];
             });
@@ -81,7 +81,6 @@ class PortalApiController extends Controller
                 'vaga' => $proximaEntrevista->candidatoVaga->vaga->titulo ?? '—',
                 'data_hora' => Carbon::parse($proximaEntrevista->data_hora)->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i'),
                 'tipo' => $proximaEntrevista->tipo,
-                'link_meet' => $proximaEntrevista->link_meet,
             ];
         }
 
@@ -121,6 +120,9 @@ class PortalApiController extends Controller
                 'como_conheceu' => $candidato->como_conheceu,
                 'especialidade' => $candidato->especialidade,
                 'banco_de_talentos' => (bool) $candidato->banco_de_talentos,
+                'curriculo_url' => $candidato->path_curriculo
+                    ? asset('storage/' . $candidato->path_curriculo)
+                    : null,
             ],
         ]);
     }
@@ -170,6 +172,63 @@ class PortalApiController extends Controller
             'success' => true,
             'message' => 'Perfil atualizado com sucesso!',
             'candidato' => $candidato->only(self::CAMPOS_EDITAVEIS),
+        ]);
+    }
+
+    /**
+     * Upload de currículo via POST dedicado (evita limitação PHP com PUT multipart).
+     *
+     * Proteção contra race condition:
+     * 1. Upload do arquivo novo ANTES do lock (falha aqui não afeta o estado do DB).
+     * 2. lockForUpdate() serializa requests concorrentes da mesma linha.
+     * 3. Deleção do arquivo antigo só após commit — preserva currículo se o update falhar.
+     */
+    public function uploadCurriculo(Request $request)
+    {
+        $candidato = auth()->user();
+        if (!$candidato || !($candidato instanceof Candidatos)) {
+            return response()->json(['error' => 'Não autorizado.'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'curriculo' => 'required|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Arquivo inválido. Use PDF, DOC ou DOCX com até 10MB.'], 422);
+        }
+
+        // 1. Faz upload do novo arquivo antes de qualquer lock.
+        //    Se falhar aqui, o DB não é alterado e nenhum arquivo é perdido.
+        $newPath = $request->file('curriculo')->store('curriculos', 'public');
+
+        $oldPath = null;
+
+        try {
+            DB::transaction(function () use ($candidato, $newPath, &$oldPath) {
+                // 2. Bloqueia a linha para serializar requisições concorrentes.
+                $fresh = Candidatos::lockForUpdate()->findOrFail($candidato->id);
+                $oldPath = $fresh->path_curriculo;
+
+                // 3. Atualiza o DB atomicamente.
+                $fresh->update(['path_curriculo' => $newPath]);
+            });
+        } catch (\Throwable $e) {
+            // DB falhou — remove o novo arquivo para não deixar órfão no disco.
+            Storage::disk('public')->delete($newPath);
+            Log::error('[uploadCurriculo] Falha ao atualizar DB.', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Erro ao salvar currículo. Tente novamente.'], 500);
+        }
+
+        // 4. Deleta o arquivo antigo só após commit bem-sucedido.
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Currículo atualizado com sucesso!',
+            'curriculo_url' => asset('storage/' . $newPath),
         ]);
     }
 

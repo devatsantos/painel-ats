@@ -163,14 +163,14 @@ Sequência obrigatória — candidato não pode pular etapas:
 DB_CONNECTION / DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 EVOLUTION_API_URL / EVOLUTION_API_KEY / EVOLUTION_INSTANCE
 FERIADOS_API_KEY / FERIADOS_API_UF / FERIADOS_API_URL
-JITSI_URL / VIACEP_URL / BRASILAPI_URL
+VIACEP_URL / BRASILAPI_URL
 PORTAL_ATSANTOS_URL / PORTAL_ATSANTOS_API_KEY
 MAIL_MAILER / MAIL_HOST / MAIL_PORT / MAIL_USERNAME / MAIL_PASSWORD / MAIL_ENCRYPTION / MAIL_FROM_ADDRESS / MAIL_FROM_NAME
 FILESYSTEM_DISK=public
 APP_ENV=production (prod) | APP_DEBUG=false (prod)
 ```
 - URLs de APIs externas centralizadas em `config/services.php` (nunca hardcoded nos controllers/services)
-- Services mapeados: `evolution`, `feriados_api`, `brasilapi`, `jitsi`, `viacep`, `portal_atsantos`
+- Services mapeados: `evolution`, `feriados_api`, `brasilapi`, `viacep`, `portal_atsantos`
 
 ## 14. Segurança (OWASP Top 10)
 - **A01 Broken Access Control:** verificar propriedade do recurso além do `findOrFail`; guards não se cruzam; `Auth::guard('candidato')->login()` só após OTP validado ou branch `ja_aprovado`
@@ -182,7 +182,7 @@ APP_ENV=production (prod) | APP_DEBUG=false (prod)
 - **A07 Auth Failures:** rate limiting 5/60s no login + rate limiting no envio/verificação de OTP (seção 7); `session()->regenerate()` no login; `session()->invalidate()` no logout
 - **A08 Integrity:** proibido `eval()`, `exec()`, `shell_exec()`; uploads validados por extensão **e** MIME type
 - **A09 Logging:** erros externos via `Log::error()`; sem stack trace para o usuário final em produção
-- **A10 SSRF:** URLs de APIs externas (Evolution, Jitsi, ViaCEP, BrasilAPI, FeriadosAPI) só via `config/services.php` + `.env`; nunca fetch para URL fornecida pelo usuário
+- **A10 SSRF:** URLs de APIs externas (Evolution, ViaCEP, BrasilAPI, FeriadosAPI) só via `config/services.php` + `.env`; nunca fetch para URL fornecida pelo usuário
 
 ### LGPD
 - Ao deletar candidato: remover respostas, vínculos, arquivos no storage
@@ -216,5 +216,4 @@ APP_ENV=production (prod) | APP_DEBUG=false (prod)
 |---|---|
 | `WhatsAppService` | Envio de mensagens via Evolution API |
 | `AgendaService` | Cálculo de slots e importação de feriados (FeriadosAPI) |
-| `VideoConferenciaService` | Geração de URLs de sala Jitsi Meet |
 | `PortalAtSantosService` | Integração com Portal AT Santos externo |

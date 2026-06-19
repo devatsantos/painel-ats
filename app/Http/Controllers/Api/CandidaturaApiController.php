@@ -12,7 +12,6 @@ use App\Models\Reprovado;
 use App\Models\Alternativa;
 use App\Models\Entrevista;
 use App\Services\AgendaService;
-use App\Services\VideoConferenciaService;
 use App\Services\WhatsAppService;
 use App\Jobs\EnviarWhatsAppJob;
 use App\Models\MensagemWhatsApp;
@@ -629,15 +628,6 @@ class CandidaturaApiController extends Controller
             }
 
             $linkMeet = null;
-            if ($request->tipo === 'Online') {
-                try {
-                    $titulo = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
-                    $meet = new VideoConferenciaService();
-                    $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(config('candidatura.entrevista_duracao_minutos', 30)));
-                } catch (\Throwable $e) {
-                    Log::warning('VideoConferenciaService falhou via API.', ['erro' => $e->getMessage()]);
-                }
-            }
 
             $candidatoVaga->update(['status' => 'marcada']);
 
@@ -645,7 +635,6 @@ class CandidaturaApiController extends Controller
                 'candidato_vaga_id' => $candidatoVaga->id,
                 'data_hora' => $dataHora,
                 'tipo' => $request->tipo,
-                'link_meet' => $linkMeet,
                 'user_id' => $vaga->user_id,
             ]);
 
@@ -659,7 +648,6 @@ class CandidaturaApiController extends Controller
                 'data' => $dataFormatada,
                 'horario' => $horaFormatada,
                 'tipo' => $request->tipo,
-                'link_meet' => $linkMeet ? "💻 Link Meet: {$linkMeet}\n" : '',
             ]);
 
             if ($candidato->telefone) {

@@ -433,9 +433,9 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                     </button>
                                 )}
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-3">
                                 {/* Busca */}
-                                <div className="relative lg:col-span-2">
+                                <div className="relative xl:col-span-2">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                                     </div>
@@ -480,8 +480,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                         <option key={v.id} value={v.id}>{v.titulo}</option>
                                     ))}
                                 </select>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+                                {/* Status */}
                                 <select
                                     value={filtroStatus}
                                     onChange={(e) => handleStatusChange(e.target.value)}

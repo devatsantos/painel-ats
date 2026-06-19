@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use App\Jobs\EnviarWhatsAppJob;
 use App\Services\AgendaService;
-use App\Services\VideoConferenciaService;
 use App\Services\WhatsAppService;
 use App\Models\MensagemWhatsApp;
 use Carbon\Carbon;
@@ -614,18 +613,7 @@ class CandidatosController extends Controller
                 ], 422);
             }
 
-            // Gerar link do Meet (apenas para entrevistas Online)
             $linkMeet = null;
-            if ($request->tipo === 'Online') {
-                try {
-                    $titulo   = "Entrevista — {$candidato->nome} | {$vaga->titulo}";
-                    $meet     = new VideoConferenciaService();
-                    $linkMeet = $meet->criarEvento($titulo, $dataHora, $dataHora->copy()->addMinutes(config('candidatura.entrevista_duracao_minutos')));
-                } catch (\Throwable $e) {
-                    // Falha no Meet não impede o agendamento
-                    Log::warning('VideoConferenciaService falhou.', ['erro' => $e->getMessage()]);
-                }
-            }
 
             $candidatoVaga->update(['status' => 'marcada']);
 
@@ -633,7 +621,6 @@ class CandidatosController extends Controller
                 'candidato_vaga_id' => $candidatoVaga->id,
                 'data_hora'         => $dataHora,
                 'tipo'              => $request->tipo,
-                'link_meet'         => $linkMeet,
                 'user_id'           => $vaga->user_id,
             ]);
 
@@ -649,7 +636,6 @@ class CandidatosController extends Controller
                 'data'      => $dataFormatada,
                 'horario'   => $horaFormatada,
                 'tipo'      => $request->tipo,
-                'link_meet' => $linkMeet ? "💻 Link Meet: {$linkMeet}\n" : '',
             ]);
 
             if ($candidato->telefone) {

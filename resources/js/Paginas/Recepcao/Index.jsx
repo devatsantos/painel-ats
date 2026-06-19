@@ -257,10 +257,10 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                         {/* Coluna da Esquerda (Visitantes) */}
                         <div className="lg:col-span-2 space-y-6">
                             {/* Barra de Ações */}
-                            <div className="ds-card-static p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                            <div className="ds-card-static p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
                                     {/* Busca */}
-                                    <div className="relative flex-1 min-w-[200px]">
+                                    <div className="relative flex-1 min-w-0">
                                         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
@@ -527,9 +527,6 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                         <div className="min-w-0">
                                                             <div className="flex items-center gap-1.5 flex-wrap">
                                                                 <span className="font-bold text-gray-900 text-xs truncate max-w-[110px]" title={ent.candidato_nome}>{ent.candidato_nome}</span>
-                                                                <span className={`inline-flex items-center text-[8px] px-1.5 py-0.5 rounded-full font-bold border shrink-0 ${st.cls}`}>
-                                                                    {st.label}
-                                                                </span>
                                                             </div>
                                                             <p className="text-[10px] text-gray-500 mt-0.5 truncate max-w-[130px]" title={ent.vaga_titulo}>
                                                                 {ent.vaga_titulo}

@@ -399,22 +399,6 @@ export default function PortalCandidatura({ vaga, status, entrevista, dataCandid
                                         <p className="text-sm font-semibold text-gray-800">{entrevista.entrevistador}</p>
                                     </div>
                                 )}
-                                {entrevista.link_meet && (
-                                    <div>
-                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Link da Reunião</p>
-                                        <a
-                                            href={entrevista.link_meet}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 text-sm font-semibold text-[#0C4773] hover:underline"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                            Abrir link da reunião
-                                        </a>
-                                    </div>
-                                )}
                             </div>
                             {entrevista.observacao && (
                                 <div className="mt-4 pt-4 border-t border-gray-100">

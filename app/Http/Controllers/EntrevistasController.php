@@ -93,7 +93,6 @@ class EntrevistasController extends Controller
                     'observacao'         => $entrevista->observacao,
                     'data_hora'          => $entrevista->data_hora,
                     'tipo_entrevista'    => $entrevista->tipo,
-                    'link_meet'          => $entrevista->link_meet,
                     'entrevistador_nome' => $entrevista->user?->nome,
                     'vaga_titulo'        => $entrevista->candidatoVaga->vaga->titulo ?? 'Vaga',
                 ];
@@ -195,10 +194,16 @@ class EntrevistasController extends Controller
 
     /**
      * Sincroniza o candidato contratado com o Portal AT&Santos.
-     * Fire-and-forget: não impede a contratação se o portal estiver offline.
+     * Fire-and-forget: NUNCA impede a contratação, independente do que ocorra.
      */
     private function syncComPortal(Entrevista $entrevista): void
     {
+        // Desabilita sincronização se PORTAL_SYNC_ENABLED=false no .env
+        if (!config('services.portal_atsantos.sync_enabled', true)) {
+            Log::info('[Portal Sync] Sincronização desabilitada via PORTAL_SYNC_ENABLED.');
+            return;
+        }
+
         try {
             $candidato = $entrevista->candidatoVaga->candidato;
 
@@ -212,7 +217,7 @@ class EntrevistasController extends Controller
             $portal = new PortalAtSantosService();
 
             if (!$portal->isConfigured()) {
-                return; // Integração não configurada — ignora silenciosamente
+                return;
             }
 
             $result = $portal->syncColaborador([
@@ -222,14 +227,14 @@ class EntrevistasController extends Controller
                 'email' => $candidato->email,
             ]);
 
-            if (!$result['success']) {
+            if (!($result['success'] ?? false)) {
                 Log::warning('[Portal Sync] Falha ao sincronizar colaborador.', [
                     'cpf'     => substr($candidato->cpf, 0, 3) . '***',
                     'message' => $result['message'] ?? 'Erro desconhecido',
                 ]);
             }
-        } catch (\Exception $e) {
-            // Nunca impedir a contratação por falha na integração
+        } catch (\Throwable $e) {
+            // NUNCA impedir a contratação por qualquer falha na integração
             Log::error('[Portal Sync] Exceção ao sincronizar com portal.', [
                 'error' => $e->getMessage(),
             ]);

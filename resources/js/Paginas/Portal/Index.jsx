@@ -152,11 +152,6 @@ export default function PortalDashboard({ candidato, candidaturas, proximaEntrev
                                     <p className="text-sm text-gray-600 mt-0.5">
                                         📅 {proximaEntrevista.data_hora} · 📍 {proximaEntrevista.tipo}
                                     </p>
-                                    {proximaEntrevista.link_meet && (
-                                        <a href={proximaEntrevista.link_meet} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0C4773] font-semibold hover:underline mt-1 inline-block">
-                                            💻 Abrir link da reunião →
-                                        </a>
-                                    )}
                                 </div>
                             </div>
                         ) : (
