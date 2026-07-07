@@ -32,9 +32,9 @@ class OrcamentoApiController extends Controller
 
         $anexoPath = null;
         if ($request->hasFile('anexo_referencia')) {
-            $path = $request->file('anexo_referencia')->store('orcamentos', 'public');
-            $validated['anexo_referencia'] = '/storage/' . $path;
-            $anexoPath = Storage::disk('public')->path($path);
+            $path = $request->file('anexo_referencia')->store('orcamentos', 'private');
+            $validated['anexo_referencia'] = 'orcamentos/' . basename($path);
+            $anexoPath = Storage::disk('private')->path($path);
         }
 
         // Prepara o corpo do email

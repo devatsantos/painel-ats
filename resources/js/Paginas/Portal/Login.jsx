@@ -19,11 +19,7 @@ export default function PortalLogin() {
     const [modalConfirmacao, setModalConfirmacao] = useState(false);
     const [ultimosDigitos, setUltimosDigitos] = useState('');
 
-    // Verificação alternativa
-    const [subetapaAlt, setSubetapaAlt] = useState('opcoes');
-    const [nascimentoInput, setNascimentoInput] = useState('');
-    const [erroNascimento, setErroNascimento] = useState('');
-    const [verificandoNascimento, setVerificandoNascimento] = useState(false);
+
     const [meioEnvio, setMeioEnvio] = useState('whatsapp'); // 'whatsapp' | 'email'
     const [emailMascarado, setEmailMascarado] = useState('');
     const [enviandoEmail, setEnviandoEmail] = useState(false);
@@ -112,7 +108,6 @@ export default function PortalLogin() {
     }
 
     async function confirmarEnvioEmail() {
-        setSubetapaAlt('opcoes');
         setEnviandoEmail(true);
         setErroCodigo('');
         setErroGeral('');
@@ -176,36 +171,16 @@ export default function PortalLogin() {
 
     function semAcessoAoNumero() {
         setModalConfirmacao(false);
-        setSubetapaAlt('opcoes');
-        setNascimentoInput('');
-        setErroNascimento('');
-        setEtapa('verificacao_alternativa');
+        confirmarEnvioEmail();
     }
 
-    async function verificarNascimento() {
-        if (!nascimentoInput) return;
-        setVerificandoNascimento(true);
-        setErroNascimento('');
-        try {
-            await axios.post('/portal/verificar-nascimento', {
-                cpf: cpfInput,
-                data_nascimento: nascimentoInput,
-            });
-            // verificar-nascimento faz login no guard candidato
-            try { const t = await axios.post('/portal/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
-            router.visit('/portal/dashboard');
-        } catch (err) {
-            setErroNascimento(err.response?.data?.error || 'Dados incorretos. Tente novamente.');
-        } finally {
-            setVerificandoNascimento(false);
-        }
-    }
+
 
     const inputClasses = "mt-1 block w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-gray-900 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none text-sm";
     const labelClasses = "block text-sm font-semibold text-gray-700 mb-1";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#071F30] via-[#0C4773] to-[#0A3A5E] flex items-center justify-center px-4 font-sans">
+        <div className="min-h-screen bg-[#0C4773] flex items-center justify-center px-4 font-sans">
             <Head title="Portal do Candidato — Login" />
 
             <div className="w-full max-w-md">
@@ -351,107 +326,7 @@ export default function PortalLogin() {
                                     Voltar e corrigir o CPF
                                 </button>
                             </p>
-                        </div>
-                    )}
-
-                    {/* Verificação Alternativa */}
-                    {etapa === 'verificacao_alternativa' && (
-                        <div className="p-8">
-                            {subetapaAlt === 'opcoes' && (
-                                <div className="text-center">
-                                    <div className="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                    </div>
-                                    <h2 className="text-lg font-bold text-gray-900 mb-1">Verificação alternativa</h2>
-                                    <p className="text-sm text-gray-500 mb-6">Escolha uma forma de confirmar sua identidade.</p>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setSubetapaAlt('nascimento')}
-                                        className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#0C4773] hover:bg-blue-50/40 transition-all cursor-pointer text-left"
-                                    >
-                                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                                            <svg className="w-5 h-5 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-gray-800">Data de nascimento</p>
-                                            <p className="text-xs text-gray-500">Confirme a data cadastrada anteriormente</p>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={confirmarEnvioEmail}
-                                        disabled={enviandoEmail}
-                                        className="mt-3 w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#0C4773] hover:bg-blue-50/40 transition-all cursor-pointer text-left disabled:opacity-50"
-                                    >
-                                        <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                                            <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-gray-800">
-                                                {enviandoEmail ? 'Enviando...' : 'Código por e-mail'}
-                                            </p>
-                                            <p className="text-xs text-gray-500">Receba um código de acesso no e-mail cadastrado</p>
-                                        </div>
-                                    </button>
-
-                                    <p className="mt-5">
-                                        <button type="button" onClick={() => setEtapa('cpf')} className="text-xs text-gray-400 hover:text-gray-600 underline cursor-pointer">
-                                            Voltar
-                                        </button>
-                                    </p>
-                                </div>
-                            )}
-
-                            {subetapaAlt === 'nascimento' && (
-                                <>
-                                    <div className="text-center mb-6">
-                                        <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <svg className="w-7 h-7 text-[#0C4773]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <h2 className="text-lg font-bold text-gray-900 mb-1">Confirme sua data de nascimento</h2>
-                                        <p className="text-sm text-gray-500">Informe a data cadastrada anteriormente.</p>
-                                    </div>
-                                    <div>
-                                        <label className={labelClasses}>Data de Nascimento</label>
-                                        <input
-                                            type="date"
-                                            value={nascimentoInput}
-                                            onChange={e => { setNascimentoInput(e.target.value); setErroNascimento(''); }}
-                                            className={inputClasses}
-                                            max={new Date().toISOString().split('T')[0]}
-                                        />
-                                        {erroNascimento && <p className="text-red-500 text-sm text-center mt-2 font-medium">{erroNascimento}</p>}
-                                    </div>
-                                    <div className="flex gap-3 mt-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => setSubetapaAlt('opcoes')}
-                                            className="flex-1 text-sm font-medium text-gray-500 hover:text-gray-700 py-2.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                                        >
-                                            Voltar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={verificarNascimento}
-                                            disabled={!nascimentoInput || verificandoNascimento}
-                                            className="flex-1 py-2.5 text-sm font-bold rounded-xl text-white bg-[#0C4773] hover:bg-[#007EAE] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
-                                        >
-                                            {verificandoNascimento ? 'Verificando...' : 'Confirmar'}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                                  </div>
                     )}
                 </div>
 

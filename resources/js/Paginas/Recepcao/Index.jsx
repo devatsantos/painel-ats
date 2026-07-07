@@ -51,23 +51,9 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
         return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
     };
 
-    const [horaAtual, setHoraAtual] = useState('');
     const [sugestoes, setSugestoes] = useState([]);
     const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
     const [debounceTimeout, setDebounceTimeout] = useState(null);
-
-    useEffect(() => {
-        const updateClock = () => {
-            const nowServer = new Date(Date.now() + serverOffset);
-            const horas = String(nowServer.getHours()).padStart(2, '0');
-            const minutos = String(nowServer.getMinutes()).padStart(2, '0');
-            const segundos = String(nowServer.getSeconds()).padStart(2, '0');
-            setHoraAtual(`${horas}:${minutos}:${segundos}`);
-        };
-        updateClock();
-        const interval = setInterval(updateClock, 1000);
-        return () => clearInterval(interval);
-    }, [serverOffset]);
 
     const handleNomeChange = (val) => {
         setData('nome', val);
@@ -177,7 +163,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                 {/* ── Top Bar ── */}
                 <header className="bg-[#071F30] text-white shadow-lg relative">
                     <div className="absolute bottom-0 left-0 right-0 ds-accent-line" />
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <img 
                                 src={logoWhiteUrl} 
@@ -190,12 +176,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            {horaAtual && (
-                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 font-mono text-xs text-blue-100 tracking-wider">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                    {horaAtual}
-                                </div>
-                            )}
+
                             <div className="text-right hidden sm:block">
                                 <p className="text-xs font-semibold text-white/90">{nomeUsuario}</p>
                                 <p className="text-[10px] text-blue-200/50 uppercase tracking-wider">Recepção</p>
@@ -219,7 +200,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                 </header>
 
                 {/* ── Conteúdo Principal ── */}
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
                     <FlashMessage />
 
@@ -252,10 +233,10 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                     </div>
 
                     {/* ── Split Layout Dashboard ── */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
                         
                         {/* Coluna da Esquerda (Visitantes) */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-3 space-y-6">
                             {/* Barra de Ações */}
                             <div className="ds-card-static p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
@@ -364,7 +345,12 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                                 {reg.departamento_responsavel}
                                                             </span>
                                                             {reg.retorno && (
-                                                                <p className="text-[10px] text-gray-400 truncate mt-1 max-w-[140px]" title={reg.retorno}>↩ {reg.retorno}</p>
+                                                                <p className="text-[10px] text-gray-450 truncate mt-1 max-w-[140px] flex items-center gap-1" title={reg.retorno}>
+                                                                    <svg className="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                                                    </svg>
+                                                                    {reg.retorno}
+                                                                </p>
                                                             )}
                                                         </td>
                                                         {/* Horário */}

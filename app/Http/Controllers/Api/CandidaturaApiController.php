@@ -38,7 +38,7 @@ class CandidaturaApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'cpf' => 'required|string|max:20',
-            'vaga_id' => 'required|exists:vagas,id'
+            'vaga_id' => 'nullable|exists:vagas,id'
         ]);
 
         if ($validator->fails()) {
@@ -49,59 +49,83 @@ class CandidaturaApiController extends Controller
         $candidato = Candidatos::where('cpf', $cpf)->first();
         
         if ($candidato) {
-            $vaga = Vagas::find($request->vaga_id);
+            $candidatoVaga = null;
 
-            // Bloqueia se já tiver candidatura ativa em outra vaga
-            $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
-                ->where('vaga_id', '!=', $request->vaga_id)
-                ->with('vaga:id,titulo')
-                ->first();
+            if ($request->vaga_id) {
+                $vaga = Vagas::find($request->vaga_id);
 
-            if ($vagaAtiva) {
-                return response()->json([
-                    'status' => 'blocked',
-                    'mensagem' => 'Você já possui uma candidatura ativa para a vaga "' . $vagaAtiva->vaga->titulo . '". Conclua ou aguarde o processo atual antes de se candidatar a outra vaga.',
-                ]);
-            }
+                // Bloqueia se já tiver candidatura ativa em outra vaga (com exceção de candidaturas 'marcada' sem entrevista agendada)
+                $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
+                    ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])
+                    ->where('vaga_id', '!=', $request->vaga_id)
+                    ->where(function ($query) {
+                        $query->where('status', '!=', 'marcada')
+                              ->orWhere(function ($q) {
+                                  $q->where('status', 'marcada')
+                                    ->has('entrevista');
+                              });
+                    })
+                    ->with('vaga:id,titulo')
+                    ->first();
 
-            // Verifica se está na quarentena de reprovação
-            $reprovado = Reprovado::where('candidato_id', $candidato->id)
-                ->where('formulario_id', $vaga->formulario_id)
-                ->where('reprovado_ate', '>', now())
-                ->first();
-
-            if ($reprovado) {
-                return response()->json([
-                    'status' => 'blocked',
-                    'mensagem' => 'Você não pode se candidatar a esta vaga no momento. Tente novamente após ' . Carbon::parse($reprovado->reprovado_ate)->format('d/m/Y')
-                ]);
-            }
-
-            // Verifica status do candidato nesta vaga
-            $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->where('vaga_id', $request->vaga_id)
-                ->first();
-
-            if ($candidatoVaga) {
-                $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
-                if ($jaAgendado) {
+                if ($vagaAtiva) {
                     return response()->json([
-                        'status' => 'exists',
-                        'ja_agendado' => true,
-                        'mensagem' => 'Você já possui uma entrevista agendada para esta vaga.',
+                        'status' => 'blocked',
+                        'mensagem' => 'Você já possui uma candidatura ativa para a vaga "' . $vagaAtiva->vaga->titulo . '". Conclua ou aguarde o processo atual antes de se candidatar a outra vaga.',
                     ]);
                 }
 
-                // Aprovado no quiz mas ainda não agendou
-                if ($candidatoVaga->status === 'selecionado') {
-                    if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(config('candidatura.selecao_expira_dias')))) {
-                        // Reseta a candidatura expirada
-                        RespostaCandidato::where('candidato_id', $candidato->id)
-                            ->where('vaga_id', $request->vaga_id)
-                            ->delete();
-                        $candidatoVaga->delete();
-                        $candidatoVaga = null;
+                // Verifica se está na quarentena de reprovação
+                $reprovado = Reprovado::where('candidato_id', $candidato->id)
+                    ->where('formulario_id', $vaga->formulario_id)
+                    ->where('reprovado_ate', '>', now())
+                    ->first();
+
+                if ($reprovado) {
+                    return response()->json([
+                        'status' => 'blocked',
+                        'mensagem' => 'Você não pode se candidatar a esta vaga no momento. Tente novamente após ' . Carbon::parse($reprovado->reprovado_ate)->format('d/m/Y')
+                    ]);
+                }
+
+                // Verifica status do candidato nesta vaga
+                $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
+                    ->where('vaga_id', $request->vaga_id)
+                    ->first();
+
+                if ($candidatoVaga) {
+                    if (in_array($candidatoVaga->status, ['reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])) {
+                        $motivo = 'não obteve aprovação';
+                        if ($candidatoVaga->status === 'desistiu' || $candidatoVaga->status === 'recusou_vaga') {
+                            $motivo = 'desistiu do processo';
+                        } elseif ($candidatoVaga->status === 'nao_compareceu') {
+                            $motivo = 'não compareceu à entrevista';
+                        }
+                        return response()->json([
+                            'status' => 'blocked',
+                            'mensagem' => 'Você já participou do processo seletivo para esta vaga anteriormente e ' . $motivo . '. Não é possível se candidatar novamente para a mesma oportunidade.',
+                        ]);
+                    }
+
+                    $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
+                    if ($jaAgendado) {
+                        return response()->json([
+                            'status' => 'exists',
+                            'ja_agendado' => true,
+                            'mensagem' => 'Você já possui uma entrevista agendada para esta vaga.',
+                        ]);
+                    }
+
+                    // Aprovado no quiz mas ainda não agendou
+                    if ($candidatoVaga->status === 'selecionado') {
+                        if ($candidatoVaga->updated_at && $candidatoVaga->updated_at->isBefore(now()->subDays(config('candidatura.selecao_expira_dias')))) {
+                            // Reseta a candidatura expirada
+                            RespostaCandidato::where('candidato_id', $candidato->id)
+                                ->where('vaga_id', $request->vaga_id)
+                                ->delete();
+                            $candidatoVaga->delete();
+                            $candidatoVaga = null;
+                        }
                     }
                 }
             }
@@ -181,7 +205,7 @@ class CandidaturaApiController extends Controller
     {
         $request->validate([
             'cpf' => 'required|string',
-            'vaga_id' => 'required|exists:vagas,id',
+            'vaga_id' => 'nullable|exists:vagas,id',
         ]);
 
         $cpf = $this->formatarCpf($request->cpf);
@@ -198,18 +222,23 @@ class CandidaturaApiController extends Controller
             'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos', 15)),
         ]);
 
-        $vaga = Vagas::find($request->vaga_id);
-        $nomeVaga = $vaga?->titulo ?? 'vaga';
+        $vaga = $request->vaga_id ? Vagas::find($request->vaga_id) : null;
+        $nomeVaga = $vaga?->titulo;
 
         try {
             $whatsapp = new WhatsAppService();
-            $whatsapp->enviarMensagem(
-                $candidato->telefone,
-                MensagemWhatsApp::renderizar('otp_candidatura', [
+            
+            $mensagem = $nomeVaga 
+                ? MensagemWhatsApp::renderizar('otp_candidatura', [
                     'nome' => $candidato->nome,
                     'vaga' => $nomeVaga,
                     'codigo' => $codigo,
                 ])
+                : "Olá " . $candidato->nome . ", seu código de acesso ao Portal do Candidato é: " . $codigo . ". Validade de 15 minutos.";
+
+            $whatsapp->enviarMensagem(
+                $candidato->telefone,
+                $mensagem
             );
         } catch (\Exception $e) {
             Log::error('Erro ao enviar OTP por WhatsApp via API.', ['erro' => $e->getMessage()]);
@@ -334,62 +363,7 @@ class CandidaturaApiController extends Controller
         ]);
     }
 
-    /**
-     * Valida data de nascimento e retorna o token Sanctum (login alternativo).
-     */
-    public function verificarNascimento(Request $request)
-    {
-        $request->validate([
-            'cpf' => 'required|string',
-            'data_nascimento' => 'required|date_format:Y-m-d',
-            'vaga_id' => 'nullable|exists:vagas,id',
-        ]);
 
-        $cpf = $this->formatarCpf($request->cpf);
-        $candidato = Candidatos::where('cpf', $cpf)->first();
-
-        if (!$candidato) {
-            return response()->json(['error' => 'Candidato não encontrado.'], 404);
-        }
-
-        if (!$candidato->data_nascimento) {
-            return response()->json(['error' => 'Não há data de nascimento cadastrada para este CPF.'], 422);
-        }
-
-        $dataBD = Carbon::parse($candidato->data_nascimento)->format('Y-m-d');
-        $dataFornecida = Carbon::parse($request->data_nascimento)->format('Y-m-d');
-
-        if (!hash_equals($dataBD, $dataFornecida)) {
-            return response()->json(['error' => 'Data de nascimento incorreta.'], 422);
-        }
-
-        // Gera Token Sanctum
-        $token = $candidato->createToken('candidato-token')->plainTextToken;
-
-        $jaAprovado = false;
-        $jaAgendado = false;
-
-        if ($request->vaga_id) {
-            $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->where('vaga_id', $request->vaga_id)
-                ->first();
-
-            if ($candidatoVaga) {
-                $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
-                if (!$jaAgendado && $candidatoVaga->status === 'selecionado') {
-                    $jaAprovado = true;
-                }
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'candidato' => $candidato->only(self::CAMPOS_PUBLICOS),
-            'ja_aprovado' => $jaAprovado,
-            'ja_agendado' => $jaAgendado,
-        ]);
-    }
 
     /**
      * Cadastra/atualiza candidatura (cria candidato se for novo, exige Sanctum se já existir).
@@ -448,10 +422,35 @@ class CandidaturaApiController extends Controller
                 $candidato = Candidatos::create($validated);
             }
 
-            // Bloqueia se já houver processo ativo em outra vaga
+            // Bloqueia se já participou e falhou/desistiu nesta vaga específica
+            $candidatoVagaExistente = CandidatoVaga::where('candidato_id', $candidato->id)
+                ->where('vaga_id', $vagaId)
+                ->first();
+
+            if ($candidatoVagaExistente && in_array($candidatoVagaExistente->status, ['reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])) {
+                $motivo = 'não obteve aprovação';
+                if ($candidatoVagaExistente->status === 'desistiu' || $candidatoVagaExistente->status === 'recusou_vaga') {
+                    $motivo = 'desistiu do processo';
+                } elseif ($candidatoVagaExistente->status === 'nao_compareceu') {
+                    $motivo = 'não compareceu à entrevista';
+                }
+                return response()->json([
+                    'error' => 'processo_encerrado',
+                    'message' => 'Você já participou do processo seletivo para esta vaga anteriormente e ' . $motivo . '. Não é possível se candidatar novamente para a mesma oportunidade.',
+                ], 422);
+            }
+
+            // Bloqueia se já houver processo ativo em outra vaga (com exceção de candidaturas 'marcada' sem entrevista agendada)
             $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
+                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])
                 ->where('vaga_id', '!=', $vagaId)
+                ->where(function ($query) {
+                    $query->where('status', '!=', 'marcada')
+                          ->orWhere(function ($q) {
+                              $q->where('status', 'marcada')
+                                ->has('entrevista');
+                          });
+                })
                 ->with('vaga:id,titulo')
                 ->first();
 
@@ -460,6 +459,19 @@ class CandidaturaApiController extends Controller
                     'error' => 'Candidatura ativa',
                     'message' => 'Você já possui uma candidatura ativa para a vaga "' . $vagaAtiva->vaga->titulo . '".',
                 ], 422);
+            }
+
+            // Remove candidaturas pendentes ('marcada') anteriores para manter apenas a nova inscrição ativa
+            $candidaturasAntigas = CandidatoVaga::where('candidato_id', $candidato->id)
+                ->where('vaga_id', '!=', $vagaId)
+                ->where('status', 'marcada')
+                ->get();
+
+            foreach ($candidaturasAntigas as $ca) {
+                RespostaCandidato::where('candidato_id', $candidato->id)
+                    ->where('vaga_id', $ca->vaga_id)
+                    ->delete();
+                $ca->delete();
             }
 
             // Vincula candidato à vaga
@@ -643,12 +655,16 @@ class CandidaturaApiController extends Controller
             $horaFormatada = $dataHoraBR->format('H:i');
 
             $mensagem = MensagemWhatsApp::renderizar('entrevista_agendada', [
-                'nome' => $candidato->nome,
-                'vaga' => $vaga->titulo,
-                'data' => $dataFormatada,
-                'horario' => $horaFormatada,
-                'tipo' => $request->tipo,
+                'nome'     => $candidato->nome,
+                'vaga'     => $vaga->titulo,
+                'data'     => $dataFormatada,
+                'horario'  => $horaFormatada,
+                'tipo'     => $request->tipo,
+                'endereco' => $request->tipo === 'presencial'
+                    ? "\n📌 Endereço: " . config('app.empresa_endereco', 'Alameda Santos, 647 — 15° Andar, São Paulo, SP')
+                    : '',
             ]);
+
 
             if ($candidato->telefone) {
                 EnviarWhatsAppJob::dispatch($candidato->telefone, $mensagem);

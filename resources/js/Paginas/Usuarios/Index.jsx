@@ -15,7 +15,8 @@ export default function Usuarios({usuarios}) {
         role: '',
     });
 
-    const usuariosFiltrados = usuarios.filter((u) =>
+    const listaUsuarios = Array.isArray(usuarios) ? usuarios : (usuarios?.data ?? []);
+    const usuariosFiltrados = listaUsuarios.filter((u) =>
         u.nome.toLowerCase().includes(busca.toLowerCase()) ||
         (u.cpf && u.cpf.includes(busca))
     );

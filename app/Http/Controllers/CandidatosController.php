@@ -50,10 +50,17 @@ class CandidatosController extends Controller
         if ($candidato) {
             $vaga = Vagas::find($request->vaga_id);
 
-            // Bloqueia se já tiver candidatura ativa em outra vaga
+            // Bloqueia se já tiver candidatura ativa em outra vaga (com exceção de candidaturas 'marcada' sem entrevista agendada)
             $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
+                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])
                 ->where('vaga_id', '!=', $request->vaga_id)
+                ->where(function ($query) {
+                    $query->where('status', '!=', 'marcada')
+                          ->orWhere(function ($q) {
+                              $q->where('status', 'marcada')
+                                ->has('entrevista');
+                          });
+                })
                 ->with('vaga:id,titulo')
                 ->first();
 
@@ -324,66 +331,6 @@ class CandidatosController extends Controller
         return response()->json(['token' => $token]);
     }
 
-    public function verificarNascimento(Request $request)
-    {
-        $request->validate([
-            'cpf'             => 'required|string',
-            'data_nascimento' => 'required|date_format:Y-m-d',
-            'vaga_id'         => 'nullable|exists:vagas,id',
-        ]);
-
-        $candidato = Candidatos::where('cpf', $request->cpf)->first();
-
-        if (!$candidato) {
-            return response()->json(['error' => 'Candidato não encontrado.'], 404);
-        }
-
-        if (!$candidato->data_nascimento) {
-            return response()->json(['error' => 'Não há data de nascimento cadastrada para este CPF. Escolha outra forma de verificação.'], 422);
-        }
-
-        $dataBD        = Carbon::parse($candidato->data_nascimento)->format('Y-m-d');
-        $dataFornecida = Carbon::parse($request->data_nascimento)->format('Y-m-d');
-
-        if (!hash_equals($dataBD, $dataFornecida)) {
-            Log::warning('Candidatura: tentativa de verificação por nascimento falhou.', [
-                'cpf_hash' => md5($request->cpf),
-                'ip'       => $request->ip(),
-            ]);
-            return response()->json(['error' => 'Data de nascimento incorreta. Tente novamente.'], 422);
-        }
-
-        Log::info('Candidatura: login via verificação por nascimento.', [
-            'candidato_id' => $candidato->id,
-            'ip'           => $request->ip(),
-        ]);
-
-        Auth::guard('candidato')->login($candidato);
-        request()->session()->regenerate();
-
-        $jaAprovado = false;
-        $jaAgendado = false;
-
-        if ($request->vaga_id) {
-            $candidatoVaga = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->where('vaga_id', $request->vaga_id)
-                ->first();
-
-            if ($candidatoVaga) {
-                $jaAgendado = Entrevista::where('candidato_vaga_id', $candidatoVaga->id)->exists();
-                if (!$jaAgendado && $candidatoVaga->status === 'selecionado') {
-                    $jaAprovado = true;
-                }
-            }
-        }
-
-        return response()->json([
-            'success'     => true,
-            'candidato'   => $candidato->only(self::CAMPOS_PUBLICOS),
-            'ja_aprovado' => $jaAprovado,
-            'ja_agendado' => $jaAgendado,
-        ]);
-    }
 
     public function store(Request $request) {
         $validated = $request->validate([
@@ -426,10 +373,17 @@ class CandidatosController extends Controller
                 $validated
             );
 
-            // Bloqueia candidatura se já houver processo ativo em outra vaga
+            // Bloqueia candidatura se já houver processo ativo em outra vaga (com exceção de candidaturas 'marcada' sem entrevista agendada)
             $vagaAtiva = CandidatoVaga::where('candidato_id', $candidato->id)
-                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado'])
+                ->whereNotIn('status', ['contratado', 'reprovado', 'recusou_vaga', 'sem_vaga', 'nao_compareceu', 'desclassificado', 'desistiu'])
                 ->where('vaga_id', '!=', $vagaId)
+                ->where(function ($query) {
+                    $query->where('status', '!=', 'marcada')
+                          ->orWhere(function ($q) {
+                              $q->where('status', 'marcada')
+                                ->has('entrevista');
+                          });
+                })
                 ->with('vaga:id,titulo')
                 ->first();
 
@@ -437,6 +391,19 @@ class CandidatosController extends Controller
                 return redirect()->back()->withErrors([
                     'vaga_id' => 'Você já possui uma candidatura ativa para a vaga "' . $vagaAtiva->vaga->titulo . '". Conclua ou aguarde o processo atual.',
                 ]);
+            }
+
+            // Remove candidaturas pendentes ('marcada') anteriores para manter apenas a nova inscrição ativa
+            $candidaturasAntigas = CandidatoVaga::where('candidato_id', $candidato->id)
+                ->where('vaga_id', '!=', $vagaId)
+                ->where('status', 'marcada')
+                ->get();
+
+            foreach ($candidaturasAntigas as $ca) {
+                RespostaCandidato::where('candidato_id', $candidato->id)
+                    ->where('vaga_id', $ca->vaga_id)
+                    ->delete();
+                $ca->delete();
             }
 
             $candidato->vagas()->syncWithoutDetaching([
@@ -460,7 +427,7 @@ class CandidatosController extends Controller
         }
         
         if ($candidato->path_curriculo) {
-            Storage::disk('public')->delete($candidato->path_curriculo);
+            Storage::disk('private')->delete($candidato->path_curriculo);
         }
         
         $candidato->delete();
@@ -613,8 +580,6 @@ class CandidatosController extends Controller
                 ], 422);
             }
 
-            $linkMeet = null;
-
             $candidatoVaga->update(['status' => 'marcada']);
 
             $entrevista = Entrevista::create([
@@ -625,7 +590,6 @@ class CandidatosController extends Controller
             ]);
 
             // WhatsApp
-            $vaga          = $vaga ?? Vagas::find($request->vaga_id);
             $dataHoraBR    = $dataHora->copy()->setTimezone('America/Sao_Paulo');
             $dataFormatada = $dataHoraBR->format('d/m/Y');
             $horaFormatada = $dataHoraBR->format('H:i');
@@ -636,7 +600,11 @@ class CandidatosController extends Controller
                 'data'      => $dataFormatada,
                 'horario'   => $horaFormatada,
                 'tipo'      => $request->tipo,
+                'endereco'  => $request->tipo === 'presencial'
+                    ? "\n📌 Endereço: " . config('app.empresa_endereco', 'Alameda Santos, 647 — 15° Andar, São Paulo, SP')
+                    : '',
             ]);
+
 
             if ($candidato->telefone) {
                 EnviarWhatsAppJob::dispatch($candidato->telefone, $mensagem);

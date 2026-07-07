@@ -145,12 +145,30 @@ class EntrevistasController extends Controller
         $entrevista->candidatoVaga->update(['status' => $validated['status']]);
         $entrevista->update(['observacao' => $validated['observacao'] ?? null]);
 
-        // Se contratado, sincroniza com o Portal AT&Santos
+        // Se contratado, sincroniza com o Portal AT&Santos e notifica o candidato
         if ($validated['status'] === 'contratado') {
             $this->syncComPortal($entrevista);
+
+            // Notifica o candidato via WhatsApp
+            $candidato = $entrevista->candidatoVaga->candidato;
+            $vaga      = $entrevista->candidatoVaga->vaga;
+
+            if ($candidato && $candidato->telefone) {
+                $mensagem = MensagemWhatsApp::renderizar('candidato_contratado', [
+                    'nome' => $candidato->nome,
+                    'vaga' => $vaga->titulo ?? 'a vaga',
+                ]);
+
+                EnviarWhatsAppJob::dispatch($candidato->telefone, $mensagem);
+            } else {
+                Log::warning('Contratação: candidato sem telefone, notificação WhatsApp não enviada.', [
+                    'candidato_vaga_id' => $entrevista->candidatoVaga->id ?? null,
+                ]);
+            }
         }
 
         return redirect()->route('Entrevistas')->with('success', 'Resultado registrado com sucesso.');
+
     }
 
     public function adiar(Request $request, Entrevista $entrevista)

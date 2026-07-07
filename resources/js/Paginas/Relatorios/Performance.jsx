@@ -5,7 +5,7 @@ import RelatoriosTabs from './RelatoriosTabs.jsx';
 
 const ROLE_LABELS = { admin: 'Admin', coordenador: 'Coordenador', recrutador: 'Recrutador' };
 const ROLE_COLORS = { admin: 'bg-violet-100 text-violet-700', coordenador: 'bg-amber-100 text-amber-700', recrutador: 'bg-sky-100 text-sky-700' };
-const MEDAL_COLORS = ['from-amber-400 to-yellow-300', 'from-gray-300 to-gray-200', 'from-amber-700 to-amber-600'];
+const MEDAL_COLORS = ['bg-amber-400', 'bg-slate-300', 'bg-amber-700'];
 
 function getIniciais(nome) {
     if (!nome) return '??';
@@ -17,7 +17,7 @@ function getIniciais(nome) {
 function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-blue-50/60' }) {
     return (
         <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
             <p className="relative z-10 text-2xl font-black text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
@@ -64,7 +64,7 @@ export default function Performance({ ranking, resumo }) {
                             <KpiCard label="Recrutadores ativos" value={resumo.total_recrutadores} sub="Com acesso ao sistema" delay="bento-delay-1" accent="from-[#0C4773]/8" />
                             <KpiCard label="Contratações no mês" value={resumo.total_contratacoes_mes} sub="Equipe completa" delay="bento-delay-2" accent="from-emerald-50/60" />
                             <KpiCard label="Melhor conversão" value={`${resumo.melhor_conversao}%`} sub="Entrevista → Contratação" delay="bento-delay-3" accent="from-amber-50/60" />
-                            <div className="bento-card bento-delay-4 bg-gradient-to-br from-[#0C4773] to-[#007EAE] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
+                            <div className="bento-card bento-delay-4 bg-[#0C4773] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
                                 <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
                                 <div className="relative z-10">
                                     <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">Meta atingida (média)</p>
@@ -84,12 +84,12 @@ export default function Performance({ ranking, resumo }) {
                                     {top3.map((r, idx) => (
                                         <div key={r.id} className={`relative rounded-xl border p-5 flex flex-col items-center gap-3 transition-all ${idx === 0 ? 'border-amber-200 bg-amber-50/30' : 'border-gray-100 bg-gray-50/50'}`}>
                                             {/* Position badge */}
-                                            <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-gradient-to-br ${MEDAL_COLORS[idx]} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
+                                            <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full ${MEDAL_COLORS[idx]} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
                                                 {idx + 1}
                                             </div>
 
                                             {/* Avatar */}
-                                            <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-[#0C4773] to-[#007EAE] flex items-center justify-center text-white font-bold text-sm mt-2 ${idx === 0 ? 'ring-2 ring-amber-300 ring-offset-2' : ''}`}>
+                                            <div className={`w-12 h-12 rounded-full bg-[#0C4773] flex items-center justify-center text-white font-bold text-sm mt-2 ${idx === 0 ? 'ring-2 ring-amber-300 ring-offset-2' : ''}`}>
                                                 {getIniciais(r.nome)}
                                             </div>
 
@@ -173,7 +173,7 @@ export default function Performance({ ranking, resumo }) {
                                             <tr key={r.id} className="hover:bg-gray-50/80 transition-colors">
                                                 <td className="px-6 py-3.5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0C4773] to-[#007EAE] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                                        <div className="w-9 h-9 rounded-full bg-[#0C4773] flex items-center justify-center text-white text-xs font-bold shrink-0">
                                                             {getIniciais(r.nome)}
                                                         </div>
                                                         <div>

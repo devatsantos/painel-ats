@@ -40,8 +40,7 @@ Route::post('/candidatura/enviar-codigo-email', [CandidaturaApiController::class
     ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/candidatura/verificar-codigo', [CandidaturaApiController::class, 'verificarCodigo'])
     ->middleware('throttle:verificar-codigo-whatsapp');
-Route::post('/candidatura/verificar-nascimento', [CandidaturaApiController::class, 'verificarNascimento'])
-    ->middleware('throttle:verificar-nascimento');
+
 
 // Rota de Envio de Cadastro de Candidato (cria candidato se novo ou exige Sanctum no middleware se existente)
 Route::post('/candidatura', [CandidaturaApiController::class, 'store']);

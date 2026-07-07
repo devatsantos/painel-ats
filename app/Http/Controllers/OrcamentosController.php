@@ -13,8 +13,13 @@ class OrcamentosController extends Controller
         $orcamentos = Orcamento::orderBy('created_at', 'desc')->paginate(20);
         return Inertia::render('Orcamentos/Index', ['orcamentos' => $orcamentos]);
     }
-    public function store(Request $request) {
-        $validated = $request->validate([
+
+    /**
+     * Regras de validação compartilhadas entre store e update.
+     */
+    private function rules(): array
+    {
+        return [
             'nome_representante' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'telefone' => 'required|string|max:20',
@@ -24,27 +29,60 @@ class OrcamentosController extends Controller
             'iniciativa' => 'required|string|max:255',
             'servicos' => 'required|string|max:255',
             'anexo_referencia' => 'nullable|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:2048',
-            'descricao' => 'nullable|string'
-        ]);
+            'descricao' => 'nullable|string',
+            'status' => 'nullable|string|in:pendente,em_analise,aprovado,recusado',
+        ];
+    }
+
+    public function store(Request $request) {
+        abort_unless(auth()->user()->role === 'admin', 403);
+        $validated = $request->validate($this->rules());
 
         if ($request->hasFile('anexo_referencia')) {
-            $path = $request->file('anexo_referencia')->store('orcamentos', 'public');
-            $validated['anexo_referencia'] = '/storage/' . $path;
+            $path = $request->file('anexo_referencia')->store('orcamentos', 'private');
+            $validated['anexo_referencia'] = 'orcamentos/' . basename($path);
         }
 
         Orcamento::create($validated);
 
-        return redirect()->route('Orcamentos');
+        return redirect()->route('Orcamentos')->with('success', 'Orçamento cadastrado com sucesso.');
+    }
+
+    public function update(Request $request, Orcamento $orcamento)
+    {
+        abort_unless(auth()->user()->role === 'admin', 403);
+
+        $validated = $request->validate($this->rules());
+
+        if ($request->hasFile('anexo_referencia')) {
+            $this->deletarAnexo($orcamento->anexo_referencia);
+            $path = $request->file('anexo_referencia')->store('orcamentos', 'private');
+            $validated['anexo_referencia'] = 'orcamentos/' . basename($path);
+        } else {
+            unset($validated['anexo_referencia']);
+        }
+
+        $orcamento->update($validated);
+
+        return redirect()->route('Orcamentos')->with('success', 'Orçamento atualizado com sucesso.');
     }
 
     public function delete(Orcamento $orcamento)
     {
         abort_unless(auth()->user()->role === 'admin', 403);
-        if ($orcamento->anexo_referencia) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $orcamento->anexo_referencia));
-        }
+        $this->deletarAnexo($orcamento->anexo_referencia);
         $orcamento->delete();
 
         return redirect()->route('Orcamentos')->with('success', 'Orçamento removido com sucesso.');
+    }
+
+    /**
+     * Remove o arquivo de anexo do disco, se existir.
+     */
+    private function deletarAnexo(?string $path): void
+    {
+        if ($path) {
+            Storage::disk('private')->delete($path);
+        }
     }
 }

@@ -325,7 +325,7 @@ class LogsController extends Controller
                 }
             );
 
-            \Illuminate\Support\Facades\Log::info("E-mail de teste enviado para {$destino} por " . auth()->user()->name);
+            \Illuminate\Support\Facades\Log::info("E-mail de teste enviado para {$destino} por " . auth()->user()->nome);
 
             return response()->json([
                 'success' => true,

@@ -15,7 +15,7 @@ const STATUS_CONFIG = {
 function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-blue-50/60' }) {
     return (
         <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
             <p className="relative z-10 text-2xl font-black text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
@@ -81,7 +81,7 @@ export default function Relatorios({
                             />
 
                             {/* KPI Destaque: Vagas + Banco (empilhados em 1 col) */}
-                            <div className="bento-card bento-delay-4 bg-gradient-to-br from-[#0C4773] to-[#007EAE] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-between relative overflow-hidden">
+                            <div className="bento-card bento-delay-4 bg-[#0C4773] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-between relative overflow-hidden">
                                 <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
                                 <div className="absolute right-12 -top-4 w-16 h-16 bg-white/5 rounded-full" />
                                 <div className="relative z-10">

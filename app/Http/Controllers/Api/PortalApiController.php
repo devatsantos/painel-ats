@@ -121,7 +121,10 @@ class PortalApiController extends Controller
                 'especialidade' => $candidato->especialidade,
                 'banco_de_talentos' => (bool) $candidato->banco_de_talentos,
                 'curriculo_url' => $candidato->path_curriculo
-                    ? asset('storage/' . $candidato->path_curriculo)
+                    ? route('arquivos.serve', [
+                        'tipo'     => 'curriculos',
+                        'filename' => basename($candidato->path_curriculo),
+                      ])
                     : null,
             ],
         ]);
@@ -159,9 +162,9 @@ class PortalApiController extends Controller
 
         if ($request->hasFile('path_curriculo')) {
             if ($candidato->path_curriculo) {
-                Storage::disk('public')->delete($candidato->path_curriculo);
+                Storage::disk('private')->delete($candidato->path_curriculo);
             }
-            $validated['path_curriculo'] = $request->file('path_curriculo')->store('curriculos', 'public');
+            $validated['path_curriculo'] = $request->file('path_curriculo')->store('curriculos', 'private');
         } else {
             unset($validated['path_curriculo']);
         }
@@ -200,7 +203,7 @@ class PortalApiController extends Controller
 
         // 1. Faz upload do novo arquivo antes de qualquer lock.
         //    Se falhar aqui, o DB não é alterado e nenhum arquivo é perdido.
-        $newPath = $request->file('curriculo')->store('curriculos', 'public');
+        $newPath = $request->file('curriculo')->store('curriculos', 'private');
 
         $oldPath = null;
 
@@ -215,20 +218,23 @@ class PortalApiController extends Controller
             });
         } catch (\Throwable $e) {
             // DB falhou — remove o novo arquivo para não deixar órfão no disco.
-            Storage::disk('public')->delete($newPath);
+            Storage::disk('private')->delete($newPath);
             Log::error('[uploadCurriculo] Falha ao atualizar DB.', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Erro ao salvar currículo. Tente novamente.'], 500);
         }
 
         // 4. Deleta o arquivo antigo só após commit bem-sucedido.
         if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
+            Storage::disk('private')->delete($oldPath);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Currículo atualizado com sucesso!',
-            'curriculo_url' => asset('storage/' . $newPath),
+            'curriculo_url' => route('arquivos.serve', [
+                'tipo'     => 'curriculos',
+                'filename' => basename($newPath),
+            ]),
         ]);
     }
 

@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Services\WhatsAppService;
+use App\Jobs\EnviarWhatsAppJob;
 use App\Models\MensagemWhatsApp;
 use Illuminate\Support\Facades\Mail;
 
@@ -112,8 +113,11 @@ class PortalCandidatoController extends Controller
             'whatsapp_codigo_expira_em' => now()->addMinutes(config('candidatura.otp_expira_minutos')),
         ]);
 
-        $whatsapp = new WhatsAppService();
-        $whatsapp->enviarMensagem(
+        if (!$candidato->telefone) {
+            return response()->json(['error' => 'Candidato não possui telefone cadastrado.'], 422);
+        }
+
+        EnviarWhatsAppJob::dispatch(
             $candidato->telefone,
             MensagemWhatsApp::renderizar('otp_portal', [
                 'nome'   => $candidato->nome,
@@ -425,9 +429,9 @@ class PortalCandidatoController extends Controller
         if ($request->hasFile('path_curriculo')) {
             // Deleta currículo anterior se existir
             if ($candidato->path_curriculo) {
-                Storage::disk('public')->delete($candidato->path_curriculo);
+                Storage::disk('private')->delete($candidato->path_curriculo);
             }
-            $validated['path_curriculo'] = $request->file('path_curriculo')->store('curriculos', 'public');
+            $validated['path_curriculo'] = $request->file('path_curriculo')->store('curriculos', 'private');
         } else {
             unset($validated['path_curriculo']);
         }
@@ -460,51 +464,7 @@ class PortalCandidatoController extends Controller
         return redirect()->route('Portal.login');
     }
 
-    /**
-     * Verificação alternativa por data de nascimento para o portal.
-     * Fator fraco — logado para auditoria.
-     */
-    public function verificarNascimento(Request $request)
-    {
-        $request->validate([
-            'cpf'             => 'required|string',
-            'data_nascimento' => 'required|date_format:Y-m-d',
-        ]);
 
-        $candidato = Candidatos::where('cpf', $request->cpf)->first();
-
-        if (!$candidato) {
-            return response()->json(['error' => 'Candidato não encontrado.'], 404);
-        }
-
-        if (!$candidato->data_nascimento) {
-            return response()->json(['error' => 'Não há data de nascimento cadastrada para este CPF. Escolha outra forma de verificação.'], 422);
-        }
-
-        $dataBD        = Carbon::parse($candidato->data_nascimento)->format('Y-m-d');
-        $dataFornecida = Carbon::parse($request->data_nascimento)->format('Y-m-d');
-
-        if (!hash_equals($dataBD, $dataFornecida)) {
-            Log::warning('Portal: tentativa de verificação por nascimento falhou.', [
-                'cpf_hash' => md5($request->cpf),
-                'ip'       => $request->ip(),
-            ]);
-            return response()->json(['error' => 'Data de nascimento incorreta. Tente novamente.'], 422);
-        }
-
-        Log::info('Portal: login via verificação por nascimento.', [
-            'candidato_id' => $candidato->id,
-            'ip'           => $request->ip(),
-        ]);
-
-        Auth::guard('candidato')->login($candidato);
-        request()->session()->regenerate();
-
-        return response()->json([
-            'success'   => true,
-            'candidato' => $candidato->only(['nome', 'email', 'telefone']),
-        ]);
-    }
 
     /**
      * Adiciona ou remove o candidato autenticado do Banco de Talentos.

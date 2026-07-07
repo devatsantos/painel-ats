@@ -78,14 +78,14 @@ export default function Create() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0C4773]/10 via-slate-50 to-[#0C4773]/5 flex items-center justify-center p-4 sm:p-6 font-sans">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 font-sans">
             <Head title="Ouvidoria - Enviar Relato" />
 
             <div className="w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 overflow-hidden transition-all duration-300">
                 
                 {/* Header */}
                 <div className="bg-[#0C4773] px-6 py-10 sm:px-10 text-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none" />
+
                     <h1 className="text-3xl font-extrabold text-white tracking-tight">Ouvidoria</h1>
                     <p className="text-blue-200/90 text-sm mt-2 max-w-md mx-auto leading-relaxed">
                         Este é um canal aberto e seguro para enviar suas dúvidas, sugestões, reclamações ou elogios de forma transparente.

@@ -23,8 +23,6 @@ Route::post('/candidatura/enviar-codigo-email', [App\Http\Controllers\Candidatos
     ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/candidatura/verificar-codigo', [App\Http\Controllers\CandidatosController::class, 'verificarCodigoWhatsApp'])
     ->middleware('throttle:verificar-codigo-whatsapp');
-Route::post('/candidatura/verificar-nascimento', [App\Http\Controllers\CandidatosController::class, 'verificarNascimento'])
-    ->middleware('throttle:verificar-nascimento');
 Route::post('/candidatura', [App\Http\Controllers\CandidatosController::class, 'store']);
 
 Route::middleware('auth:candidato')->group(function () {
@@ -39,6 +37,13 @@ Route::get('/login', [App\Http\Controllers\AuthController::class, 'index'])->nam
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
+// Rota protegida para servir arquivos privados (currículos, orçamentos, ouvidorias)
+// Acessível a qualquer usuário autenticado (staff ou candidato)
+Route::get('/arquivos/{tipo}/{filename}', [App\Http\Controllers\ArquivosController::class, 'serve'])
+    ->name('arquivos.serve')
+    ->where('filename', '[^/]+'); // impede path traversal com segmentos adicionais
+
+
 // Portal do Candidato — Login (rota pública)
 Route::get('/portal', [App\Http\Controllers\PortalCandidatoController::class, 'login'])->name('Portal.login');
 Route::post('/portal/verificar-cpf', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCpf'])
@@ -49,8 +54,7 @@ Route::post('/portal/enviar-codigo-email', [App\Http\Controllers\PortalCandidato
     ->middleware('throttle:enviar-codigo-whatsapp');
 Route::post('/portal/verificar-codigo', [App\Http\Controllers\PortalCandidatoController::class, 'verificarCodigo'])
     ->middleware('throttle:verificar-codigo-whatsapp');
-Route::post('/portal/verificar-nascimento', [App\Http\Controllers\PortalCandidatoController::class, 'verificarNascimento'])
-    ->middleware('throttle:verificar-nascimento');
+
 
 // Portal do Candidato — Rotas protegidas
 Route::middleware('auth:candidato')->prefix('portal')->group(function () {
@@ -93,6 +97,9 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/base-de-dados', '/candidatos', 301);
     Route::post('/usuarios', [App\Http\Controllers\UsuariosController::class, 'store'])->name('Usuarios.store');
     Route::get('/orcamentos', [App\Http\Controllers\OrcamentosController::class, 'index'])->name('Orcamentos');
+    Route::post('/orcamentos', [App\Http\Controllers\OrcamentosController::class, 'store'])->name('Orcamentos.store');
+    Route::put('/orcamentos/{orcamento}', [App\Http\Controllers\OrcamentosController::class, 'update'])->name('Orcamentos.update');
+    Route::delete('/orcamentos/{orcamento}', [App\Http\Controllers\OrcamentosController::class, 'delete'])->name('Orcamentos.delete');
     Route::get('/formularios', [App\Http\Controllers\FormulariosController::class, 'index'])->name('Formularios');
     Route::post('/formularios', [App\Http\Controllers\FormulariosController::class, 'store'])->name('Formularios.store');
     Route::get('/formularios/{formulario}/edit', [App\Http\Controllers\FormulariosController::class, 'edit'])->name('Formularios.edit');
@@ -108,6 +115,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/relatorios/time-to-hire', [App\Http\Controllers\RelatoriosController::class, 'timeToHire'])->name('Relatorios.timeToHire');
     Route::get('/relatorios/volume', [App\Http\Controllers\RelatoriosController::class, 'volume'])->name('Relatorios.volume');
     Route::get('/relatorios/performance', [App\Http\Controllers\RelatoriosController::class, 'performance'])->name('Relatorios.performance');
+
+    // Reprovados — Listagem de candidatos bloqueados por quiz
+    Route::get('/reprovados', [App\Http\Controllers\ReprovadosController::class, 'index'])->name('Reprovados');
+    Route::delete('/reprovados/{reprovado}', [App\Http\Controllers\ReprovadosController::class, 'delete'])->name('Reprovados.delete');
 
     // Recepção — Mini-sistema de controle de visitantes
     Route::get('/recepcao', [App\Http\Controllers\RecepcaoController::class, 'index'])->name('Recepcao');

@@ -312,7 +312,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                             {getIniciais(candidato.nome)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-base font-bold text-gray-900 truncate">{candidato.nome}</p>
+                                            <p className="text-base font-bold text-gray-900 capitalize truncate">{candidato.nome}</p>
                                             <p className="text-sm text-gray-400 truncate mt-0.5">{candidato.vaga_titulo}</p>
                                         </div>
                                         <span className={`ds-badge shrink-0 ${status.bg} ${status.text}`}>
@@ -433,12 +433,21 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                                     Adiar
                                                 </button>
                                             )}
-                                            <button
-                                                onClick={() => abrirResultado(candidato)}
-                                                className="ds-btn ds-btn-primary text-sm px-4 py-2"
-                                            >
-                                                Resultado
-                                            </button>
+                                            {['marcada', 'selecionado'].includes(candidato.status) ? (
+                                                <button
+                                                    onClick={() => abrirResultado(candidato)}
+                                                    className="ds-btn ds-btn-primary text-sm px-4 py-2"
+                                                >
+                                                    Resultado
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => abrirResultado(candidato)}
+                                                    className="ds-btn text-xs text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2"
+                                                >
+                                                    Alterar Resultado
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -670,7 +679,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
 
             {modalResultado && (
                 <div className="ds-modal-overlay" onClick={fecharResultado}>
-                    <div className="ds-modal-panel max-w-md" onClick={e => e.stopPropagation()}>
+                    <div className="ds-modal-panel max-w-md max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">Registrar Resultado</h2>
@@ -682,8 +691,8 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                 </svg>
                             </button>
                         </div>
-                        <form onSubmit={submitResultado}>
-                            <div className="p-6 space-y-4">
+                        <form onSubmit={submitResultado} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                            <div className="p-6 space-y-4 overflow-y-auto flex-1 ds-scrollbar">
                                 <div className="space-y-2">
                                     {OPCOES_RESULTADO.map(opcao => (
                                         <label

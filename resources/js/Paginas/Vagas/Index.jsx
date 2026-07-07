@@ -44,7 +44,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
         vt: '',
         escala: '',
         status_efetivacao: '',
-        ativo: false,
+        ativo: true,
         pcd: false,
         permite_online: false,
         interna: false,

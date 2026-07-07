@@ -36,6 +36,14 @@ class PortalAtSantosService
      */
     public function syncColaborador(array $data): array
     {
+        // Garantir que o CPF está formatado no padrão xxx.xxx.xxx-xx
+        if (isset($data['cpf'])) {
+            $cpfClean = preg_replace('/\D/', '', $data['cpf']);
+            if (strlen($cpfClean) === 11) {
+                $data['cpf'] = vsprintf('%s%s%s.%s%s%s.%s%s%s-%s%s', str_split($cpfClean));
+            }
+        }
+
         if (!$this->isConfigured()) {
             Log::warning('[PortalAtSantos] Integração não configurada. Defina PORTAL_ATSANTOS_URL e PORTAL_ATSANTOS_API_KEY no .env');
             return [

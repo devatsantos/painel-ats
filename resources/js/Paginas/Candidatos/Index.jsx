@@ -703,23 +703,36 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Horário</label>
+                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Horário <span className="text-red-500">*</span></label>
                                     {loadingSlots ? (
-                                        <p className="text-sm text-gray-400 py-2">Carregando slots...</p>
-                                    ) : slots.length === 0 && entrevista.data ? (
-                                        <p className="text-sm text-amber-600 py-2">Nenhum horário disponível para esta data.</p>
-                                    ) : (
-                                        <select
-                                            value={entrevista.hora}
-                                            onChange={e => setEntrevista(prev => ({ ...prev, hora: e.target.value }))}
-                                            required
-                                            disabled={slots.length === 0}
-                                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0C4773] focus:ring-2 focus:ring-[#0C4773]/20 transition disabled:opacity-50"
-                                        >
-                                            <option value="">Selecione um horário...</option>
-                                            {slots.map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
-                                    )}
+                                         <p className="text-sm text-gray-400 py-2 animate-pulse">Carregando horários...</p>
+                                     ) : slots.length === 0 && entrevista.data ? (
+                                         <p className="text-sm text-amber-600 py-2 font-medium bg-amber-50 rounded-xl px-3 border border-amber-100 flex items-center gap-1.5">
+                                             <svg className="w-4 h-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                             </svg>
+                                             Nenhum horário disponível para esta data.
+                                         </p>
+                                     ) : slots.length > 0 ? (
+                                         <div className="grid grid-cols-4 gap-2">
+                                             {slots.map(s => (
+                                                 <button
+                                                     key={s}
+                                                     type="button"
+                                                     onClick={() => setEntrevista(prev => ({ ...prev, hora: s }))}
+                                                     className={`py-2 text-xs font-bold rounded-xl border text-center transition-all ${
+                                                         entrevista.hora === s
+                                                             ? 'border-[#0C4773] bg-[#0C4773] text-white shadow-sm scale-102'
+                                                             : 'border-gray-200 text-gray-700 bg-white hover:border-[#0C4773] hover:text-[#0C4773]'
+                                                     }`}
+                                                 >
+                                                     {s}
+                                                 </button>
+                                             ))}
+                                         </div>
+                                     ) : (
+                                         <p className="text-xs text-gray-400">Selecione uma data para ver os horários disponíveis</p>
+                                     )}
                                     {entrevistaErrors.data_hora && <p className="text-red-500 text-xs mt-1">{entrevistaErrors.data_hora}</p>}
                                 </div>
 
@@ -785,7 +798,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="sm:col-span-2">
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome Completo</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome Completo <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.nome}
@@ -797,7 +810,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.nome && <span className="text-red-500 text-xs mt-1 block">{errors.nome}</span>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CPF</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CPF <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.cpf}
@@ -809,7 +822,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.cpf && <span className="text-red-500 text-xs mt-1 block">{errors.cpf}</span>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">E-mail</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">E-mail <span className="text-red-500">*</span></label>
                                             <input
                                                 type="email"
                                                 value={data.email}
@@ -821,7 +834,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Telefone</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Telefone <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.telefone}
@@ -833,7 +846,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.telefone && <span className="text-red-500 text-xs mt-1 block">{errors.telefone}</span>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nível de Escolaridade</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nível de Escolaridade <span className="text-red-500">*</span></label>
                                             <select
                                                 value={data.nivel_escolaridade}
                                                 onChange={e => setData('nivel_escolaridade', e.target.value)}
@@ -878,7 +891,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CEP</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">CEP <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
@@ -895,7 +908,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.cep && <span className="text-red-500 text-xs mt-1 block">{errors.cep}</span>}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Região (Bairro/Cidade)</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Região (Bairro/Cidade) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.regiao}
@@ -907,7 +920,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                             {errors.regiao && <span className="text-red-500 text-xs mt-1 block">{errors.regiao}</span>}
                                         </div>
                                         <div className="sm:col-span-2">
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Logradouro (Rua, Nº, Apto)</label>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Logradouro (Rua, Nº, Apto) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.logradouro}

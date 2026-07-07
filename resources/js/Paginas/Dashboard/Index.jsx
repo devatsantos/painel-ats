@@ -64,8 +64,8 @@ export default function Dashboard({
 
                     {/* ─── Header Premium ─── */}
                     <header className="ds-card-static p-6 relative overflow-hidden group flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                        {/* Linha superior de destaque em gradiente */}
-                        <div className="absolute top-0 left-0 h-[3px] w-full bg-gradient-to-r from-[#0C4773] via-[#007EAE] to-[#00a8d6] rounded-t-2xl" />
+                        {/* Linha superior de destaque */}
+                        <div className="absolute top-0 left-0 h-[3px] w-full bg-[#0C4773] rounded-t-2xl" />
                         
                         <div className="flex items-center gap-4">
                             {/* Ícone dinâmico do período do dia com fundo suave */}
@@ -125,7 +125,7 @@ export default function Dashboard({
 
                         {/* ─── KPI: Entrevistas no mês (1 col) ─── */}
                         <div className="bento-card bento-delay-1 ds-card p-5 flex items-center justify-between relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                            <div className="absolute inset-0 bg-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                             <div className="relative z-10">
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Entrevistas no mês</p>
                                 <h3 className="text-3xl font-bold text-[#0C4773]">{totalEntrevistasMes}</h3>
@@ -153,7 +153,7 @@ export default function Dashboard({
 
                         {/* ─── KPI: Aguardando Entrevista (1 col) ─── */}
                         <div onClick={() => setPainelAberto(true)} className="bento-card bento-delay-2 ds-card p-5 flex items-center justify-between cursor-pointer group relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                            <div className="absolute inset-0 bg-orange-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                             <div className="relative z-10">
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Aguardando entrevista</p>
                                 <h3 className="text-3xl font-bold text-orange-500">{aguardandoEntrevista.length}</h3>
@@ -170,7 +170,7 @@ export default function Dashboard({
                         </div>
 
                         {/* ─── KPI: Vagas Abertas (2 cols - destaque) ─── */}
-                        <div className="bento-card bento-delay-3 sm:col-span-2 ds-card-gradient p-5 flex items-center justify-between relative overflow-hidden group">
+                        <div className="bento-card bento-delay-3 sm:col-span-2 ds-card-accent p-5 flex items-center justify-between relative overflow-hidden group">
                             <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full" />
                             <div className="absolute right-16 -top-6 w-20 h-20 bg-white/5 rounded-full" />
                             <div className="relative z-10">
@@ -507,8 +507,8 @@ export default function Dashboard({
                 
                 {/* Painel lateral com slide-in e borda sutil */}
                 <div className="relative bg-[#F6F7F9] w-full max-w-md h-full shadow-2xl flex flex-col ds-panel-slide border-l border-gray-200/50 z-10">
-                    {/* Linha gradiente decorativa no topo */}
-                    <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-[#0C4773] to-[#007EAE]" />
+                    {/* Linha decorativa no topo */}
+                    <div className="absolute top-0 left-0 h-1.5 w-full bg-[#0C4773]" />
                     
                     {/* Header do Painel */}
                     <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-gray-100 mt-1.5">

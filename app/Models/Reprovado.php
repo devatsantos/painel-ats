@@ -12,6 +12,10 @@ class Reprovado extends Model
         'reprovado_ate'
     ];
 
+    protected $casts = [
+        'reprovado_ate' => 'datetime',
+    ];
+
     public function formulario()
     {
         return $this->belongsTo(Formulario::class);

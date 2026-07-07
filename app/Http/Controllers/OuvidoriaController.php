@@ -46,8 +46,8 @@ class OuvidoriaController extends Controller
 
         $path = null;
         if ($request->hasFile('foto')) {
-            $uploadedFile = $request->file('foto')->store('ouvidorias', 'public');
-            $path = '/storage/' . $uploadedFile;
+            $uploadedFile = $request->file('foto')->store('ouvidorias', 'private');
+            $path = 'ouvidorias/' . basename($uploadedFile);
         }
 
         Ouvidoria::create([
@@ -69,7 +69,7 @@ class OuvidoriaController extends Controller
         abort_unless(auth()->user()->role === 'admin', 403);
 
         if ($ouvidoria->foto) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $ouvidoria->foto));
+            Storage::disk('private')->delete($ouvidoria->foto);
         }
 
         $ouvidoria->delete();

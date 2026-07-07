@@ -6,7 +6,7 @@ import RelatoriosTabs from './RelatoriosTabs.jsx';
 function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-blue-50/60' }) {
     return (
         <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
             <p className="relative z-10 text-2xl font-black text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
@@ -39,7 +39,7 @@ export default function TimeToHire({
                             <KpiCard label="Tempo médio geral" value={tempo_medio_geral} suffix=" dias" sub="Da candidatura à contratação" delay="bento-delay-1" accent="from-[#0C4773]/8" />
                             <KpiCard label="Vagas no prazo" value={`${sla_resumo.pct_dentro}%`} sub={`${sla_resumo.dentro} de ${sla_resumo.dentro + sla_resumo.fora} vagas`} delay="bento-delay-2" accent="from-emerald-50/60" />
                             <KpiCard label="Vagas atrasadas" value={sla_resumo.fora} sub="Fora do SLA definido" delay="bento-delay-3" accent="from-red-50/60" />
-                            <div className="bento-card bento-delay-4 bg-gradient-to-br from-[#0C4773] to-[#007EAE] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
+                            <div className="bento-card bento-delay-4 bg-[#0C4773] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
                                 <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
                                 <div className="relative z-10">
                                     <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">Etapa mais lenta</p>
@@ -91,7 +91,7 @@ export default function TimeToHire({
                                                 <span className="text-xs font-bold text-gray-500">{mes.dias > 0 ? `${mes.dias}d` : '—'}</span>
                                                 <div className="w-full bg-gray-100 rounded-t-md overflow-hidden flex flex-col justify-end" style={{ height: '120px' }}>
                                                     <div
-                                                        className="w-full bg-gradient-to-t from-[#0C4773] to-[#007EAE] rounded-t-md transition-all duration-500"
+                                                        className="w-full bg-[#0C4773] rounded-t-md transition-all duration-500"
                                                         style={{ height: `${hPct}%`, minHeight: mes.dias > 0 ? '4px' : '0' }}
                                                     />
                                                 </div>

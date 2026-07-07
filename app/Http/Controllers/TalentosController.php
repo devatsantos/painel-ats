@@ -134,9 +134,9 @@ class TalentosController extends Controller
 
         if ($request->hasFile('curriculo')) {
             if ($candidato->path_curriculo) {
-                Storage::disk('public')->delete($candidato->path_curriculo);
+                Storage::disk('private')->delete($candidato->path_curriculo);
             }
-            $validated['path_curriculo'] = $request->file('curriculo')->store('curriculos', 'public');
+            $validated['path_curriculo'] = $request->file('curriculo')->store('curriculos', 'private');
         }
 
         unset($validated['curriculo']);
@@ -151,7 +151,7 @@ class TalentosController extends Controller
             $msg = 'Candidato removido do banco de talentos (mantido no histórico por possuir vagas vinculadas).';
         } else {
             if ($candidato->path_curriculo) {
-                Storage::disk('public')->delete($candidato->path_curriculo);
+                Storage::disk('private')->delete($candidato->path_curriculo);
             }
             $candidato->delete();
             $msg = 'Candidato excluído permanentemente.';
@@ -279,7 +279,7 @@ class TalentosController extends Controller
 
         $candidatoVaga->update(['status' => 'marcada']);
 
-        $vaga = $vaga ?? Vagas::find($validated['vaga_id']);
+        $vaga = Vagas::find($validated['vaga_id']);
 
         Entrevista::create([
             'candidato_vaga_id' => $candidatoVaga->id,

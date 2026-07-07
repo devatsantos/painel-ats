@@ -27,7 +27,7 @@ export default function Login() {
             <Head title="Login - Painel RH" />
             
             <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-10 ds-login-card relative overflow-hidden">
-                {/* Gradient accent top */}
+                {/* Solid accent top */}
                 <div className="absolute top-0 left-0 right-0 ds-accent-line" />
 
                 <div className="text-center mb-10 pt-2">

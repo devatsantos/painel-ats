@@ -77,7 +77,7 @@ Dois guards separados — nunca misturar:
 - Relacionamentos definidos no model, não no controller
 - Soft deletes em dados críticos: candidatos, vagas, formulários
 - `nullable` no banco = `nullable()` na migration + `'nullable'` na validação
-- **Status de `candidato_vaga.status`:** `marcada` | `selecionado` | `contratado` | `reprovado` | `recusou_vaga` | `sem_vaga` | `nao_compareceu`
+- **Status de `candidato_vaga.status`:** `marcada` | `selecionado` | `contratado` | `reprovado` | `recusou_vaga` | `sem_vaga` | `nao_compareceu` | `desclassificado` | `desistiu`
 
 ## 7. Fluxo do Candidato
 Sequência obrigatória — candidato não pode pular etapas:
@@ -150,8 +150,8 @@ Sequência obrigatória — candidato não pode pular etapas:
 | Configurações Gerais | `ConfiguracaoController` | `Configuracao` | `/configuracoes/gerais` — admin |
 
 ## 11. Pendentes
-- `ReprovadosController`: listagem de reprovados com filtro por formulário/data + página JSX
-- `OrcamentosController`: implementar `update`
+- ~~`ReprovadosController`: listagem de reprovados com filtro por formulário/data + página JSX~~ ✅ Implementado
+- ~~`OrcamentosController`: implementar `update`~~ ✅ Implementado
 
 ## 12. Nomenclatura
 - Controllers: `PascalCaseController` | Models: `PascalCase` | Tabelas: `snake_case_plural`
@@ -197,6 +197,7 @@ APP_ENV=production (prod) | APP_DEBUG=false (prod)
 - Segundo controller para o mesmo módulo | Migrations sem `down()`
 - Commits com `.env` ou credenciais
 - corromper arquivos e mudar encoding, APENAS UTF-8
+- Uso de gradientes visuais (background gradients, CSS linear-gradients ou classes bg-gradient-to-... do Tailwind) — usar cores sólidas para manter um design flat e corporativo.
 
 ## 16. Configurações Dinâmicas (Prazos e Durações)
 - Os prazos e durações (OTP, token, seleção, quarentena, entrevista) são armazenados no banco de dados (tabela `configuracoes`).

@@ -40,9 +40,9 @@ class OuvidoriaApiController extends Controller
         $fotoPath = null;
         $fotoAbsPath = null;
         if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('ouvidorias', 'public');
-            $fotoPath = '/storage/' . $path;
-            $fotoAbsPath = Storage::disk('public')->path($path);
+            $path = $request->file('foto')->store('ouvidorias', 'private');
+            $fotoPath = 'ouvidorias/' . basename($path);
+            $fotoAbsPath = Storage::disk('private')->path($path);
         }
 
         // Salva no banco de dados

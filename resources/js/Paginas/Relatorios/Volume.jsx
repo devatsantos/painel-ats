@@ -6,7 +6,7 @@ import RelatoriosTabs from './RelatoriosTabs.jsx';
 function KpiCard({ label, value, suffix = '', sub, delay = '', accent = 'from-blue-50/60' }) {
     return (
         <div className={`bento-card ${delay} bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-1 relative overflow-hidden group`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <p className="relative z-10 text-xs font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
             <p className="relative z-10 text-2xl font-black text-gray-900 tracking-tight">
                 {value}<span className="text-lg font-semibold text-gray-500 ml-0.5">{suffix}</span>
@@ -36,7 +36,7 @@ export default function Volume({ kpis, vagas_por_area, vagas_por_cidade, vagas_a
                             <KpiCard label="Vagas abertas" value={kpis.vagas_abertas} sub="Atualmente ativas" delay="bento-delay-1" accent="from-[#0C4773]/8" />
                             <KpiCard label="Candidatos ativos" value={kpis.candidatos_ativos} sub="No pipeline (triagem + selecionados)" delay="bento-delay-2" accent="from-violet-50/60" />
                             <KpiCard label="Ratio médio" value={kpis.ratio_medio} suffix=" cand./vaga" sub="Média de candidatos por vaga" delay="bento-delay-3" accent="from-sky-50/60" />
-                            <div className="bento-card bento-delay-4 bg-gradient-to-br from-[#0C4773] to-[#007EAE] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
+                            <div className="bento-card bento-delay-4 bg-[#0C4773] rounded-2xl shadow-sm border border-[#0C4773]/20 p-5 flex flex-col justify-center relative overflow-hidden">
                                 <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full" />
                                 <div className="relative z-10">
                                     <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">Vagas críticas</p>
@@ -104,7 +104,7 @@ export default function Volume({ kpis, vagas_por_area, vagas_por_cidade, vagas_a
                                                 <span className="text-xs font-bold text-gray-700">{item.total}</span>
                                             </div>
                                             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#0C4773] to-[#007EAE]" style={{ width: `${pct}%` }} />
+                                                <div className="h-full rounded-full transition-all duration-500 bg-[#0C4773]" style={{ width: `${pct}%` }} />
                                             </div>
                                         </div>
                                     );

@@ -11,7 +11,7 @@ class UsuariosController extends Controller
 {
     public function index() {
         abort_unless(auth()->user()->role === 'admin', 403);
-        $usuarios = User::all();
+        $usuarios = User::orderBy('nome')->paginate(20);
         return Inertia::render('Usuarios/Index', ['usuarios' => $usuarios]);
     }
     public function store(Request $request) {

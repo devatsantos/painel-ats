@@ -177,9 +177,9 @@ class RecepcaoController extends Controller
         }
 
         $visitantes = Recepcao::where('nome', 'like', "%{$termo}%")
-            ->select('nome', 'contato', 'posto_cargo_empresa', 'departamento_responsavel')
-            ->orderBy('created_at', 'desc')
+            ->selectRaw('nome, contato, posto_cargo_empresa, departamento_responsavel, MAX(created_at) as max_created_at')
             ->groupBy('nome', 'contato', 'posto_cargo_empresa', 'departamento_responsavel')
+            ->orderBy('max_created_at', 'desc')
             ->limit(5)
             ->get();
 

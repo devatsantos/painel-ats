@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://siteatsantos.duckdns.org', 'http://localhost:3000'],
+    'allowed_origins' => array_filter(array_merge(
+        ['https://siteatsantos.duckdns.org', 'http://localhost:3000'],
+        array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', '')))
+    )),
 
     'allowed_origins_patterns' => [],
 

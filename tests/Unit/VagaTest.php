@@ -7,10 +7,11 @@ use PHPUnit\Framework\TestCase;
 class VagaTest extends TestCase
 {
     /**
-     * A basic unit test example.
+     * Testes unitários de Vagas foram movidos para tests/Feature/VagasTest.php
+     * que testa o CRUD completo com permissões e validações.
      */
-    public function test_example(): void
+    public function test_feature_tests_existem(): void
     {
-        $this->assertTrue(true);
+        $this->assertFileExists(__DIR__ . '/../Feature/VagasTest.php');
     }
 }

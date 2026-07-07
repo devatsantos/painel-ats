@@ -48,11 +48,7 @@ export default function Candidatura({ vagas, candidato_id }) {
     const [modalConfirmacaoTelefone, setModalConfirmacaoTelefone] = useState(false);
     const [ultimosDigitosTelefone, setUltimosDigitosTelefone] = useState('');
 
-    // Verificação alternativa (data de nascimento / e-mail)
-    const [subetapaAlt, setSubetapaAlt] = useState('opcoes');
-    const [nascimentoInput, setNascimentoInput] = useState('');
-    const [erroNascimento, setErroNascimento] = useState('');
-    const [verificandoNascimento, setVerificandoNascimento] = useState(false);
+
     const [meioEnvio, setMeioEnvio] = useState('whatsapp'); // 'whatsapp' | 'email'
     const [emailMascarado, setEmailMascarado] = useState('');
     const [enviandoEmail, setEnviandoEmail] = useState(false);
@@ -82,9 +78,7 @@ export default function Candidatura({ vagas, candidato_id }) {
         setTelefoneMascarado('');
         setModalConfirmacaoTelefone(false);
         setUltimosDigitosTelefone('');
-        setSubetapaAlt('opcoes');
-        setNascimentoInput('');
-        setErroNascimento('');
+
         setMeioEnvio('whatsapp');
         setEmailMascarado('');
         setEnviandoEmail(false);
@@ -303,56 +297,7 @@ export default function Candidatura({ vagas, candidato_id }) {
 
     function semAcessoAoNumero() {
         setModalConfirmacaoTelefone(false);
-        setSubetapaAlt('opcoes');
-        setNascimentoInput('');
-        setErroNascimento('');
-        setEtapa('verificacao_alternativa');
-    }
-
-    async function verificarNascimento() {
-        if (!nascimentoInput) return;
-        setVerificandoNascimento(true);
-        setErroNascimento('');
-        try {
-            const res = await axios.post('/candidatura/verificar-nascimento', {
-                cpf: cpfInput,
-                data_nascimento: nascimentoInput,
-                vaga_id: vagaSelecionada?.id,
-            });
-
-            if (res.data.ja_agendado) {
-                alert('Você já possui uma entrevista agendada para esta vaga.');
-                fecharModal();
-                return;
-            }
-
-            const c = res.data.candidato;
-            setCandidatoExistente(c);
-            setData(prev => ({
-                ...prev,
-                cpf: c.cpf || cpfInput,
-                nome: c.nome || '',
-                email: c.email || '',
-                telefone: c.telefone || '',
-                nivel_escolaridade: c.nivel_escolaridade || '',
-                cep: c.cep || '',
-                logradouro: c.logradouro || '',
-                regiao: c.regiao || '',
-                data_nascimento: c.data_nascimento ? c.data_nascimento.split('T')[0] : '',
-            }));
-            setCandidatoPendente(null);
-            try { const t = await axios.post('/candidatura/token'); salvarTokenCandidato(cpfInput, t.data.token); } catch { /* não bloqueia */ }
-            
-            if (res.data.ja_aprovado) {
-                setEtapa('entrevista');
-            } else {
-                setEtapa('formulario');
-            }
-        } catch (err) {
-            setErroNascimento(err.response?.data?.error || 'Dados incorretos. Tente novamente.');
-        } finally {
-            setVerificandoNascimento(false);
-        }
+        confirmarEnvioEmail();
     }
 
     async function reenviarCodigo() {
@@ -613,7 +558,6 @@ export default function Candidatura({ vagas, candidato_id }) {
                                 <h2 className="text-xl font-bold text-gray-800">
                                     {etapa === 'cpf' && 'Identificação'}
                                     {etapa === 'verificacao' && 'Verificação por WhatsApp'}
-                                    {etapa === 'verificacao_alternativa' && 'Verificação de Identidade'}
                                     {etapa === 'formulario' && 'Cadastro de Candidato'}
                                     {etapa === 'questionario' && 'Questionário da Vaga'}
                                     {etapa === 'entrevista' && 'Agendar Entrevista'}
@@ -630,7 +574,7 @@ export default function Candidatura({ vagas, candidato_id }) {
 
                         <div className="px-6 pt-4 pb-2">
                             <div className="flex items-center gap-2 text-xs text-gray-400">
-                                <span className={`px-2.5 py-1 rounded-full font-semibold ${etapa === 'cpf' || etapa === 'verificacao' || etapa === 'verificacao_alternativa' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>1. CPF</span>
+                                <span className={`px-2.5 py-1 rounded-full font-semibold ${etapa === 'cpf' || etapa === 'verificacao' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>1. CPF</span>
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
                                 <span className={`px-2.5 py-1 rounded-full font-semibold ${etapa === 'formulario' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>2. Cadastro</span>
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
@@ -756,107 +700,7 @@ export default function Candidatura({ vagas, candidato_id }) {
                             </div>
                         )}
 
-                        {etapa === 'verificacao_alternativa' && (
-                            <div className="p-6">
-                                {subetapaAlt === 'opcoes' && (
-                                    <div className="text-center">
-                                        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-base font-bold text-gray-900 mb-2">Como deseja confirmar sua identidade?</h3>
-                                        <p className="text-sm text-gray-500 mb-8">Escolha uma opção para verificar que você é o titular deste CPF.</p>
-                                        <div className="max-w-sm mx-auto flex flex-col gap-3 text-left">
-                                            <button
-                                                type="button"
-                                                onClick={() => setSubetapaAlt('nascimento')}
-                                                className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/40 transition-all cursor-pointer"
-                                            >
-                                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-gray-800">Data de nascimento</p>
-                                                    <p className="text-xs text-gray-500">Confirme a data cadastrada anteriormente</p>
-                                                </div>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={confirmarEnvioEmail}
-                                                disabled={enviandoEmail}
-                                                className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/40 transition-all cursor-pointer disabled:opacity-50 text-left w-full"
-                                            >
-                                                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                                                    <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-gray-800">
-                                                        {enviandoEmail ? 'Enviando...' : 'Código por e-mail'}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">Receba um código no seu e-mail cadastrado</p>
-                                                </div>
-                                            </button>
-                                        </div>
-                                        <p className="text-center mt-6">
-                                            <button
-                                                type="button"
-                                                onClick={() => setEtapa('cpf')}
-                                                className="text-xs text-gray-400 hover:text-gray-600 underline cursor-pointer"
-                                            >
-                                                Voltar
-                                            </button>
-                                        </p>
-                                    </div>
-                                )}
 
-                                {subetapaAlt === 'nascimento' && (
-                                    <>
-                                        <div className="text-center mb-6">
-                                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <h3 className="text-base font-bold text-gray-900 mb-1">Confirme sua data de nascimento</h3>
-                                            <p className="text-sm text-gray-500">Informe a data de nascimento cadastrada anteriormente.</p>
-                                        </div>
-                                        <div className="max-w-xs mx-auto">
-                                            <label className={labelClasses}>Data de Nascimento</label>
-                                            <input
-                                                type="date"
-                                                value={nascimentoInput}
-                                                onChange={e => { setNascimentoInput(e.target.value); setErroNascimento(''); }}
-                                                className={inputClasses}
-                                                max={new Date().toISOString().split('T')[0]}
-                                            />
-                                            {erroNascimento && <p className="text-red-500 text-sm text-center mt-2 font-medium">{erroNascimento}</p>}
-                                        </div>
-                                        <div className="flex justify-center gap-3 mt-6">
-                                            <button
-                                                type="button"
-                                                onClick={() => setSubetapaAlt('opcoes')}
-                                                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                                            >
-                                                Voltar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={verificarNascimento}
-                                                disabled={!nascimentoInput || verificandoNascimento}
-                                                className="inline-flex justify-center items-center gap-2 py-2.5 px-8 shadow-sm text-sm font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
-                                            >
-                                                {verificandoNascimento ? 'Verificando...' : 'Confirmar'}
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
 
                         {etapa === 'formulario' && (
                             <form onSubmit={submitFormulario} encType="multipart/form-data">
