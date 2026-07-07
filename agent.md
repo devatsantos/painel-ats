@@ -218,3 +218,10 @@ APP_ENV=production (prod) | APP_DEBUG=false (prod)
 | `WhatsAppService` | Envio de mensagens via Evolution API |
 | `AgendaService` | Cálculo de slots e importação de feriados (FeriadosAPI) |
 | `PortalAtSantosService` | Integração com Portal AT Santos externo |
+
+## 19. Filas e Jobs (Queue)
+- **Driver:** O painel utiliza banco de dados para a fila (`QUEUE_CONNECTION=database` no `.env`).
+- **Jobs pendentes:** Armazenados na tabela `jobs` (consultável via banco ou `php artisan tinker` com `DB::table('jobs')->get()`).
+- **Jobs falhos:** Armazenados na tabela `failed_jobs` (consultável via banco ou comando `php artisan queue:failed`).
+- **Monitoramento:** Use o comando `php artisan queue:monitor database:default` para ver a quantidade de itens aguardando na fila.
+- **Processamento:** Os jobs devem ser executados de forma contínua usando `php artisan queue:work`.
