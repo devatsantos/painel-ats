@@ -660,7 +660,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
 
                 {/* Modal agendar entrevista */}
                 {modalEntrevista && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={fecharModalEntrevista}>
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                         <div className="ds-modal-panel max-w-md flex flex-col" onClick={e => e.stopPropagation()}>
                             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
                                 <div>
@@ -771,7 +771,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
 
                 {/* Modal de cadastro/edição de candidato */}
                 {isModalOpen && (
-                    <div className="ds-modal-overlay" onClick={closeModal}>
+                    <div className="ds-modal-overlay">
                         <div className="ds-modal-panel max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                             
                             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">

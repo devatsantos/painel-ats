@@ -550,7 +550,7 @@ export default function Candidatura({ vagas, candidato_id }) {
             </main>
 
             {modalAberto && vagaSelecionada && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={fecharModal}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 
                         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100">
@@ -1025,7 +1025,7 @@ export default function Candidatura({ vagas, candidato_id }) {
 
             {/* Modal de confirmação de envio de código WhatsApp */}
             {modalConfirmacaoTelefone && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={recusarEnvioWhatsApp}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="p-6">
                             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-50 mx-auto mb-4">

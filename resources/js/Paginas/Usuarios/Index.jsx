@@ -198,7 +198,7 @@ export default function Usuarios({usuarios}) {
             </div>
 
             {modalCriar && (
-                <div className="ds-modal-overlay" onClick={closeModal}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-lg max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">

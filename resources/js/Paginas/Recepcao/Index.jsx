@@ -565,7 +565,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
 
             {/* ── Modal Novo/Editar Visitante ── */}
             {modalAberto && (
-                <div className="ds-modal-overlay" onClick={fecharModal}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-2xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="ds-modal-header shrink-0">
@@ -744,7 +744,7 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
 
             {/* ── Modal Confirmar Exclusão ── */}
             {confirmDelete && (
-                <div className="ds-modal-overlay" onClick={() => setConfirmDelete(null)}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-sm p-6 text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

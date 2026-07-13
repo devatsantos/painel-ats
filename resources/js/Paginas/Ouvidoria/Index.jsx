@@ -173,7 +173,7 @@ export default function Index({ ouvidorias }) {
 
             {/* Modal de Detalhes do Relato */}
             {selectedOuvidoria && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedOuvidoria(null)}>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="ds-modal-panel max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
                         
                         {/* Header Modal */}

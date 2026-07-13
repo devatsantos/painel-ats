@@ -146,7 +146,7 @@ export default function Formularios({ formulariosCadastrados = [] }) {
             </div>
 
             {modalCriar && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setModalCriar(false)}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
                     <form onSubmit={handleSubmit} className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex-shrink-0 flex justify-between items-center px-6 py-5 border-b border-gray-100">

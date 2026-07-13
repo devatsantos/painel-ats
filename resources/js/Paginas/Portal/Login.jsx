@@ -338,7 +338,7 @@ export default function PortalLogin() {
 
             {/* Modal confirmação WhatsApp */}
             {modalConfirmacao && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setModalConfirmacao(false)}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="p-6">
                             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-50 mx-auto mb-4">

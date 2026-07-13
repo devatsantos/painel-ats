@@ -678,7 +678,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
             )}
 
             {modalResultado && (
-                <div className="ds-modal-overlay" onClick={fecharResultado}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-md max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div>
@@ -750,7 +750,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
             )}
 
             {modalAdiar && (
-                <div className="ds-modal-overlay" onClick={fecharAdiar}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div>

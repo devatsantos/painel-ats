@@ -380,7 +380,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             </div>
 
             {modalVaga && (
-                <div className="ds-modal-overlay" onClick={() => setModalVaga(null)}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-2xl mx-4 max-h-[85vh] overflow-y-auto ds-scrollbar" onClick={(e) => e.stopPropagation()}>
                         
                         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100">
@@ -486,7 +486,7 @@ export default function Vagas({vagas, formularios, recrutadores}) {
             )}
 
             {(vagaEditando || novaVaga) && (
-                <div className="ds-modal-overlay" onClick={closeModalEdit}>
+                <div className="ds-modal-overlay">
                     <div className="ds-modal-panel max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
 
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
