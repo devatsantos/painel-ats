@@ -13,6 +13,14 @@ use Carbon\Carbon;
 
 class RelatoriosController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Acesso restrito a administradores e coordenadores.');
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         // 1. Métricas Gerais
