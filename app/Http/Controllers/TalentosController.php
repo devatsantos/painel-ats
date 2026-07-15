@@ -98,7 +98,7 @@ class TalentosController extends Controller
         ]);
         $path = null;
         if ($request->hasFile('curriculo')) {
-            $path = $request->file('curriculo')->store('curriculos', 'public');
+            $path = $request->file('curriculo')->store('curriculos', 'private');
         }
 
         Candidatos::create([

@@ -185,11 +185,13 @@ class CandidaturaApiController extends Controller
                 $emailMascarado = $maskedName . '@' . $domain;
             }
 
+            // SEC-01: Retorna APENAS dados mascarados e o nome para confirmação.
+            // Nunca expor email/telefone/endereço reais em rota pública.
             return response()->json([
                 'status' => 'exists',
                 'telefone_mascarado' => $telefoneMascarado,
                 'email_mascarado' => $emailMascarado,
-                'candidato' => $candidato->only(array_diff(self::CAMPOS_PUBLICOS, ['cpf'])),
+                'candidato' => $candidato->only(['nome']),
             ]);
         }
 
@@ -407,7 +409,7 @@ class CandidaturaApiController extends Controller
 
         try {
             if ($request->hasFile('path_curriculo')) {
-                $path = $request->file('path_curriculo')->store('curriculos', 'public');
+                $path = $request->file('path_curriculo')->store('curriculos', 'private');
                 $validated['path_curriculo'] = $path;
             } else {
                 unset($validated['path_curriculo']);
@@ -676,7 +678,8 @@ class CandidaturaApiController extends Controller
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             return response()->json(['error' => 'Horário indisponível', 'message' => 'Este horário acabou de ser reservado por outro candidato.'], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Erro interno', 'message' => $e->getMessage()], 500);
+            Log::error('Erro ao agendar entrevista via API.', ['erro' => $e->getMessage()]);
+            return response()->json(['error' => 'Erro interno', 'message' => 'Ocorreu um erro ao agendar a entrevista. Tente novamente.'], 500);
         }
     }
 
@@ -717,7 +720,7 @@ class CandidaturaApiController extends Controller
 
         $path = null;
         if ($request->hasFile('curriculo')) {
-            $path = $request->file('curriculo')->store('curriculos', 'public');
+            $path = $request->file('curriculo')->store('curriculos', 'private');
         }
 
         $candidato = Candidatos::create([
@@ -739,7 +742,7 @@ class CandidaturaApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Perfil cadastrado com sucesso no Banco de Talentos!',
-            'candidato' => $candidato
+            'candidato' => $candidato->only(self::CAMPOS_PUBLICOS),
         ], 200);
     }
 

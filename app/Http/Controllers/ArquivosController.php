@@ -35,15 +35,29 @@ class ArquivosController extends Controller
 
         // 2. Verifica se o usuário está autenticado em algum dos guards permitidos
         $autenticado = false;
+        $guardUsado = null;
         foreach ($guards as $guard) {
-            if (auth()->guard(trim($guard))->check()) {
+            $guard = trim($guard);
+            if (auth()->guard($guard)->check()) {
                 $autenticado = true;
+                $guardUsado = $guard;
                 break;
             }
         }
 
         if (!$autenticado) {
             abort(403, 'Acesso não autorizado.');
+        }
+
+        // SEC-03: Candidatos só podem baixar seu próprio currículo (previne IDOR/BOLA).
+        // Staff (guard 'web') tem acesso irrestrito a todos os arquivos.
+        if ($guardUsado === 'candidato' && $tipo === 'curriculos') {
+            $candidato = auth()->guard('candidato')->user();
+            $curriculoDono = $candidato->path_curriculo ? basename($candidato->path_curriculo) : null;
+
+            if ($filename !== $curriculoDono) {
+                abort(403, 'Acesso negado: você só pode baixar seu próprio currículo.');
+            }
         }
 
         // 3. Sanitiza o nome do arquivo — impede path traversal (../../)
