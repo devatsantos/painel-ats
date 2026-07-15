@@ -10,12 +10,12 @@ use App\Models\User;
 class UsuariosController extends Controller
 {
     public function index() {
-        abort_unless(auth()->user()->role === 'admin', 403);
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403);
         $usuarios = User::orderBy('nome')->paginate(20);
         return Inertia::render('Usuarios/Index', ['usuarios' => $usuarios]);
     }
     public function store(Request $request) {
-        abort_unless(auth()->user()->role === 'admin', 403);
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403);
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'cpf' => 'required|string|max:14|unique:users,cpf',
@@ -33,12 +33,12 @@ class UsuariosController extends Controller
         return redirect()->route('Usuarios');
     }
     public function delete(User $usuario) {
-        abort_unless(auth()->user()->role === 'admin', 403);
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403);
         $usuario->delete();
         return redirect()->route('Usuarios')->with('success', 'Usuário deletado com sucesso.');
     }
     public function update(Request $request, User $usuario) {
-        abort_unless(auth()->user()->role === 'admin', 403);
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403);
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'cpf' => 'required|string|max:14|unique:users,cpf,' . $usuario->id,
