@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class OuvidoriaApiController extends Controller
 {
     /**
-     * Store a new Ouvidoria report in the database and send an email to marketing@atsantos.com.br.
+     * Store a new Ouvidoria report in the database and send an email to ouvidoria@atsantos.com.br.
      */
     public function store(Request $request)
     {
@@ -55,7 +55,7 @@ class OuvidoriaApiController extends Controller
         ]);
 
         // Prepara o corpo do e-mail
-        $emailBody = "Novo Relato da Ouvidoria Recebido (TESTE):\n\n";
+        $emailBody = "Novo Relato da Ouvidoria Recebido:\n\n";
         $emailBody .= "Tipo de Manifestação: " . $tipo . "\n";
         $emailBody .= "Identificação: " . ($anonimo ? "Anônimo" : "Identificado") . "\n";
         
@@ -73,8 +73,8 @@ class OuvidoriaApiController extends Controller
 
         try {
             Mail::raw($emailBody, function ($message) use ($tipo, $fotoAbsPath) {
-                $message->to('marketing@atsantos.com.br')
-                    ->subject("TESTE - Relato Ouvidoria: " . $tipo);
+                $message->to('ouvidoria@atsantos.com.br')
+                    ->subject("Relato Ouvidoria: " . $tipo);
                 if ($fotoAbsPath && file_exists($fotoAbsPath)) {
                     $message->attach($fotoAbsPath);
                 }

@@ -38,7 +38,7 @@ class OrcamentoApiController extends Controller
         }
 
         // Prepara o corpo do email
-        $body = "Nova solicitação de orçamento recebida (TESTE):\n\n";
+        $body = "Nova solicitação de orçamento recebida:\n\n";
         $body .= "Nome do Representante: " . $validated['nome_representante'] . "\n";
         $body .= "Email: " . $validated['email'] . "\n";
         $body .= "Telefone: " . $validated['telefone'] . "\n";
@@ -55,8 +55,8 @@ class OrcamentoApiController extends Controller
 
         try {
             Mail::raw($body, function ($message) use ($validated, $anexoPath) {
-                $message->to('marketing@atsantos.com.br')
-                    ->subject("TESTE - Solicitação de Orçamento - " . $validated['empresa']);
+                $message->to('licitacao@atsantos.com.br')
+                    ->subject("Solicitação de Orçamento - " . $validated['empresa']);
                 if ($anexoPath && file_exists($anexoPath)) {
                     $message->attach($anexoPath);
                 }

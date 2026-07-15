@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class RequisicaoDadosApiController extends Controller
 {
     /**
-     * Registra uma requisição de titular de dados (LGPD) e envia e-mail ao DPO/marketing.
+     * Registra uma requisição de titular de dados (LGPD) e envia e-mail à ouvidoria.
      */
     public function store(Request $request)
     {
@@ -23,7 +23,7 @@ class RequisicaoDadosApiController extends Controller
             'mensagem'        => 'required|string|max:3000',
         ]);
 
-        $body  = "Nova Requisição de Titular de Dados (LGPD) - TESTE:\n\n";
+        $body  = "Nova Requisição de Titular de Dados (LGPD):\n\n";
         $body .= "Tipo de Requisição: " . $validated['tipo_requisicao'] . "\n\n";
         $body .= "--- Identificação do Titular ---\n";
         $body .= "Nome: "              . $validated['nome']            . "\n";
@@ -35,8 +35,8 @@ class RequisicaoDadosApiController extends Controller
 
         try {
             Mail::raw($body, function ($message) use ($validated) {
-                $message->to('marketing@atsantos.com.br')
-                    ->subject("TESTE - Requisição LGPD: " . $validated['tipo_requisicao'] . " — " . $validated['nome']);
+                $message->to('ouvidoria@atsantos.com.br')
+                    ->subject("Requisição LGPD: " . $validated['tipo_requisicao'] . " — " . $validated['nome']);
             });
             Log::info('[LGPD] E-mail enviado com sucesso.', ['cpf' => substr($validated['cpf'], 0, 7) . '***', 'tipo' => $validated['tipo_requisicao']]);
         } catch (\Exception $e) {
