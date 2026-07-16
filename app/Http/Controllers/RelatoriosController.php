@@ -181,6 +181,7 @@ class RelatoriosController extends Controller
      */
     public function funil()
     {
+        $this->autorizarAcesso();
         $totalCandidaturas = CandidatoVaga::count();
         $totalTriados = CandidatoVaga::whereIn('status', ['selecionado', 'marcada', 'contratado'])->count();
         $totalEntrevistados = Entrevista::distinct('candidato_vaga_id')->count('candidato_vaga_id');
@@ -264,6 +265,7 @@ class RelatoriosController extends Controller
      */
     public function timeToHire()
     {
+        $this->autorizarAcesso();
         $tempoMedioGeral = CandidatoVaga::where('status', 'contratado')
             ->selectRaw('AVG(DATEDIFF(updated_at, created_at)) as avg_days')
             ->value('avg_days');
@@ -395,6 +397,7 @@ class RelatoriosController extends Controller
      */
     public function volume()
     {
+        $this->autorizarAcesso();
         $vagasAbertas = Vagas::where('ativo', true)->count();
         $candidatosAtivos = CandidatoVaga::whereIn('status', ['marcada', 'selecionado'])->count();
         $ratioMedio = $vagasAbertas > 0 ? round($candidatosAtivos / $vagasAbertas, 1) : 0;
@@ -458,6 +461,7 @@ class RelatoriosController extends Controller
      */
     public function performance()
     {
+        $this->autorizarAcesso();
         $mesAtual = now()->month;
         $anoAtual = now()->year;
 
