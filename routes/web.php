@@ -41,7 +41,7 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 // Acessível a qualquer usuário autenticado (staff ou candidato)
 Route::get('/arquivos/{tipo}/{filename}', [App\Http\Controllers\ArquivosController::class, 'serve'])
     ->name('arquivos.serve')
-    ->where('filename', '[^/]+'); // impede path traversal com segmentos adicionais
+    ->where('filename', '.+');
 
 
 // Portal do Candidato — Login (rota pública)

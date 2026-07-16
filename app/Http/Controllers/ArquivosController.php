@@ -53,15 +53,19 @@ class ArquivosController extends Controller
         // Staff (guard 'web') tem acesso irrestrito a todos os arquivos.
         if ($guardUsado === 'candidato' && $tipo === 'curriculos') {
             $candidato = auth()->guard('candidato')->user();
-            $curriculoDono = $candidato->path_curriculo ? basename($candidato->path_curriculo) : null;
+            // Compara o path completo (ex: curriculos/abc.pdf → remove o prefixo 'curriculos/')
+            $curriculoPath = $candidato->path_curriculo ?? null;
+            $expectedFilename = $curriculoPath ? preg_replace('#^curriculos/#', '', $curriculoPath) : null;
 
-            if ($filename !== $curriculoDono) {
+            if ($filename !== $expectedFilename) {
                 abort(403, 'Acesso negado: você só pode baixar seu próprio currículo.');
             }
         }
 
-        // 3. Sanitiza o nome do arquivo — impede path traversal (../../)
-        $filename = basename($filename);
+        // 3. Sanitiza o path — impede path traversal (../../) mas preserva subdiretórios legítimos
+        $filename = str_replace('..', '', $filename);
+        $filename = preg_replace('#/+#', '/', $filename); // remove barras duplicadas
+        $filename = trim($filename, '/');
         $path     = "{$tipo}/{$filename}";
         $disco    = $config['disco'];
 
@@ -79,9 +83,9 @@ class ArquivosController extends Controller
         // 4. Detecta o MIME type e entrega o arquivo via stream
         $mimeType = Storage::disk($disco)->mimeType($path);
 
-        return Storage::disk($disco)->response($path, $filename, [
+        return Storage::disk($disco)->response($path, basename($filename), [
             'Content-Type'        => $mimeType,
-            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Content-Disposition' => 'inline; filename="' . basename($filename) . '"',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
