@@ -13,16 +13,17 @@ use Carbon\Carbon;
 
 class RelatoriosController extends Controller
 {
-    public function __construct()
+    /**
+     * Verifica se o usuário tem permissão para acessar relatórios.
+     */
+    private function autorizarAcesso(): void
     {
-        $this->middleware(function ($request, $next) {
-            abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Acesso restrito a administradores e coordenadores.');
-            return $next($request);
-        });
+        abort_unless(in_array(auth()->user()->role, ['admin', 'coordenador']), 403, 'Acesso restrito a administradores e coordenadores.');
     }
 
     public function index()
     {
+        $this->autorizarAcesso();
         // 1. Métricas Gerais
         $totalCandidaturas = CandidatoVaga::count();
 
