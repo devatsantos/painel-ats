@@ -63,15 +63,23 @@ class ArquivosController extends Controller
         // 3. Sanitiza o nome do arquivo — impede path traversal (../../)
         $filename = basename($filename);
         $path     = "{$tipo}/{$filename}";
+        $disco    = $config['disco'];
 
-        if (!Storage::disk('private')->exists($path)) {
-            abort(404, 'Arquivo não encontrado.');
+        // Fallback: arquivos antigos podem estar no disco 'public' (migração gradual)
+        if (!Storage::disk($disco)->exists($path)) {
+            $discoFallback = $disco === 'private' ? 'public' : null;
+
+            if ($discoFallback && Storage::disk($discoFallback)->exists($path)) {
+                $disco = $discoFallback;
+            } else {
+                abort(404, 'Arquivo não encontrado.');
+            }
         }
 
         // 4. Detecta o MIME type e entrega o arquivo via stream
-        $mimeType = Storage::disk('private')->mimeType($path);
+        $mimeType = Storage::disk($disco)->mimeType($path);
 
-        return Storage::disk('private')->response($path, $filename, [
+        return Storage::disk($disco)->response($path, $filename, [
             'Content-Type'        => $mimeType,
             'Content-Disposition' => 'inline; filename="' . $filename . '"',
             'X-Content-Type-Options' => 'nosniff',
