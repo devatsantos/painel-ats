@@ -600,8 +600,8 @@ class CandidatosController extends Controller
                 'data'      => $dataFormatada,
                 'horario'   => $horaFormatada,
                 'tipo'      => $request->tipo,
-                'endereco'  => $request->tipo === 'presencial'
-                    ? "\n📌 Endereço: " . config('app.empresa_endereco', 'Alameda Santos, 647 — 15° Andar, São Paulo, SP')
+                'endereco'  => strtolower($request->tipo) === 'presencial'
+                    ? "\n📌 Endereço: " . config('app.empresa_endereco')
                     : '',
             ]);
 
