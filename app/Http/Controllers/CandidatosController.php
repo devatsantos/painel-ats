@@ -359,7 +359,7 @@ class CandidatosController extends Controller
 
         try {
             if ($request->hasFile('path_curriculo')) {
-                $path = $request->file('path_curriculo')->store('curriculos', 'public');
+                $path = $request->file('path_curriculo')->store('curriculos', 'private');
                 $validated['path_curriculo'] = $path;
             } else {
                 unset($validated['path_curriculo']);

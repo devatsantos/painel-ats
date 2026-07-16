@@ -575,7 +575,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                     <div className="border-t border-gray-100 px-6 py-3.5 bg-gray-50/50 flex items-center justify-between text-xs font-semibold text-gray-550 shrink-0">
                                         {candidato.path_curriculo ? (
                                             <a
-                                                href={`/storage/${candidato.path_curriculo}`}
+                                                href={`/arquivos/${candidato.path_curriculo}`}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1.5"

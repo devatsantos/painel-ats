@@ -406,7 +406,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                         <div className="flex items-center gap-2">
                                             {candidato.path_curriculo && (
                                                 <a
-                                                    href={`/storage/${candidato.path_curriculo}`}
+                                                    href={`/arquivos/${candidato.path_curriculo}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="ds-btn ds-btn-ghost text-[#0C4773] text-sm px-3 py-2 hover:bg-[#0C4773]/5"
@@ -643,7 +643,7 @@ export default function Entrevistas({ candidatos, vagas = [], filters = {} }) {
                                     <div className="px-6 py-4">
                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Currículo</p>
                                         <a
-                                            href={`/storage/${modalCandidato.path_curriculo}`}
+                                            href={`/arquivos/${modalCandidato.path_curriculo}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2.5 px-4 py-3 bg-[#0C4773]/5 border border-[#0C4773]/15 text-[#0C4773] rounded-xl text-sm font-semibold hover:bg-[#0C4773]/10 transition-colors w-full"
