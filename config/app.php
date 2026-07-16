@@ -129,6 +129,6 @@ return [
     |--------------------------------------------------------------------------
     | Utilizado em mensagens WhatsApp de entrevistas presenciais.
     */
-    'empresa_endereco' => env('EMPRESA_ENDERECO', 'Alameda Santos, 647 — 15° Andar, São Paulo, SP, 01419-001'),
+    'empresa_endereco' => env('EMPRESA_ENDERECO', 'Alameda Santos, 647 — 15° Andar, São Paulo, SP, 01419-001(Próximo a estação de Metrô Brigadeiro'),
 
 ];
