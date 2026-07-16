@@ -12,6 +12,9 @@ class VagasController extends Controller
 {
     public function index() {
         $vagas = Vagas::with('recrutador:id,nome')
+            ->withCount(['candidatosVaga as contratados_count' => function ($q) {
+                $q->where('status', 'contratado');
+            }])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         $formularios = Formulario::all();

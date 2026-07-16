@@ -277,6 +277,23 @@ export default function Vagas({vagas, formularios, recrutadores}) {
                                                     🔒 Vaga Interna
                                                 </span>
                                             ) : null}
+                                            {vaga.quantidade_vagas && (
+                                                (() => {
+                                                    const disponiveis = Math.max(0, (vaga.quantidade_vagas || 1) - (vaga.contratados_count || 0));
+                                                    return (
+                                                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                                                            disponiveis > 0
+                                                                ? 'bg-sky-50 border border-sky-200 text-sky-700'
+                                                                : 'bg-red-50 border border-red-200 text-red-600'
+                                                        }`}>
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            </svg>
+                                                            {disponiveis}/{vaga.quantidade_vagas} {disponiveis === 1 ? 'posição' : 'posições'}
+                                                        </span>
+                                                    );
+                                                })()
+                                            )}
                                         </div>
                                     </div>
                                 </div>

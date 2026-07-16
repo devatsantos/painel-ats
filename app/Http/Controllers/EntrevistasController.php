@@ -165,6 +165,23 @@ class EntrevistasController extends Controller
                     'candidato_vaga_id' => $entrevista->candidatoVaga->id ?? null,
                 ]);
             }
+
+            // Desativa a vaga automaticamente quando todas as posições forem preenchidas
+            if ($vaga && $vaga->quantidade_vagas) {
+                $totalContratados = \App\Models\CandidatoVaga::where('vaga_id', $vaga->id)
+                    ->where('status', 'contratado')
+                    ->count();
+
+                if ($totalContratados >= $vaga->quantidade_vagas) {
+                    $vaga->update(['ativo' => false]);
+
+                    Log::info('Vaga desativada automaticamente: todas as posições foram preenchidas.', [
+                        'vaga_id'           => $vaga->id,
+                        'quantidade_vagas'  => $vaga->quantidade_vagas,
+                        'total_contratados' => $totalContratados,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('Entrevistas')->with('success', 'Resultado registrado com sucesso.');
