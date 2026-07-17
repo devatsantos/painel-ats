@@ -31,6 +31,20 @@ const ESCOLARIDADE_LABELS = {
     doutorado:              'Doutorado',
 };
 
+const ESPECIALIDADE_LABELS = {
+    'analista':              'Analista de Atendimento Comercial',
+    'auxiliar-limpeza':      'Auxiliar de Limpeza',
+    'bombeiro-civil':        'Bombeiro Civil',
+    'controlador-acesso':    'Controlador de Acesso',
+    'encarregado-planejador': 'Encarregado / Planejador',
+    'faxineiro':             'Faxineiro',
+    'porteiro':              'Porteiro',
+    'recepcionista':         'Recepcionista',
+    'supervisor':            'Supervisor de Operações',
+    'vigilante':             'Vigilante',
+    'zelador':               'Zelador',
+};
+
 export default function CandidatosIndex({ talentos, vagas, totalCandidatos, totalBancoTalentos, totalComEntrevista, regioes = [], filtros = {} }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -516,7 +530,7 @@ export default function CandidatosIndex({ talentos, vagas, totalCandidatos, tota
                                                 </div>
                                                 <p className="text-xs text-[#0C4773] font-semibold mt-0.5">
                                                     {ESCOLARIDADE_LABELS[candidato.nivel_escolaridade] || candidato.nivel_escolaridade}
-                                                    {candidato.especialidade && ` · ${candidato.especialidade}`}
+                                                    {candidato.especialidade && ` · ${ESPECIALIDADE_LABELS[candidato.especialidade] || candidato.especialidade}`}
                                                 </p>
                                             </div>
                                         </div>
