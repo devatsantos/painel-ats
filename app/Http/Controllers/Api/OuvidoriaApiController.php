@@ -22,7 +22,7 @@ class OuvidoriaApiController extends Controller
             'telefone' => 'nullable|string|max:20',
             'tipo' => 'required|string|max:100',
             'mensagem' => 'required|string',
-            'foto' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'foto' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
             'anonimo' => 'nullable',
         ]);
 
