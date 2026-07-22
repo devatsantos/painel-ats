@@ -56,7 +56,7 @@ class MensagensWhatsAppController extends Controller
     {
         $request->validate([
             'chave'    => 'required|string',
-            'conteudo' => 'required|string',
+            'conteudo' => 'required|string|max:2000',
         ]);
 
         $dadosExemplo = [

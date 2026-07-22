@@ -524,7 +524,11 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                     </div>
 
                                                     <div className="shrink-0">
-                                                        {['marcada', 'selecionado'].includes(ent.status) ? (
+                                                        {ent.chegou ? (
+                                                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100/50 px-2 py-1.5 rounded-lg">
+                                                                ✓ Chegou
+                                                            </span>
+                                                        ) : ['marcada', 'selecionado'].includes(ent.status) ? (
                                                             <button
                                                                 onClick={() => {
                                                                     if (confirm(`Registrar que ${ent.candidato_nome} chegou para a entrevista?`)) {
@@ -538,8 +542,8 @@ export default function Recepcao({ registros, filtros, metricas, entrevistas_pre
                                                                 Chegou
                                                             </button>
                                                         ) : (
-                                                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100/50 px-2 py-1.5 rounded-lg">
-                                                                ✓ Chegou
+                                                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg border ${st.cls}`}>
+                                                                {st.label}
                                                             </span>
                                                         )}
                                                     </div>

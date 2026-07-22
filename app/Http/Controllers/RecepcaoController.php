@@ -69,15 +69,24 @@ class RecepcaoController extends Controller
             ->whereDate('data_hora', $dataFiltro)
             ->orderBy('data_hora', 'asc')
             ->get()
-            ->map(function ($e) {
+            ->map(function ($e) use ($dataFiltro) {
+                $candidatoNome = $e->candidatoVaga?->candidato?->nome;
+                $chegou = false;
+                if ($candidatoNome) {
+                    $chegou = Recepcao::where('nome', $candidatoNome)
+                        ->whereDate('horario_entrada', $dataFiltro)
+                        ->exists();
+                }
+
                 return [
                     'id'                => $e->id,
                     'data_hora'         => $e->data_hora,
-                    'candidato_nome'    => $e->candidatoVaga?->candidato?->nome ?? '—',
+                    'candidato_nome'    => $candidatoNome ?? '—',
                     'candidato_telefone'=> $e->candidatoVaga?->candidato?->telefone ?? '',
                     'vaga_titulo'       => $e->candidatoVaga?->vaga?->titulo ?? '—',
                     'entrevistador'     => $e->user?->nome ?? '—',
                     'status'            => $e->candidatoVaga?->status ?? '—',
+                    'chegou'            => $chegou,
                 ];
             });
 
